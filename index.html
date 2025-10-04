@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Inserimento Timesheet Veloce</title>
+  
+  <link rel="manifest" href="manifest.json">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <style>
+    /* 🚨 RESET GLOBALE AGGRESSIVO PER PWA 🚨 */
+    /* Resetta l'intero sistema di box model per massimizzare la responsività */
+    * {
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    body { 
+      font-family: sans-serif; 
+      background-color: #f4f7f6; 
+      
+      /* Forza l'occupazione completa dello spazio disponibile */
+      margin: 0 !important; 
+      padding: 0 !important; 
+      width: 100% !important; 
+      min-width: 320px;
+      overflow-x: hidden !important;
+    }
+    
+    /* Contenitore principale del form (centrato) */
+    .form-container {
+        padding: 10px; /* Padding esterno del container */
+        width: 100%;
+    }
+    
+    form { 
+      background: #fff; 
+      padding: 20px !important; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+      max-width: 600px; /* Limite per desktop */
+      margin: 0 auto !important; /* Centratura */
+      width: 100% !important; 
+    }
+    
+    /* Intestazione e Label */
+    h1 { color: #007bff; text-align: center; margin-bottom: 25px !important; font-size: 1.8em; padding-top: 20px !important; }
+    label { display: block; margin-top: 15px !important; margin-bottom: 5px !important; font-weight: bold; color: #333; }
+    
+    /* Input e Select Generici */
+    input[type="date"], input[type="time"], input[type="text"], textarea, select {
+      width: 100% !important;
+      padding: 12px !important;
+      margin-bottom: 10px !important;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box !important; 
+      font-size: 16px;
+      appearance: none; 
+    }
+    
+    .time-group {
+      display: flex;
+      gap: 15px;
+    }
+    .time-group > div {
+      flex: 1;
+    }
+    
+    /* Pulsante Submit */
+    input[type="submit"] {
+      background-color: #28a745; 
+      color: white;
+      padding: 15px 20px !important;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100% !important;
+      font-size: 18px;
+      margin-top: 20px !important;
+    }
+    input[type="submit"]:hover {
+      background-color: #1e7e34;
+    }
+    
+    /* Checkbox */
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-top: 20px !important;
+      padding: 10px 0 !important;
+      border-top: 1px solid #eee;
+    }
+    .checkbox-container input[type="checkbox"] {
+      width: auto !important;
+      margin-right: 10px !important;
+      height: 18px;
+      width: 18px;
+    }
+    .checkbox-container label {
+      margin: 0 !important;
+      font-weight: normal;
+      cursor: pointer;
+    }
+    
+    /* Responsive adjustment per schermi molto piccoli */
+    @media (max-width: 480px) {
+      .time-group {
+        flex-direction: column;
+        gap: 0;
+      }
+      form {
+        padding: 15px !important;
+      }
+    }
+  </style>
+  <script>
+    // Queste variabili sono normalmente passate da Apps Script (tramite doGet).
+    // Siccome ora l'HTML è esterno, le definiamo come array vuoti. 
+    // AGGIORNAMENTO: Per riempire i <select> e la <datalist> (clienti) con dati reali,
+    // dovrai usare una chiamata AJAX a una funzione di Apps Script separata (non doGet)
+    // che restituisce i dati in formato JSON. 
+    // Per ora, le lasciamo vuote affinché l'interfaccia si carichi correttamente.
+    const clients = []; 
+    const config = {
+        tipoIntervento: ["Assistenza Tecnica", "Consulenza", "Formazione"],
+        modEsecuzione: ["Remoto", "On-site", "Telefonica"],
+        modAddebito: ["A consumo", "Incluso nel Canone", "Pacchetto Ore"]
+    };
+
+    window.onload = function() {
+      // Imposta la data di oggi
+      const today = new Date().toISOString().substring(0, 10);
+      document.getElementById('date').value = today;
+
+      // Logica per nascondere l'opzione di default al click su tutti i <select>
+      document.querySelectorAll('select').forEach(select => {
+        const defaultOption = select.querySelector('option[value=""]');
+        if (defaultOption) {
+          select.addEventListener('focus', function() {
+            defaultOption.style.display = 'none';
+          });
+          select.addEventListener('blur', function() {
+            if (this.value === '') {
+              defaultOption.style.display = 'block';
+            }
+          });
+        }
+      });
+      
+      // LOGICA POST-SUBMIT: Mostra il messaggio di successo senza ricaricare la pagina
+      document.getElementById('timesheet-form').addEventListener('submit', function(event) {
+          // Impedisce l'invio standard del form per vedere il risultato
+          event.preventDefault(); 
+          
+          const form = event.target;
+          const formData = new FormData(form);
+          
+          // Mostra messaggio "In attesa"
+          const submitButton = document.getElementById('submit-btn');
+          const originalValue = submitButton.value;
+          submitButton.value = "Invio in corso...";
+          submitButton.disabled = true;
+
+          fetch(form.action, {
+              method: 'POST',
+              body: new URLSearchParams(formData)
+          })
+          .then(response => {
+              // Apps Script restituisce un reindirizzamento (codice 302) che l'iFrame 
+              // gestiva. Con la PWA, il fetch ha successo. 
+              // Se Apps Script reindirizza correttamente, il PRG funziona.
+              // Altrimenti, forziamo il messaggio di successo.
+              
+              // Per semplicità, ipotizziamo il successo se la risposta è ok.
+              if (response.ok || response.redirected) {
+                  // Reindirizza manualmente alla pagina di successo, come farebbe il PRG.
+                  // Siccome Apps Script gestirà il messaggio di successo sul suo lato,
+                  // l'utente vedrà la pagina di conferma fornita da Apps Script.
+                  window.top.location.href = response.url || form.action + '?status=success';
+              } else {
+                  // Fallback per errore
+                  alert('Si è verificato un errore durante l\'invio. Riprova.');
+              }
+          })
+          .catch(error => {
+              console.error('Errore:', error);
+              alert('Si è verificato un errore di rete o di script.');
+          })
+          .finally(() => {
+              submitButton.value = originalValue;
+              submitButton.disabled = false;
+          });
+      });
+    };
+  </script>
+</head>
+<body>
+<div class="form-container">
+  <h1>Timesheet Giornaliero</h1>
+  
+  <form id="timesheet-form" method="POST" action="[IL TUO URL DI ESECUZIONE /EXEC]" target="_top">
+    
+    <label for="date">Data:</label>
+    <input type="date" id="date" name="date" required>
+    
+    <label for="client">Cliente (digitare per filtrare):</label>
+    <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
+    <datalist id="client_list">
+      <? /* Nota: Questi dati devono essere caricati dinamicamente via JavaScript/AJAX! */ ?>
+    </datalist>
+
+    <label for="tipo_intervento">Tipo Intervento:</label>
+    <select id="tipo_intervento" name="tipo_intervento" required>
+      <option value="">Seleziona Tipo Intervento</option>
+      <script>
+        config.tipoIntervento.forEach(item => document.write(`<option value="${item}">${item}</option>`));
+      </script>
+    </select>
+
+    <label for="mod_esecuzione">Modalità Esecuzione:</label>
+    <select id="mod_esecuzione" name="mod_esecuzione" required>
+      <option value="">Seleziona Modalità</option>
+      <script>
+        config.modEsecuzione.forEach(item => document.write(`<option value="${item}">${item}</option>`));
+      </script>
+    </select>
+    
+    <div class="time-group">
+        <div>
+            <label for="start_time">Ora Inizio (Opzionale):</label>
+            <input type="time" id="start_time" name="start_time" step="600">
+        </div>
+        <div>
+            <label for="end_time">Ora Fine (Opzionale):</label>
+            <input type="time" id="end_time" name="end_time" step="600">
+        </div>
+    </div>
+    
+    <label for="duration">Durata (Ore e Minuti):</label>
+    <input type="text" id="duration" name="duration" placeholder="es. 1.5 o 01:30">
+    
+    <label for="mod_addebito">Modalità Addebito:</label>
+    <select id="mod_addebito" name="mod_addebito" required>
+      <option value="">Seleziona Addebito</option>
+       <script>
+        config.modAddebito.forEach(item => document.write(`<option value="${item}">${item}</option>`));
+      </script>
+    </select>
+    
+    <label for="description">Descrizione Attività:</label>
+    <textarea id="description" name="description" rows="4" required></textarea>
+    
+    <div class="checkbox-container">
+        <input type="checkbox" id="send_email" name="send_email" checked> 
+        <label for="send_email">Invia Email di Riepilogo al Cliente</label>
+    </div>
+    
+    <input type="submit" id="submit-btn" value="Salva Timesheet">
+  </form>
+</div>
+</body>
+</html>
