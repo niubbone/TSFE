@@ -111,10 +111,11 @@
             submitButton.value = "Caricamento dati...";
             submitButton.disabled = true;
 
-            fetch(dataUrl, {
+           fetch(dataUrl, {
                 method: 'GET', 
+                // ✨ AGGIUNTA CHIAVE ✨: Segue eventuali reindirizzamenti (es. da HTTP a HTTPS)
+                redirect: 'follow', 
                 headers: {
-                    // Imposta l'intestazione che il client accetta solo JSON
                     'Accept': 'application/json' 
                 }
             })
