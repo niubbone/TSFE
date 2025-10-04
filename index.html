@@ -1,252 +1,297 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Inserimento Timesheet Veloce</title>
-  
-  <link rel="manifest" href="manifest.json">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <style>
-    /* 🚨 RESET GLOBALE AGGRESSIVO PER PWA 🚨 */
-    * {
-      box-sizing: border-box !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
+    <meta charset="UTF-8">
+    <title>Inserimento Timesheet Veloce</title>
     
-    body { 
-      font-family: sans-serif; 
-      background-color: #f4f7f6; 
-      margin: 0 !important; 
-      padding: 0 !important; 
-      width: 100% !important; 
-      min-width: 320px;
-      overflow-x: hidden !important;
-    }
+    <link rel="manifest" href="manifest.json">
     
-    .form-container {
-        padding: 10px;
-        width: 100%;
-    }
-    
-    form { 
-      background: #fff; 
-      padding: 20px !important; 
-      border-radius: 8px; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-      max-width: 600px;
-      margin: 0 auto !important;
-      width: 100% !important; 
-    }
-    
-    h1 { color: #007bff; text-align: center; margin-bottom: 25px !important; font-size: 1.8em; padding-top: 20px !important; }
-    label { display: block; margin-top: 15px !important; margin-bottom: 5px !important; font-weight: bold; color: #333; }
-    
-    input[type="date"], input[type="time"], input[type="text"], textarea, select {
-      width: 100% !important;
-      padding: 12px !important;
-      margin-bottom: 10px !important;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box !important; 
-      font-size: 16px;
-      appearance: none; 
-    }
-    
-    .time-group { display: flex; gap: 15px; }
-    .time-group > div { flex: 1; }
-    
-    input[type="submit"] {
-      background-color: #28a745; 
-      color: white;
-      padding: 15px 20px !important;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100% !important;
-      font-size: 18px;
-      margin-top: 20px !important;
-    }
-    input[type="submit"]:hover { background-color: #1e7e34; }
-    
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      margin-top: 20px !important;
-      padding: 10px 0 !important;
-      border-top: 1px solid #eee;
-    }
-    .checkbox-container input[type="checkbox"] {
-      width: auto !important;
-      margin-right: 10px !important;
-      height: 18px;
-      width: 18px;
-    }
-    .checkbox-container label {
-      margin: 0 !important;
-      font-weight: normal;
-      cursor: pointer;
-    }
-    
-    @media (max-width: 480px) {
-      .time-group { flex-direction: column; gap: 0; }
-      form { padding: 15px !important; }
-    }
-  </style>
-  <script>
-    // 🚀 URL DI ESECUZIONE PUBBLICO AGGIORNATO 🚀
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLC6M7eHXJWgixTAgK2v94Ctn26zcFw6kBnI9O0K7HEzL9i1jnhpHDdK93YRxu2V6Y/exec";
-    
-    let clients = [];
-    let config = {};
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        /* 🚨 RESET GLOBALE AGGRESSIVO PER PWA 🚨 */
+        * {
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        body { 
+            font-family: sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            width: 100% !important; 
+            min-width: 320px;
+            overflow-x: hidden !important;
+        }
+        
+        .form-container {
+            padding: 10px;
+            width: 100%;
+        }
+        
+        form { 
+            background: #fff; 
+            padding: 20px !important; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            max-width: 600px;
+            margin: 0 auto !important;
+            width: 100% !important; 
+        }
+        
+        h1 { color: #007bff; text-align: center; margin-bottom: 25px !important; font-size: 1.8em; padding-top: 20px !important; }
+        label { display: block; margin-top: 15px !important; margin-bottom: 5px !important; font-weight: bold; color: #333; }
+        
+        input[type="date"], input[type="time"], input[type="text"], textarea, select {
+            width: 100% !important;
+            padding: 12px !important;
+            margin-bottom: 10px !important;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box !important; 
+            font-size: 16px;
+            appearance: none; 
+        }
+        
+        .time-group { display: flex; gap: 15px; }
+        .time-group > div { flex: 1; }
+        
+        input[type="submit"] {
+            background-color: #28a745; 
+            color: white;
+            padding: 15px 20px !important;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100% !important;
+            font-size: 18px;
+            margin-top: 20px !important;
+        }
+        input[type="submit"]:hover { background-color: #1e7e34; }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px !important;
+            padding: 10px 0 !important;
+            border-top: 1px solid #eee;
+        }
+        .checkbox-container input[type="checkbox"] {
+            width: auto !important;
+            margin-right: 10px !important;
+            height: 18px;
+            width: 18px;
+        }
+        .checkbox-container label {
+            margin: 0 !important;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 480px) {
+            .time-group { flex-direction: column; gap: 0; }
+            form { padding: 15px !important; }
+        }
+    </style>
+    <script>
+        // 🚀 URL DI ESECUZIONE PUBBLICO AGGIORNATO 🚀
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLC6M7eHXJWgixTAgK2v94Ctn26zcFw6kBnI9O0K7HEzL9i1jnhpHDdK93YRxu2V6Y/exec";
+        
+        let clients = [];
+        let config = {};
 
-    /**
-     * Esegue una chiamata AJAX all'endpoint Apps Script per recuperare liste Clienti e Opzioni.
-     */
-    function loadFormData() {
-        const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
-        const submitButton = document.getElementById('submit-btn');
-        submitButton.value = "Caricamento dati...";
-        submitButton.disabled = true;
+        /**
+         * Esegue una chiamata AJAX all'endpoint Apps Script per recuperare liste Clienti e Opzioni.
+         * VERSIONE PIÙ ROBUSTA.
+         */
+        function loadFormData() {
+            const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
+            const submitButton = document.getElementById('submit-btn');
+            submitButton.value = "Caricamento dati...";
+            submitButton.disabled = true;
 
-        fetch(dataUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+            fetch(dataUrl, {
+                method: 'GET', 
+                headers: {
+                    // Imposta l'intestazione che il client accetta solo JSON
+                    'Accept': 'application/json' 
                 }
-                return response.json();
+            })
+            .then(response => {
+                // Aggiungiamo un log per vedere lo stato HTTP (da F12)
+                console.log("Risposta HTTP Status:", response.status); 
+
+                // Un problema di autorizzazione non risolto può dare 401, 403, o 302 (reindirizzamento)
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP dallo script Google: Status ${response.status}`);
+                }
+                
+                // Tentativo di analizzare la risposta come JSON
+                return response.json(); 
             })
             .then(data => {
+                // Se lo script restituisce un JSON di errore (dal blocco catch di doGet)
+                if (data.error) {
+                    throw new Error(data.detail || data.error);
+                }
+
                 clients = data.clients || [];
                 config = data.config || {};
+                
+                // Se i dati sono vuoti (nessun cliente nel Foglio)
+                if (clients.length === 0) {
+                     console.warn("Nessun cliente trovato nel Foglio Google.");
+                }
+
                 populateFormFields();
             })
             .catch(error => {
-                console.error("Errore nel caricamento dei dati dal Foglio Google:", error);
-                alert("ATTENZIONE: Impossibile caricare i dati dal Foglio Google. Controlla l'URL e il deployment dello script.");
+                // Messaggio di errore completo nella console
+                console.error("ERRORE CRITICO: Impossibile caricare i dati dal Foglio Google.", error);
+                
+                // Messaggio all'utente più specifico
+                let alertMessage = "ATTENZIONE: Impossibile caricare i dati dal Foglio Google.\n";
+                alertMessage += "Controlla l'URL e il deployment dello script.\n";
+                alertMessage += "Dettaglio: " + (error.message || "Errore di connessione o JSON non valido.");
+                
+                alert(alertMessage);
             })
             .finally(() => {
                 submitButton.value = "Salva Timesheet";
                 submitButton.disabled = false;
             });
-    }
+        }
 
-    /**
-     * Popola i campi select e datalist dopo che i dati sono stati caricati.
-     */
-    function populateFormFields() {
-        // 1. Popola la Datalist dei Clienti
-        const clientDatalist = document.getElementById('client_list');
-        clients.forEach(client => {
-            const option = document.createElement('option');
-            option.value = client.name;
-            clientDatalist.appendChild(option);
-        });
+        /**
+         * Popola i campi select e datalist dopo che i dati sono stati caricati.
+         */
+        function populateFormFields() {
+            // 1. Popola la Datalist dei Clienti
+            const clientDatalist = document.getElementById('client_list');
+            clientDatalist.innerHTML = ''; // Pulisce prima di popolare
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.name;
+                clientDatalist.appendChild(option);
+            });
 
-        // 2. Popola i Select
-        const selectDataMap = {
-            'tipo_intervento': config.tipoIntervento,
-            'mod_esecuzione': config.modEsecuzione,
-            'mod_addebito': config.modAddebito
-        };
+            // 2. Popola i Select
+            const selectDataMap = {
+                'tipo_intervento': config.tipoIntervento,
+                'mod_esecuzione': config.modEsecuzione,
+                'mod_addebito': config.modAddebito
+            };
 
-        for (const id in selectDataMap) {
-            const select = document.getElementById(id);
-            const options = selectDataMap[id];
+            for (const id in selectDataMap) {
+                const select = document.getElementById(id);
+                const options = selectDataMap[id];
+                
+                if (options && options.length > 0) {
+                     // Conserva l'opzione di default vuota, ma rimuove le precedenti dinamiche
+                    const defaultOption = select.querySelector('option[value=""]');
+                    select.innerHTML = '';
+                    if (defaultOption) {
+                        select.appendChild(defaultOption);
+                    } else {
+                        // Se l'opzione di default è stata rimossa, ricreala per sicurezza
+                        const placeholder = document.createElement('option');
+                        placeholder.value = "";
+                        placeholder.textContent = `Seleziona ${id.replace('_', ' ').replace('mod', 'Modalità')}`;
+                        select.appendChild(placeholder);
+                    }
+
+                    options.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item;
+                        option.textContent = item;
+                        select.appendChild(option);
+                    });
+                }
+            }
+        }
+
+        window.onload = function() {
+            // Avvia il caricamento dei dati all'apertura
+            loadFormData();
             
-            if (options && options.length > 0) {
-              options.forEach(item => {
-                  const option = document.createElement('option');
-                  option.value = item;
-                  option.textContent = item;
-                  select.appendChild(option);
-              });
-            }
-        }
-    }
+            // Imposta la data di oggi
+            const today = new Date().toISOString().substring(0, 10);
+            document.getElementById('date').value = today;
 
-    window.onload = function() {
-      // Avvia il caricamento dei dati all'apertura
-      loadFormData();
-        
-      // Imposta la data di oggi
-      const today = new Date().toISOString().substring(0, 10);
-      document.getElementById('date').value = today;
-
-      // Logica per nascondere l'opzione di default al click su tutti i <select>
-      document.querySelectorAll('select').forEach(select => {
-        const defaultOption = select.querySelector('option[value=""]');
-        if (defaultOption) {
-          select.addEventListener('focus', function() {
-            defaultOption.style.display = 'none';
-          });
-          select.addEventListener('blur', function() {
-            if (this.value === '') {
-              defaultOption.style.display = 'block';
-            }
-          });
-        }
-      });
-        
-      // Il form invia i dati con POST all'action URL (APPS_SCRIPT_URL)
-      // Il target="_top" fa in modo che il browser gestisca il redirect PRG dopo l'invio.
-    };
-  </script>
+            // Logica per nascondere l'opzione di default al click su tutti i <select>
+            document.querySelectorAll('select').forEach(select => {
+                const defaultOption = select.querySelector('option[value=""]');
+                if (defaultOption) {
+                    select.addEventListener('focus', function() {
+                        defaultOption.style.display = 'none';
+                    });
+                    select.addEventListener('blur', function() {
+                        if (this.value === '') {
+                            defaultOption.style.display = 'block';
+                        }
+                    });
+                }
+            });
+            
+            // Il form invia i dati con POST all'action URL (APPS_SCRIPT_URL)
+            // Il target="_top" fa in modo che il browser gestisca il redirect PRG dopo l'invio.
+        };
+    </script>
 </head>
 <body>
 <div class="form-container">
-  <h1>Timesheet Giornaliero</h1>
-  
-  <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbzLC6M7eHXJWgixTAgK2v94Ctn26zcFw6kBnI9O0K7HEzL9i1jnhpHDdK93YRxu2V6Y/exec" target="_top">
+    <h1>Timesheet Giornaliero</h1>
     
-    <label for="date">Data:</label>
-    <input type="date" id="date" name="date" required>
-    
-    <label for="client">Cliente (digitare per filtrare):</label>
-    <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
-    <datalist id="client_list">
-    </datalist>
+    <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbzLC6M7eHXJWgixTAgK2v94Ctn26zcFw6kBnI9O0K7HEzL9i1jnhpHDdK93YRxu2V6Y/exec" target="_top">
+        
+        <label for="date">Data:</label>
+        <input type="date" id="date" name="date" required>
+        
+        <label for="client">Cliente (digitare per filtrare):</label>
+        <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
+        <datalist id="client_list">
+        </datalist>
 
-    <label for="tipo_intervento">Tipo Intervento:</label>
-    <select id="tipo_intervento" name="tipo_intervento" required>
-      <option value="">Seleziona Tipo Intervento</option>
-    </select>
+        <label for="tipo_intervento">Tipo Intervento:</label>
+        <select id="tipo_intervento" name="tipo_intervento" required>
+            <option value="">Seleziona Tipo Intervento</option>
+        </select>
 
-    <label for="mod_esecuzione">Modalità Esecuzione:</label>
-    <select id="mod_esecuzione" name="mod_esecuzione" required>
-      <option value="">Seleziona Modalità</option>
-    </select>
-    
-    <div class="time-group">
-        <div>
-            <label for="start_time">Ora Inizio (Opzionale):</label>
-            <input type="time" id="start_time" name="start_time" step="600">
+        <label for="mod_esecuzione">Modalità Esecuzione:</label>
+        <select id="mod_esecuzione" name="mod_esecuzione" required>
+            <option value="">Seleziona Modalità</option>
+        </select>
+        
+        <div class="time-group">
+            <div>
+                <label for="start_time">Ora Inizio (Opzionale):</label>
+                <input type="time" id="start_time" name="start_time" step="600">
+            </div>
+            <div>
+                <label for="end_time">Ora Fine (Opzionale):</label>
+                <input type="time" id="end_time" name="end_time" step="600">
+            </div>
         </div>
-        <div>
-            <label for="end_time">Ora Fine (Opzionale):</label>
-            <input type="time" id="end_time" name="end_time" step="600">
+        
+        <label for="duration">Durata (Ore e Minuti):</label>
+        <input type="text" id="duration" name="duration" placeholder="es. 1.5 o 01:30">
+        
+        <label for="mod_addebito">Modalità Addebito:</label>
+        <select id="mod_addebito" name="mod_addebito" required>
+            <option value="">Seleziona Addebito</option>
+        </select>
+        
+        <label for="description">Descrizione Attività:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+        
+        <div class="checkbox-container">
+            <input type="checkbox" id="send_email" name="send_email" checked> 
+            <label for="send_email">Invia Email di Riepilogo al Cliente</label>
         </div>
-    </div>
-    
-    <label for="duration">Durata (Ore e Minuti):</label>
-    <input type="text" id="duration" name="duration" placeholder="es. 1.5 o 01:30">
-    
-    <label for="mod_addebito">Modalità Addebito:</label>
-    <select id="mod_addebito" name="mod_addebito" required>
-      <option value="">Seleziona Addebito</option>
-    </select>
-    
-    <label for="description">Descrizione Attività:</label>
-    <textarea id="description" name="description" rows="4" required></textarea>
-    
-    <div class="checkbox-container">
-        <input type="checkbox" id="send_email" name="send_email" checked> 
-        <label for="send_email">Invia Email di Riepilogo al Cliente</label>
-    </div>
-    
-    <input type="submit" id="submit-btn" value="Salva Timesheet">
-  </form>
+        
+        <input type="submit" id="submit-btn" value="Salva Timesheet">
+    </form>
 </div>
 </body>
 </html>
