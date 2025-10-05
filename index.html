@@ -344,26 +344,23 @@
             submitButton.value = "Salvataggio in corso...";
             submitButton.disabled = true;
             infoBox.innerHTML = '<p>⏳ Invio dati a Google Sheets...</p>';
-        }
-        
-        // Funzione chiamata quando l'iframe ha finito di caricare
-        function onSubmitComplete() {
-            const submitButton = document.getElementById('submit-btn');
-            const infoBox = document.getElementById('info-box');
             
-            submitButton.value = "Salva Timesheet";
-            submitButton.disabled = false;
-            infoBox.innerHTML = '<p style="color: #155724; background: #d4edda;">✅ Timesheet salvato con successo!</p>';
-            
-            const currentDate = document.getElementById('date').value;
-            document.getElementById('timesheet-form').reset();
-            document.getElementById('date').value = currentDate;
-            document.getElementById('send_email').checked = true;
-            
-            // Nasconde il messaggio dopo 5 secondi
-            setTimeout(() => {
-                infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
-            }, 5000);
+            // Dopo 2.5 secondi mostra il successo (tempo per completare il POST)
+            setTimeout(function() {
+                submitButton.value = "Salva Timesheet";
+                submitButton.disabled = false;
+                infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato con successo!</p>';
+                
+                const currentDate = document.getElementById('date').value;
+                document.getElementById('timesheet-form').reset();
+                document.getElementById('date').value = currentDate;
+                document.getElementById('send_email').checked = true;
+                
+                // Nasconde il messaggio dopo 5 secondi
+                setTimeout(function() {
+                    infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
+                }, 5000);
+            }, 2500);
         }
         
         function openAddClientModal() {
@@ -422,6 +419,15 @@
 
             const form = document.getElementById('timesheet-form');
             form.addEventListener('submit', handleFormSubmit);
+            
+            // Listener per l'iframe nascosto
+            const hiddenIframe = document.getElementById('hidden_iframe');
+            hiddenIframe.onload = function() {
+                // Aspetta un attimo per essere sicuri che il form sia stato inviato
+                if (hiddenIframe.src && hiddenIframe.src !== 'about:blank') {
+                    setTimeout(onSubmitComplete, 500);
+                }
+            };
 
             document.querySelectorAll('select').forEach(select => {
                 select.addEventListener('focus', function() {
