@@ -117,24 +117,25 @@
             cursor: pointer;
         }
         
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
+        .message {
             padding: 15px !important;
             border-radius: 6px;
             margin: 20px 0 !important;
-            border: 1px solid #f5c6cb;
             display: none;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .success-message {
             background-color: #d4edda;
             color: #155724;
-            padding: 15px !important;
-            border-radius: 6px;
-            margin: 20px 0 !important;
             border: 1px solid #c3e6cb;
-            display: none;
         }
         
         @media (max-width: 480px) {
@@ -167,7 +168,7 @@
                 }
             })
             .then(response => {
-                console.log("Risposta HTTP Status:", response.status); 
+                console.log("✅ Risposta GET Status:", response.status); 
                 if (!response.ok) {
                     throw new Error(`Errore HTTP: Status ${response.status}`);
                 }
@@ -181,12 +182,12 @@
                 clients = data.clients || [];
                 config = data.config || {};
                 
-                console.log("Dati caricati:", data);
+                console.log("✅ Dati caricati:", data);
                 populateFormFields();
             })
             .catch(error => {
-                console.error("ERRORE: Impossibile caricare i dati.", error);
-                showError("Impossibile caricare i dati dal Foglio Google. Controlla la console per dettagli.");
+                console.error("❌ ERRORE caricamento dati:", error);
+                showError("Impossibile caricare i dati dal Foglio Google.");
             })
             .finally(() => {
                 submitButton.value = "Salva Timesheet";
@@ -195,7 +196,6 @@
         }
 
         function populateFormFields() {
-            // Popola Datalist Clienti
             const clientDatalist = document.getElementById('client_list');
             clientDatalist.innerHTML = ''; 
             clients.forEach(client => {
@@ -204,7 +204,6 @@
                 clientDatalist.appendChild(option);
             });
 
-            // Popola Select con configurazione
             const selectDataMap = {
                 'tipo_intervento': config.tipoIntervento || [],
                 'mod_esecuzione': config.modEsecuzione || [],
@@ -233,50 +232,56 @@
                         select.appendChild(option);
                     });
                 } else {
-                    console.warn(`Configurazione vuota per: ${id}`);
+                    console.warn(`⚠️ Configurazione vuota per: ${id}`);
                 }
             }
         }
 
         function showError(message) {
+            hideAllMessages();
             const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
+            errorDiv.textContent = "❌ " + message;
             errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function showSuccess(message) {
+            hideAllMessages();
             const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
+            successDiv.textContent = "✅ " + message;
             successDiv.style.display = 'block';
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
             setTimeout(() => {
                 successDiv.style.display = 'none';
-            }, 3000);
+            }, 5000);
+        }
+
+        function hideAllMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
         }
 
         function handleFormSubmit(event) {
-            event.preventDefault(); // Previene il submit normale
+            event.preventDefault();
             
             const form = document.getElementById('timesheet-form');
             const submitButton = document.getElementById('submit-btn');
             const formData = new FormData(form);
             
-            // Converti checkbox in valore inviabile
-            if (formData.has('send_email')) {
+            // Gestione checkbox
+            if (document.getElementById('send_email').checked) {
                 formData.set('send_email', 'true');
             } else {
                 formData.set('send_email', 'false');
             }
             
-            // Disabilita il bottone durante l'invio
             submitButton.disabled = true;
-            submitButton.value = "Invio in corso...";
+            submitButton.value = "Salvataggio...";
+            hideAllMessages();
             
-            console.log("Invio dati al server...");
+            console.log("📤 Invio dati al server...");
             
-            // Converti FormData in URL-encoded string
             const params = new URLSearchParams(formData).toString();
             
             fetch(APPS_SCRIPT_URL, {
@@ -288,31 +293,30 @@
                 redirect: 'follow'
             })
             .then(response => {
-                console.log("Risposta ricevuta:", response.status);
+                console.log("✅ Risposta POST Status:", response.status);
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status}`);
+                }
                 return response.text();
             })
             .then(html => {
-                console.log("Risposta HTML:", html);
+                console.log("✅ Dati salvati con successo!");
                 
-                // Se la risposta contiene un redirect script, eseguilo
-                if (html.includes('window.top.location.href')) {
-                    const match = html.match(/window\.top\.location\.href="([^"]+)"/);
-                    if (match && match[1]) {
-                        console.log("Redirect a:", match[1]);
-                        window.location.href = match[1];
-                    }
-                } else {
-                    // Altrimenti mostra successo e resetta il form
-                    showSuccess("Timesheet salvato con successo!");
-                    form.reset();
-                    // Reimposta la data di oggi
-                    const today = new Date().toISOString().substring(0, 10);
-                    document.getElementById('date').value = today;
-                }
+                // Determina se l'email è stata inviata
+                const emailSent = formData.get('send_email') === 'true';
+                const emailMessage = emailSent ? " Email di riepilogo inviata al cliente." : "";
+                
+                showSuccess("Timesheet salvato con successo!" + emailMessage);
+                
+                // Reset del form
+                form.reset();
+                const today = new Date().toISOString().substring(0, 10);
+                document.getElementById('date').value = today;
+                document.getElementById('send_email').checked = true;
             })
             .catch(error => {
-                console.error("ERRORE durante l'invio:", error);
-                showError("Errore durante l'invio dei dati. Riprova.");
+                console.error("❌ ERRORE durante l'invio:", error);
+                showError("Errore durante il salvataggio. Riprova o controlla la console.");
             })
             .finally(() => {
                 submitButton.disabled = false;
@@ -323,15 +327,12 @@
         window.onload = function() {
             loadFormData();
             
-            // Imposta data di oggi
             const today = new Date().toISOString().substring(0, 10);
             document.getElementById('date').value = today;
 
-            // Gestisci submit del form
             const form = document.getElementById('timesheet-form');
             form.addEventListener('submit', handleFormSubmit);
 
-            // Migliora UX dei select
             document.querySelectorAll('select').forEach(select => {
                 select.addEventListener('focus', function() {
                     const defaultOption = this.querySelector('option[value=""]');
@@ -353,8 +354,8 @@
 <div class="form-container">
     <h1>Timesheet Giornaliero</h1>
     
-    <div id="error-message" class="error-message"></div>
-    <div id="success-message" class="success-message"></div>
+    <div id="error-message" class="message error-message"></div>
+    <div id="success-message" class="message success-message"></div>
     
     <form id="timesheet-form">
         
