@@ -47,6 +47,20 @@
             padding-top: 20px !important; 
         }
         
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px !important;
+            margin-bottom: 20px !important;
+            border-radius: 4px;
+        }
+        
+        .info-box p {
+            margin: 0 !important;
+            color: #1976D2;
+            font-size: 14px;
+        }
+        
         label { 
             display: block; 
             margin-top: 15px !important; 
@@ -117,27 +131,6 @@
             cursor: pointer;
         }
         
-        .message {
-            padding: 15px !important;
-            border-radius: 6px;
-            margin: 20px 0 !important;
-            display: none;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
         @media (max-width: 480px) {
             .time-group { 
                 flex-direction: column; 
@@ -157,8 +150,11 @@
         function loadFormData() {
             const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
             const submitButton = document.getElementById('submit-btn');
+            const infoBox = document.getElementById('info-box');
+            
             submitButton.value = "Caricamento dati...";
             submitButton.disabled = true;
+            infoBox.innerHTML = '<p>⏳ Caricamento dati dal foglio Google...</p>';
 
             fetch(dataUrl, {
                 method: 'GET', 
@@ -184,10 +180,11 @@
                 
                 console.log("✅ Dati caricati:", data);
                 populateFormFields();
+                infoBox.innerHTML = '<p>✅ Dati caricati. Compila il form e clicca "Salva Timesheet"</p>';
             })
             .catch(error => {
                 console.error("❌ ERRORE caricamento dati:", error);
-                showError("Impossibile caricare i dati dal Foglio Google.");
+                infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore nel caricamento dei dati. Ricarica la pagina.</p>';
             })
             .finally(() => {
                 submitButton.value = "Salva Timesheet";
@@ -237,91 +234,30 @@
             }
         }
 
-        function showError(message) {
-            hideAllMessages();
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = "❌ " + message;
-            errorDiv.style.display = 'block';
-            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        function showSuccess(message) {
-            hideAllMessages();
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = "✅ " + message;
-            successDiv.style.display = 'block';
-            successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        function hideAllMessages() {
-            document.getElementById('error-message').style.display = 'none';
-            document.getElementById('success-message').style.display = 'none';
-        }
-
         function handleFormSubmit(event) {
-            event.preventDefault();
-            
-            const form = document.getElementById('timesheet-form');
             const submitButton = document.getElementById('submit-btn');
-            const formData = new FormData(form);
+            const infoBox = document.getElementById('info-box');
             
-            // Gestione checkbox
-            if (document.getElementById('send_email').checked) {
-                formData.set('send_email', 'true');
-            } else {
-                formData.set('send_email', 'false');
-            }
-            
+            // Mostra messaggio di invio
+            submitButton.value = "Salvataggio in corso...";
             submitButton.disabled = true;
-            submitButton.value = "Salvataggio...";
-            hideAllMessages();
+            infoBox.innerHTML = '<p>⏳ Invio dati a Google Sheets... Si aprirà una nuova scheda di conferma.</p>';
             
-            console.log("📤 Invio dati al server...");
+            // Il form si sottomette normalmente con target="_blank"
+            // Non serve fare preventDefault() qui
             
-            const params = new URLSearchParams(formData).toString();
-            
-            fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: params,
-                redirect: 'follow'
-            })
-            .then(response => {
-                console.log("✅ Risposta POST Status:", response.status);
-                if (!response.ok) {
-                    throw new Error(`Errore HTTP: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(html => {
-                console.log("✅ Dati salvati con successo!");
-                
-                // Determina se l'email è stata inviata
-                const emailSent = formData.get('send_email') === 'true';
-                const emailMessage = emailSent ? " Email di riepilogo inviata al cliente." : "";
-                
-                showSuccess("Timesheet salvato con successo!" + emailMessage);
-                
-                // Reset del form
-                form.reset();
-                const today = new Date().toISOString().substring(0, 10);
-                document.getElementById('date').value = today;
-                document.getElementById('send_email').checked = true;
-            })
-            .catch(error => {
-                console.error("❌ ERRORE durante l'invio:", error);
-                showError("Errore durante il salvataggio. Riprova o controlla la console.");
-            })
-            .finally(() => {
-                submitButton.disabled = false;
+            // Dopo 2 secondi, ripristina il form per un nuovo inserimento
+            setTimeout(() => {
                 submitButton.value = "Salva Timesheet";
-            });
+                submitButton.disabled = false;
+                infoBox.innerHTML = '<p>✅ Dati inviati! Puoi inserire un nuovo timesheet.</p>';
+                
+                // Reset del form mantenendo la data
+                const currentDate = document.getElementById('date').value;
+                document.getElementById('timesheet-form').reset();
+                document.getElementById('date').value = currentDate;
+                document.getElementById('send_email').checked = true;
+            }, 2000);
         }
 
         window.onload = function() {
@@ -354,10 +290,11 @@
 <div class="form-container">
     <h1>Timesheet Giornaliero</h1>
     
-    <div id="error-message" class="message error-message"></div>
-    <div id="success-message" class="message success-message"></div>
+    <div id="info-box" class="info-box">
+        <p>⏳ Caricamento in corso...</p>
+    </div>
     
-    <form id="timesheet-form">
+    <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec" target="_blank">
         
         <label for="date">Data:</label>
         <input type="date" id="date" name="date" required>
@@ -400,7 +337,7 @@
         <textarea id="description" name="description" rows="4" required></textarea>
         
         <div class="checkbox-container">
-            <input type="checkbox" id="send_email" name="send_email" checked> 
+            <input type="checkbox" id="send_email" name="send_email" value="true" checked> 
             <label for="send_email">Invia Email di Riepilogo al Cliente</label>
         </div>
         
