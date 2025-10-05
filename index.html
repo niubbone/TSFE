@@ -8,7 +8,6 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
-        /* 🚨 RESET GLOBALE AGGRESSIVO PER PWA 🚨 */
         * {
             box-sizing: border-box !important;
             margin: 0 !important;
@@ -40,8 +39,21 @@
             width: 100% !important; 
         }
         
-        h1 { color: #007bff; text-align: center; margin-bottom: 25px !important; font-size: 1.8em; padding-top: 20px !important; }
-        label { display: block; margin-top: 15px !important; margin-bottom: 5px !important; font-weight: bold; color: #333; }
+        h1 { 
+            color: #007bff; 
+            text-align: center; 
+            margin-bottom: 25px !important; 
+            font-size: 1.8em; 
+            padding-top: 20px !important; 
+        }
+        
+        label { 
+            display: block; 
+            margin-top: 15px !important; 
+            margin-bottom: 5px !important; 
+            font-weight: bold; 
+            color: #333; 
+        }
         
         input[type="date"], input[type="time"], input[type="text"], textarea, select {
             width: 100% !important;
@@ -54,8 +66,14 @@
             appearance: none; 
         }
         
-        .time-group { display: flex; gap: 15px; }
-        .time-group > div { flex: 1; }
+        .time-group { 
+            display: flex; 
+            gap: 15px; 
+        }
+        
+        .time-group > div { 
+            flex: 1; 
+        }
         
         input[type="submit"] {
             background-color: #28a745; 
@@ -68,7 +86,15 @@
             font-size: 18px;
             margin-top: 20px !important;
         }
-        input[type="submit"]:hover { background-color: #1e7e34; }
+        
+        input[type="submit"]:hover { 
+            background-color: #1e7e34; 
+        }
+        
+        input[type="submit"]:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
         
         .checkbox-container {
             display: flex;
@@ -77,34 +103,56 @@
             padding: 10px 0 !important;
             border-top: 1px solid #eee;
         }
+        
         .checkbox-container input[type="checkbox"] {
             width: auto !important;
             margin-right: 10px !important;
             height: 18px;
             width: 18px;
         }
+        
         .checkbox-container label {
             margin: 0 !important;
             font-weight: normal;
             cursor: pointer;
         }
         
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px !important;
+            border-radius: 6px;
+            margin: 20px 0 !important;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px !important;
+            border-radius: 6px;
+            margin: 20px 0 !important;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+        
         @media (max-width: 480px) {
-            .time-group { flex-direction: column; gap: 0; }
-            form { padding: 15px !important; }
+            .time-group { 
+                flex-direction: column; 
+                gap: 0; 
+            }
+            form { 
+                padding: 15px !important; 
+            }
         }
     </style>
     <script>
-        // 🚀 URL DI ESECUZIONE PUBBLICO AGGIORNATO 🚀
-        // ⚠️ ASSICURATI CHE QUESTO SIA IL TUO ULTIMO URL DI DEPLOYMENT FUNZIONANTE
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec";
         
         let clients = [];
         let config = {};
 
-        /**
-         * Esegue una chiamata AJAX all'endpoint Apps Script per recuperare liste Clienti e Opzioni.
-         */
         function loadFormData() {
             const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
             const submitButton = document.getElementById('submit-btn');
@@ -113,7 +161,6 @@
 
             fetch(dataUrl, {
                 method: 'GET', 
-                // Aggiunta per gestire reindirizzamenti interni di Google Apps Script
                 redirect: 'follow', 
                 headers: {
                     'Accept': 'application/json' 
@@ -122,7 +169,7 @@
             .then(response => {
                 console.log("Risposta HTTP Status:", response.status); 
                 if (!response.ok) {
-                    throw new Error(`Errore HTTP dallo script Google: Status ${response.status}`);
+                    throw new Error(`Errore HTTP: Status ${response.status}`);
                 }
                 return response.json(); 
             })
@@ -134,20 +181,12 @@
                 clients = data.clients || [];
                 config = data.config || {};
                 
-                if (clients.length === 0) {
-                     console.warn("Nessun cliente trovato nel Foglio Google.");
-                }
-
+                console.log("Dati caricati:", data);
                 populateFormFields();
             })
             .catch(error => {
-                console.error("ERRORE CRITICO: Impossibile caricare i dati dal Foglio Google.", error);
-                
-                let alertMessage = "ATTENZIONE: Impossibile caricare i dati dal Foglio Google.\n";
-                alertMessage += "Controlla l'URL e il deployment dello script.\n";
-                alertMessage += "Dettaglio: " + (error.message || "Errore di connessione o JSON non valido.");
-                
-                alert(alertMessage);
+                console.error("ERRORE: Impossibile caricare i dati.", error);
+                showError("Impossibile caricare i dati dal Foglio Google. Controlla la console per dettagli.");
             })
             .finally(() => {
                 submitButton.value = "Salva Timesheet";
@@ -155,11 +194,8 @@
             });
         }
 
-        /**
-         * 🚨 CORREZIONE COMPLETA 🚨: Popola i campi select e datalist dopo che i dati sono stati caricati.
-         */
         function populateFormFields() {
-            // 1. Popola la Datalist dei Clienti (funzionante)
+            // Popola Datalist Clienti
             const clientDatalist = document.getElementById('client_list');
             clientDatalist.innerHTML = ''; 
             clients.forEach(client => {
@@ -168,34 +204,28 @@
                 clientDatalist.appendChild(option);
             });
 
-            // 2. Popola i Select con le opzioni di configurazione
+            // Popola Select con configurazione
             const selectDataMap = {
-                'tipo_intervento': config.tipoIntervento,
-                'mod_esecuzione': config.modEsecuzione,
-                'mod_addebito': config.modAddebito
+                'tipo_intervento': config.tipoIntervento || [],
+                'mod_esecuzione': config.modEsecuzione || [],
+                'mod_addebito': config.modAddebito || []
             };
 
             for (const id in selectDataMap) {
                 const select = document.getElementById(id);
                 const options = selectDataMap[id];
                 
-                // Controlla se abbiamo un array di opzioni valido dallo script GAS
                 if (options && Array.isArray(options) && options.length > 0) {
-                    
-                    // Pulisce il <select>
                     select.innerHTML = ''; 
                     
-                    // Ricrea il placeholder/segnaposto
                     const placeholder = document.createElement('option');
                     placeholder.value = "";
-                    // Formatta il testo (es. "tipo_intervento" -> "Seleziona Tipo Intervento")
                     const placeholderText = id.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
                     placeholder.textContent = `Seleziona ${placeholderText}`;
                     placeholder.disabled = true;
                     placeholder.selected = true; 
                     select.appendChild(placeholder);
 
-                    // Aggiunge tutte le opzioni dinamiche
                     options.forEach(item => {
                         const option = document.createElement('option');
                         option.value = item;
@@ -203,20 +233,105 @@
                         select.appendChild(option);
                     });
                 } else {
-                     console.warn(`Configurazione mancante o vuota per: ${id}.`);
+                    console.warn(`Configurazione vuota per: ${id}`);
                 }
             }
         }
 
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Previene il submit normale
+            
+            const form = document.getElementById('timesheet-form');
+            const submitButton = document.getElementById('submit-btn');
+            const formData = new FormData(form);
+            
+            // Converti checkbox in valore inviabile
+            if (formData.has('send_email')) {
+                formData.set('send_email', 'true');
+            } else {
+                formData.set('send_email', 'false');
+            }
+            
+            // Disabilita il bottone durante l'invio
+            submitButton.disabled = true;
+            submitButton.value = "Invio in corso...";
+            
+            console.log("Invio dati al server...");
+            
+            // Converti FormData in URL-encoded string
+            const params = new URLSearchParams(formData).toString();
+            
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: params,
+                redirect: 'follow'
+            })
+            .then(response => {
+                console.log("Risposta ricevuta:", response.status);
+                return response.text();
+            })
+            .then(html => {
+                console.log("Risposta HTML:", html);
+                
+                // Se la risposta contiene un redirect script, eseguilo
+                if (html.includes('window.top.location.href')) {
+                    const match = html.match(/window\.top\.location\.href="([^"]+)"/);
+                    if (match && match[1]) {
+                        console.log("Redirect a:", match[1]);
+                        window.location.href = match[1];
+                    }
+                } else {
+                    // Altrimenti mostra successo e resetta il form
+                    showSuccess("Timesheet salvato con successo!");
+                    form.reset();
+                    // Reimposta la data di oggi
+                    const today = new Date().toISOString().substring(0, 10);
+                    document.getElementById('date').value = today;
+                }
+            })
+            .catch(error => {
+                console.error("ERRORE durante l'invio:", error);
+                showError("Errore durante l'invio dei dati. Riprova.");
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.value = "Salva Timesheet";
+            });
+        }
+
         window.onload = function() {
-            // Avvia il caricamento dei dati all'apertura
             loadFormData();
             
-            // Imposta la data di oggi
+            // Imposta data di oggi
             const today = new Date().toISOString().substring(0, 10);
             document.getElementById('date').value = today;
 
-            // Logica per nascondere l'opzione di default al focus (migliora l'esperienza mobile)
+            // Gestisci submit del form
+            const form = document.getElementById('timesheet-form');
+            form.addEventListener('submit', handleFormSubmit);
+
+            // Migliora UX dei select
             document.querySelectorAll('select').forEach(select => {
                 select.addEventListener('focus', function() {
                     const defaultOption = this.querySelector('option[value=""]');
@@ -238,7 +353,10 @@
 <div class="form-container">
     <h1>Timesheet Giornaliero</h1>
     
-    <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec" target="_top">
+    <div id="error-message" class="error-message"></div>
+    <div id="success-message" class="success-message"></div>
+    
+    <form id="timesheet-form">
         
         <label for="date">Data:</label>
         <input type="date" id="date" name="date" required>
@@ -270,7 +388,7 @@
         </div>
         
         <label for="duration">Durata (Ore e Minuti):</label>
-        <input type="text" id="duration" name="duration" placeholder="es. 1.5 o 01:30">
+        <input type="text" id="duration" name="duration" placeholder="es. 1.5 o 01:30" required>
         
         <label for="mod_addebito">Modalità Addebito:</label>
         <select id="mod_addebito" name="mod_addebito" required>
