@@ -267,7 +267,6 @@
                 }
             })
             .then(response => {
-                console.log("✅ Risposta GET Status:", response.status); 
                 if (!response.ok) {
                     throw new Error(`Errore HTTP: Status ${response.status}`);
                 }
@@ -281,12 +280,11 @@
                 clients = data.clients || [];
                 config = data.config || {};
                 
-                console.log("✅ Dati caricati:", data);
                 populateFormFields();
                 infoBox.innerHTML = '<p>✅ Dati caricati. Compila il form e clicca "Salva Timesheet"</p>';
             })
             .catch(error => {
-                console.error("❌ ERRORE caricamento dati:", error);
+                console.error("Errore caricamento dati:", error);
                 infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore nel caricamento dei dati. Ricarica la pagina.</p>';
             })
             .finally(() => {
@@ -332,7 +330,7 @@
                         select.appendChild(option);
                     });
                 } else {
-                    console.warn(`⚠️ Configurazione vuota per: ${id}`);
+                    console.warn(`Configurazione vuota per: ${id}`);
                 }
             }
         }
@@ -419,15 +417,6 @@
 
             const form = document.getElementById('timesheet-form');
             form.addEventListener('submit', handleFormSubmit);
-            
-            // Listener per l'iframe nascosto
-            const hiddenIframe = document.getElementById('hidden_iframe');
-            hiddenIframe.onload = function() {
-                // Aspetta un attimo per essere sicuri che il form sia stato inviato
-                if (hiddenIframe.src && hiddenIframe.src !== 'about:blank') {
-                    setTimeout(onSubmitComplete, 500);
-                }
-            };
 
             document.querySelectorAll('select').forEach(select => {
                 select.addEventListener('focus', function() {
@@ -470,11 +459,11 @@
         <div class="time-group">
             <div>
                 <label for="start_time">Ora Inizio (Opzionale):</label>
-                <input type="time" id="start_time" name="start_time" step="600">
+                <input type="time" id="start_time" name="start_time">
             </div>
             <div>
                 <label for="end_time">Ora Fine (Opzionale):</label>
-                <input type="time" id="end_time" name="end_time" step="600">
+                <input type="time" id="end_time" name="end_time">
             </div>
         </div>
         
