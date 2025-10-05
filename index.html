@@ -47,6 +47,20 @@
             padding-top: 20px !important; 
         }
         
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px !important;
+            margin-bottom: 20px !important;
+            border-radius: 4px;
+        }
+        
+        .info-box p {
+            margin: 0 !important;
+            color: #1976D2;
+            font-size: 14px;
+        }
+        
         .top-row {
             display: flex;
             gap: 15px;
@@ -86,76 +100,11 @@
             align-items: center;
             justify-content: center;
             padding: 0 !important;
+            margin-bottom: 10px !important;
         }
         
         .add-client-btn:hover {
             background-color: #0056b3;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 30px !important;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        .modal-content h2 {
-            margin: 0 0 20px 0 !important;
-            color: #333;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px !important;
-        }
-        
-        .modal-buttons button {
-            flex: 1;
-            padding: 12px !important;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .btn-cancel {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .btn-save {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .info-box {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 15px !important;
-            margin-bottom: 20px !important;
-            border-radius: 4px;
-        }
-        
-        .info-box p {
-            margin: 0 !important;
-            color: #1976D2;
-            font-size: 14px;
         }
         
         label { 
@@ -166,7 +115,7 @@
             color: #333; 
         }
         
-        input[type="date"], input[type="time"], input[type="text"], textarea, select {
+        input[type="date"], input[type="time"], input[type="text"], input[type="email"], textarea, select {
             width: 100% !important;
             padding: 12px !important;
             margin-bottom: 10px !important;
@@ -228,11 +177,68 @@
             cursor: pointer;
         }
         
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px !important;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h2 {
+            margin: 0 0 20px 0 !important;
+            color: #333;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px !important;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px !important;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+        
         @media (max-width: 480px) {
-            .time-group { 
+            .time-group, .top-row { 
                 flex-direction: column; 
                 gap: 0; 
             }
+            
+            .top-row > div:first-child {
+                flex: 1;
+            }
+            
             form { 
                 padding: 15px !important; 
             }
@@ -335,26 +341,68 @@
             const submitButton = document.getElementById('submit-btn');
             const infoBox = document.getElementById('info-box');
             
-            // Mostra messaggio di invio
             submitButton.value = "Salvataggio in corso...";
             submitButton.disabled = true;
             infoBox.innerHTML = '<p>⏳ Invio dati a Google Sheets... Si aprirà una nuova scheda di conferma.</p>';
             
-            // Il form si sottomette normalmente con target="_blank"
-            // Non serve fare preventDefault() qui
-            
-            // Dopo 2 secondi, ripristina il form per un nuovo inserimento
             setTimeout(() => {
                 submitButton.value = "Salva Timesheet";
                 submitButton.disabled = false;
                 infoBox.innerHTML = '<p>✅ Dati inviati! Puoi inserire un nuovo timesheet.</p>';
                 
-                // Reset del form mantenendo la data
                 const currentDate = document.getElementById('date').value;
                 document.getElementById('timesheet-form').reset();
                 document.getElementById('date').value = currentDate;
                 document.getElementById('send_email').checked = true;
             }, 2000);
+        }
+        
+        function openAddClientModal() {
+            document.getElementById('add-client-modal').style.display = 'flex';
+        }
+        
+        function closeAddClientModal() {
+            document.getElementById('add-client-modal').style.display = 'none';
+            document.getElementById('new-client-name').value = '';
+            document.getElementById('new-client-email').value = '';
+        }
+        
+        function saveNewClient() {
+            const clientName = document.getElementById('new-client-name').value.trim();
+            const clientEmail = document.getElementById('new-client-email').value.trim();
+            
+            if (!clientName) {
+                alert('Inserisci il nome del cliente');
+                return;
+            }
+            
+            const saveBtn = document.querySelector('.btn-save');
+            saveBtn.textContent = 'Salvataggio...';
+            saveBtn.disabled = true;
+            
+            const url = `${APPS_SCRIPT_URL}?action=add_client&client_name=${encodeURIComponent(clientName)}&client_email=${encodeURIComponent(clientEmail)}`;
+            
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadFormData();
+                        document.getElementById('client').value = clientName;
+                        closeAddClientModal();
+                        const infoBox = document.getElementById('info-box');
+                        infoBox.innerHTML = '<p style="color: #155724;">✅ Cliente aggiunto con successo!</p>';
+                    } else {
+                        alert('Errore: ' + (data.error || 'Impossibile aggiungere il cliente'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    alert('Errore durante il salvataggio del cliente');
+                })
+                .finally(() => {
+                    saveBtn.textContent = 'Salva';
+                    saveBtn.disabled = false;
+                });
         }
 
         window.onload = function() {
@@ -385,7 +433,7 @@
 </head>
 <body>
 <div class="form-container">
-    <h1>Timesheet Giornaliero</h1>
+    <h1>Inserimento Timesheet</h1>
     
     <div id="info-box" class="info-box">
         <p>⏳ Caricamento in corso...</p>
@@ -393,23 +441,16 @@
     
     <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec" target="_blank">
         
-        <label for="date">Data:</label>
-        <input type="date" id="date" name="date" required>
-        
-        <label for="client">Cliente (digitare per filtrare):</label>
-        <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
-        <datalist id="client_list">
-        </datalist>
-
-        <label for="tipo_intervento">Tipo Intervento:</label>
-        <select id="tipo_intervento" name="tipo_intervento" required>
-            <option value="" disabled selected>Seleziona Tipo Intervento</option> 
-        </select>
-
-        <label for="mod_esecuzione">Modalità Esecuzione:</label>
-        <select id="mod_esecuzione" name="mod_esecuzione" required>
-            <option value="" disabled selected>Seleziona Modalità Esecuzione</option>
-        </select>
+        <div class="top-row">
+            <div>
+                <label for="date">Data:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div>
+                <label for="duration">Durata (ore):</label>
+                <input type="text" id="duration" name="duration" placeholder="es. 0.5, 1, 1.5" required>
+            </div>
+        </div>
         
         <div class="time-group">
             <div>
@@ -422,8 +463,25 @@
             </div>
         </div>
         
-        <label for="duration">Durata (Ore e Minuti):</label>
-        <input type="text" id="duration" name="duration" placeholder="es. 1.5 o 01:30" required>
+        <div class="client-row">
+            <div>
+                <label for="client">Cliente:</label>
+                <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
+                <datalist id="client_list">
+                </datalist>
+            </div>
+            <button type="button" class="add-client-btn" onclick="openAddClientModal()" title="Aggiungi nuovo cliente">+</button>
+        </div>
+
+        <label for="tipo_intervento">Tipo Intervento:</label>
+        <select id="tipo_intervento" name="tipo_intervento" required>
+            <option value="" disabled selected>Seleziona Tipo Intervento</option> 
+        </select>
+
+        <label for="mod_esecuzione">Modalità Esecuzione:</label>
+        <select id="mod_esecuzione" name="mod_esecuzione" required>
+            <option value="" disabled selected>Seleziona Modalità Esecuzione</option>
+        </select>
         
         <label for="mod_addebito">Modalità Addebito:</label>
         <select id="mod_addebito" name="mod_addebito" required>
@@ -441,5 +499,23 @@
         <input type="submit" id="submit-btn" value="Salva Timesheet">
     </form>
 </div>
+
+<!-- Modal per aggiungere nuovo cliente -->
+<div id="add-client-modal" class="modal">
+    <div class="modal-content">
+        <h2>Aggiungi Nuovo Cliente</h2>
+        <label for="new-client-name">Nome Cliente *</label>
+        <input type="text" id="new-client-name" placeholder="Nome del cliente">
+        
+        <label for="new-client-email">Email (opzionale)</label>
+        <input type="email" id="new-client-email" placeholder="email@esempio.it">
+        
+        <div class="modal-buttons">
+            <button type="button" class="btn-cancel" onclick="closeAddClientModal()">Annulla</button>
+            <button type="button" class="btn-save" onclick="saveNewClient()">Salva</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
