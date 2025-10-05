@@ -96,6 +96,7 @@
     </style>
     <script>
         // 🚀 URL DI ESECUZIONE PUBBLICO AGGIORNATO 🚀
+        // ⚠️ ASSICURATI CHE QUESTO SIA IL TUO ULTIMO URL DI DEPLOYMENT FUNZIONANTE
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec";
         
         let clients = [];
@@ -103,7 +104,6 @@
 
         /**
          * Esegue una chiamata AJAX all'endpoint Apps Script per recuperare liste Clienti e Opzioni.
-         * VERSIONE PIÙ ROBUSTA.
          */
         function loadFormData() {
             const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
@@ -111,28 +111,22 @@
             submitButton.value = "Caricamento dati...";
             submitButton.disabled = true;
 
-           fetch(dataUrl, {
+            fetch(dataUrl, {
                 method: 'GET', 
-                // ✨ AGGIUNTA CHIAVE ✨: Segue eventuali reindirizzamenti (es. da HTTP a HTTPS)
+                // Aggiunta per gestire reindirizzamenti interni di Google Apps Script
                 redirect: 'follow', 
                 headers: {
                     'Accept': 'application/json' 
                 }
             })
             .then(response => {
-                // Aggiungiamo un log per vedere lo stato HTTP (da F12)
                 console.log("Risposta HTTP Status:", response.status); 
-
-                // Un problema di autorizzazione non risolto può dare 401, 403, o 302 (reindirizzamento)
                 if (!response.ok) {
                     throw new Error(`Errore HTTP dallo script Google: Status ${response.status}`);
                 }
-                
-                // Tentativo di analizzare la risposta come JSON
                 return response.json(); 
             })
             .then(data => {
-                // Se lo script restituisce un JSON di errore (dal blocco catch di doGet)
                 if (data.error) {
                     throw new Error(data.detail || data.error);
                 }
@@ -140,7 +134,6 @@
                 clients = data.clients || [];
                 config = data.config || {};
                 
-                // Se i dati sono vuoti (nessun cliente nel Foglio)
                 if (clients.length === 0) {
                      console.warn("Nessun cliente trovato nel Foglio Google.");
                 }
@@ -148,10 +141,8 @@
                 populateFormFields();
             })
             .catch(error => {
-                // Messaggio di errore completo nella console
                 console.error("ERRORE CRITICO: Impossibile caricare i dati dal Foglio Google.", error);
                 
-                // Messaggio all'utente più specifico
                 let alertMessage = "ATTENZIONE: Impossibile caricare i dati dal Foglio Google.\n";
                 alertMessage += "Controlla l'URL e il deployment dello script.\n";
                 alertMessage += "Dettaglio: " + (error.message || "Errore di connessione o JSON non valido.");
@@ -165,19 +156,19 @@
         }
 
         /**
-         * Popola i campi select e datalist dopo che i dati sono stati caricati.
+         * 🚨 CORREZIONE COMPLETA 🚨: Popola i campi select e datalist dopo che i dati sono stati caricati.
          */
         function populateFormFields() {
-            // 1. Popola la Datalist dei Clienti
+            // 1. Popola la Datalist dei Clienti (funzionante)
             const clientDatalist = document.getElementById('client_list');
-            clientDatalist.innerHTML = ''; // Pulisce prima di popolare
+            clientDatalist.innerHTML = ''; 
             clients.forEach(client => {
                 const option = document.createElement('option');
                 option.value = client.name;
                 clientDatalist.appendChild(option);
             });
 
-            // 2. Popola i Select
+            // 2. Popola i Select con le opzioni di configurazione
             const selectDataMap = {
                 'tipo_intervento': config.tipoIntervento,
                 'mod_esecuzione': config.modEsecuzione,
@@ -188,26 +179,31 @@
                 const select = document.getElementById(id);
                 const options = selectDataMap[id];
                 
-                if (options && options.length > 0) {
-                     // Conserva l'opzione di default vuota, ma rimuove le precedenti dinamiche
-                    const defaultOption = select.querySelector('option[value=""]');
-                    select.innerHTML = '';
-                    if (defaultOption) {
-                        select.appendChild(defaultOption);
-                    } else {
-                        // Se l'opzione di default è stata rimossa, ricreala per sicurezza
-                        const placeholder = document.createElement('option');
-                        placeholder.value = "";
-                        placeholder.textContent = `Seleziona ${id.replace('_', ' ').replace('mod', 'Modalità')}`;
-                        select.appendChild(placeholder);
-                    }
+                // Controlla se abbiamo un array di opzioni valido dallo script GAS
+                if (options && Array.isArray(options) && options.length > 0) {
+                    
+                    // Pulisce il <select>
+                    select.innerHTML = ''; 
+                    
+                    // Ricrea il placeholder/segnaposto
+                    const placeholder = document.createElement('option');
+                    placeholder.value = "";
+                    // Formatta il testo (es. "tipo_intervento" -> "Seleziona Tipo Intervento")
+                    const placeholderText = id.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    placeholder.textContent = `Seleziona ${placeholderText}`;
+                    placeholder.disabled = true;
+                    placeholder.selected = true; 
+                    select.appendChild(placeholder);
 
+                    // Aggiunge tutte le opzioni dinamiche
                     options.forEach(item => {
                         const option = document.createElement('option');
                         option.value = item;
                         option.textContent = item;
                         select.appendChild(option);
                     });
+                } else {
+                     console.warn(`Configurazione mancante o vuota per: ${id}.`);
                 }
             }
         }
@@ -220,23 +216,21 @@
             const today = new Date().toISOString().substring(0, 10);
             document.getElementById('date').value = today;
 
-            // Logica per nascondere l'opzione di default al click su tutti i <select>
+            // Logica per nascondere l'opzione di default al focus (migliora l'esperienza mobile)
             document.querySelectorAll('select').forEach(select => {
-                const defaultOption = select.querySelector('option[value=""]');
-                if (defaultOption) {
-                    select.addEventListener('focus', function() {
+                select.addEventListener('focus', function() {
+                    const defaultOption = this.querySelector('option[value=""]');
+                    if (defaultOption) {
                         defaultOption.style.display = 'none';
-                    });
-                    select.addEventListener('blur', function() {
-                        if (this.value === '') {
-                            defaultOption.style.display = 'block';
-                        }
-                    });
-                }
+                    }
+                });
+                select.addEventListener('blur', function() {
+                    const defaultOption = this.querySelector('option[value=""]');
+                    if (defaultOption && this.value === '') {
+                        defaultOption.style.display = 'block';
+                    }
+                });
             });
-            
-            // Il form invia i dati con POST all'action URL (APPS_SCRIPT_URL)
-            // Il target="_top" fa in modo che il browser gestisca il redirect PRG dopo l'invio.
         };
     </script>
 </head>
@@ -256,12 +250,12 @@
 
         <label for="tipo_intervento">Tipo Intervento:</label>
         <select id="tipo_intervento" name="tipo_intervento" required>
-            <option value="">Seleziona Tipo Intervento</option>
+            <option value="" disabled selected>Seleziona Tipo Intervento</option> 
         </select>
 
         <label for="mod_esecuzione">Modalità Esecuzione:</label>
         <select id="mod_esecuzione" name="mod_esecuzione" required>
-            <option value="">Seleziona Modalità</option>
+            <option value="" disabled selected>Seleziona Modalità Esecuzione</option>
         </select>
         
         <div class="time-group">
@@ -280,7 +274,7 @@
         
         <label for="mod_addebito">Modalità Addebito:</label>
         <select id="mod_addebito" name="mod_addebito" required>
-            <option value="">Seleziona Addebito</option>
+            <option value="" disabled selected>Seleziona Modalità Addebito</option>
         </select>
         
         <label for="description">Descrizione Attività:</label>
