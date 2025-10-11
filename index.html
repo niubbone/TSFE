@@ -70,6 +70,21 @@
             font-size: 14px;
         }
         
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px !important;
+            margin-bottom: 20px !important;
+            border-radius: 4px;
+        }
+        
+        .warning-box p {
+            margin: 0 !important;
+            color: #856404;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
         .top-row {
             display: flex;
             gap: 15px;
@@ -352,22 +367,61 @@
             submitButton.disabled = true;
             infoBox.innerHTML = '<p>⏳ Invio dati a Google Sheets...</p>';
             
-            // Dopo 2.5 secondi mostra il successo (tempo per completare il POST)
-            setTimeout(function() {
-                submitButton.value = "Salva Timesheet";
-                submitButton.disabled = false;
-                infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato con successo!</p>';
-                
-                const currentDate = document.getElementById('date').value;
-                document.getElementById('timesheet-form').reset();
-                document.getElementById('date').value = currentDate;
-                document.getElementById('send_email').checked = true;
-                
-                // Nasconde il messaggio dopo 5 secondi
-                setTimeout(function() {
-                    infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
-                }, 5000);
-            }, 2500);
+            const iframe = document.getElementById('hidden_iframe');
+            
+            iframe.onload = function() {
+                try {
+                    const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
+                    const responseText = iframeContent.body.textContent || iframeContent.body.innerText;
+                    
+                    submitButton.value = "Salva Timesheet";
+                    submitButton.disabled = false;
+                    
+                    if (responseText.includes('Success')) {
+                        
+                        if (responseText.includes('|||WARNING|||')) {
+                            const warningMessage = responseText.split('|||WARNING|||')[1];
+                            infoBox.innerHTML = `
+                                <div class="warning-box">
+                                    <p>⚠️ ${warningMessage}</p>
+                                </div>
+                                <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>
+                            `;
+                        } else {
+                            infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato con successo!</p>';
+                        }
+                        
+                        const currentDate = document.getElementById('date').value;
+                        document.getElementById('timesheet-form').reset();
+                        document.getElementById('date').value = currentDate;
+                        document.getElementById('send_email').checked = true;
+                        
+                        setTimeout(function() {
+                            const warningBox = document.querySelector('.warning-box');
+                            if (warningBox) {
+                                warningBox.style.display = 'none';
+                            }
+                            infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
+                        }, 8000);
+                    } else {
+                        infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore nel salvataggio</p>';
+                    }
+                } catch (e) {
+                    console.error('Errore lettura risposta:', e);
+                    submitButton.value = "Salva Timesheet";
+                    submitButton.disabled = false;
+                    infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>';
+                    
+                    const currentDate = document.getElementById('date').value;
+                    document.getElementById('timesheet-form').reset();
+                    document.getElementById('date').value = currentDate;
+                    document.getElementById('send_email').checked = true;
+                    
+                    setTimeout(function() {
+                        infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
+                    }, 5000);
+                }
+            };
         }
         
         function openAddClientModal() {
