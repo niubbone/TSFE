@@ -33,6 +33,45 @@
             overflow-x: hidden !important;
         }
         
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px 10px 10px 10px !important;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab-button {
+            padding: 12px 30px !important;
+            border: none;
+            background-color: #e9ecef;
+            color: #495057;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .tab-button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         .form-container {
             padding: 10px;
             width: 100%;
@@ -159,7 +198,7 @@
             flex: 1; 
         }
         
-        input[type="submit"] {
+        input[type="submit"], .btn-primary {
             background-color: #28a745; 
             color: white;
             padding: 15px 20px !important;
@@ -171,11 +210,11 @@
             margin-top: 20px !important;
         }
         
-        input[type="submit"]:hover { 
+        input[type="submit"]:hover, .btn-primary:hover { 
             background-color: #1e7e34; 
         }
         
-        input[type="submit"]:disabled {
+        input[type="submit"]:disabled, .btn-primary:disabled {
             background-color: #6c757d;
             cursor: not-allowed;
         }
@@ -199,6 +238,161 @@
             margin: 0 !important;
             font-weight: normal;
             cursor: pointer;
+        }
+        
+        .proforma-steps {
+            max-width: 900px;
+            margin: 0 auto !important;
+        }
+        
+        .step {
+            display: none;
+            background: white;
+            padding: 20px !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px !important;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px !important;
+            padding-bottom: 15px !important;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .step-title {
+            font-size: 1.3em;
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .step-number {
+            background-color: #007bff;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .timesheet-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 !important;
+            font-size: 14px;
+        }
+        
+        .timesheet-table th {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 8px !important;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .timesheet-table td {
+            padding: 10px 8px !important;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .timesheet-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .timesheet-table input[type="checkbox"] {
+            width: 18px !important;
+            height: 18px !important;
+            cursor: pointer;
+        }
+        
+        .totale-box {
+            background-color: #e7f3ff;
+            padding: 20px !important;
+            border-radius: 8px;
+            margin: 20px 0 !important;
+            border-left: 4px solid #007bff;
+        }
+        
+        .totale-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0 !important;
+            font-size: 16px;
+        }
+        
+        .totale-row.final {
+            font-weight: bold;
+            font-size: 20px;
+            padding-top: 15px !important;
+            border-top: 2px solid #007bff;
+            margin-top: 10px !important;
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px !important;
+        }
+        
+        .btn-row button {
+            flex: 1;
+            padding: 12px !important;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px !important;
+            color: #6c757d;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px !important;
+        }
+        
+        .selection-actions {
+            margin: 15px 0 !important;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .selection-actions button {
+            padding: 8px 15px !important;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .selection-actions button:hover {
+            background-color: #0056b3;
         }
         
         .modal {
@@ -266,6 +460,15 @@
             form { 
                 padding: 15px !important; 
             }
+            
+            .tabs {
+                gap: 5px;
+            }
+            
+            .tab-button {
+                padding: 10px 15px !important;
+                font-size: 14px;
+            }
         }
     </style>
     <script>
@@ -273,6 +476,249 @@
         
         let clients = [];
         let config = {};
+        let selectedTimesheet = [];
+        let currentTimesheetData = [];
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            if (tabName === 'proforma') {
+                showProformaStep(1);
+            }
+        }
+        
+        function showProformaStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById('step-' + stepNumber).classList.add('active');
+        }
+        
+        function loadTimesheetForClient() {
+            const clientName = document.getElementById('proforma_client_select').value;
+            
+            if (!clientName) {
+                alert('Seleziona un cliente');
+                return;
+            }
+            
+            const loadingBox = document.getElementById('loading-timesheet');
+            loadingBox.style.display = 'block';
+            
+            const url = `${APPS_SCRIPT_URL}?action=get_timesheet_da_fatturare&client_name=${encodeURIComponent(clientName)}`;
+            
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentTimesheetData = data.timesheet || [];
+                        displayTimesheetTable(currentTimesheetData);
+                        showProformaStep(2);
+                    } else {
+                        alert('Errore: ' + (data.error || 'Impossibile caricare i timesheet'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    alert('Errore durante il caricamento dei timesheet');
+                })
+                .finally(() => {
+                    loadingBox.style.display = 'none';
+                });
+        }
+        
+        function displayTimesheetTable(timesheet) {
+            const tbody = document.getElementById('timesheet-tbody');
+            tbody.innerHTML = '';
+            selectedTimesheet = [];
+            
+            if (timesheet.length === 0) {
+                document.getElementById('timesheet-table-container').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p><strong>Nessun timesheet da fatturare</strong></p>
+                        <p>Non ci sono timesheet con modalità addebito "Da fatturare" per questo cliente</p>
+                    </div>
+                `;
+                document.getElementById('selection-info').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('timesheet-table-container').style.display = 'block';
+            document.getElementById('selection-info').style.display = 'block';
+            
+            timesheet.forEach((row, index) => {
+                const dataFormatted = new Date(row.data).toLocaleDateString('it-IT');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="timesheet-checkbox" data-index="${index}" data-row="${row.rowIndex}" onchange="updateSelection()"></td>
+                    <td>${dataFormatted}</td>
+                    <td>${row.tipo}</td>
+                    <td>${row.modalita}</td>
+                    <td>${row.ore}</td>
+                    <td>€ ${(row.chiamata || 0).toFixed(2)}</td>
+                    <td><strong>€ ${(row.costo || 0).toFixed(2)}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            updateSelection();
+        }
+        
+        function selectAllTimesheet() {
+            document.querySelectorAll('.timesheet-checkbox').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateSelection();
+        }
+        
+        function deselectAllTimesheet() {
+            document.querySelectorAll('.timesheet-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateSelection();
+        }
+        
+        function updateSelection() {
+            selectedTimesheet = [];
+            let subtotale = 0;
+            
+            document.querySelectorAll('.timesheet-checkbox:checked').forEach(checkbox => {
+                const index = parseInt(checkbox.dataset.index);
+                const rowIndex = parseInt(checkbox.dataset.row);
+                selectedTimesheet.push(rowIndex);
+                subtotale += parseFloat(currentTimesheetData[index].costo) || 0;
+            });
+            
+            document.getElementById('selected-count').textContent = selectedTimesheet.length;
+            document.getElementById('subtotale-preview').textContent = `€ ${subtotale.toFixed(2)}`;
+            
+            document.getElementById('proceed-to-step3-btn').disabled = selectedTimesheet.length === 0;
+        }
+        
+        function proceedToStep3() {
+            if (selectedTimesheet.length === 0) {
+                alert('Seleziona almeno un timesheet');
+                return;
+            }
+            
+            const clientName = document.getElementById('proforma_client_select').value;
+            const lastDate = currentTimesheetData
+                .filter((_, index) => selectedTimesheet.includes(currentTimesheetData[index].rowIndex))
+                .reduce((latest, row) => {
+                    const rowDate = new Date(row.data);
+                    return rowDate > latest ? rowDate : latest;
+                }, new Date(0));
+            
+            const dateFormatted = lastDate.toLocaleDateString('it-IT');
+            document.getElementById('proforma_causale').value = `Per interventi, consulenze e formazione al ${dateFormatted}`;
+            
+            updateProformaTotals();
+            showProformaStep(3);
+        }
+        
+        function updateProformaTotals() {
+            let subtotale = 0;
+            
+            currentTimesheetData.forEach((row, index) => {
+                if (selectedTimesheet.includes(row.rowIndex)) {
+                    subtotale += parseFloat(row.costo) || 0;
+                }
+            });
+            
+            const applicaQuota = document.getElementById('applica_quota').checked;
+            const quotaIntegrativa = applicaQuota ? subtotale * 0.04 : 0;
+            const imponibile = subtotale + quotaIntegrativa;
+            const ritenuta = imponibile * 0.20;
+            const iva = imponibile * 0.22;
+            const lordo = imponibile + iva;
+            const netto = lordo - ritenuta;
+            
+            document.getElementById('totale-subtotale').textContent = `€ ${subtotale.toFixed(2)}`;
+            document.getElementById('totale-quota-row').style.display = applicaQuota ? 'flex' : 'none';
+            document.getElementById('totale-quota').textContent = `€ ${quotaIntegrativa.toFixed(2)}`;
+            document.getElementById('totale-imponibile').textContent = `€ ${imponibile.toFixed(2)}`;
+            document.getElementById('totale-ritenuta').textContent = `€ ${ritenuta.toFixed(2)}`;
+            document.getElementById('totale-iva').textContent = `€ ${iva.toFixed(2)}`;
+            document.getElementById('totale-lordo').textContent = `€ ${lordo.toFixed(2)}`;
+            document.getElementById('totale-netto').textContent = `€ ${netto.toFixed(2)}`;
+        }
+        
+        function generateProformaFinal() {
+            const clientName = document.getElementById('proforma_client_select').value;
+            const causale = document.getElementById('proforma_causale').value;
+            const applicaQuota = document.getElementById('applica_quota').checked;
+            
+            if (!causale || causale.trim() === '') {
+                alert('Inserisci una causale');
+                return;
+            }
+            
+            if (selectedTimesheet.length === 0) {
+                alert('Nessun timesheet selezionato');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generate-proforma-final-btn');
+            const proformaInfoBox = document.getElementById('proforma-info-box');
+            
+            generateBtn.textContent = 'Generazione in corso...';
+            generateBtn.disabled = true;
+            proformaInfoBox.innerHTML = '<p>⏳ Generazione proforma in corso...</p>';
+            
+            const timesheetIdsStr = selectedTimesheet.join(',');
+            const url = `${APPS_SCRIPT_URL}?action=generate_proforma&client_name=${encodeURIComponent(clientName)}&timesheet_ids=${timesheetIdsStr}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
+            
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        proformaInfoBox.innerHTML = `
+                            <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">
+                                ✅ Proforma <strong>${data.proforma_number}</strong> generata e inviata!<br>
+                                Timesheet inclusi: ${data.timesheet_count}<br>
+                                Totale: € ${data.totale}
+                            </p>
+                        `;
+                        
+                        setTimeout(function() {
+                            showProformaStep(1);
+                            document.getElementById('proforma_client_select').value = '';
+                            proformaInfoBox.innerHTML = '<p>📄 Seleziona un cliente per iniziare</p>';
+                        }, 5000);
+                    } else {
+                        proformaInfoBox.innerHTML = `<p style="color: #d32f2f;">❌ Errore: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    proformaInfoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante la generazione della proforma</p>';
+                })
+                .finally(() => {
+                    generateBtn.textContent = 'Genera e Invia Proforma';
+                    generateBtn.disabled = false;
+                });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
 
         function loadFormData() {
             const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
@@ -305,6 +751,7 @@
                 config = data.config || {};
                 
                 populateFormFields();
+                populateProformaClients();
                 infoBox.innerHTML = '<p>✅ Dati caricati. Compila il form e clicca "Salva Timesheet"</p>';
             })
             .catch(error => {
@@ -357,6 +804,28 @@
                     console.warn(`Configurazione vuota per: ${id}`);
                 }
             }
+        }
+        
+        function populateProformaClients() {
+            const clientSelect = document.getElementById('proforma_client_select');
+            clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
+            
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.name;
+                option.textContent = client.name;
+                clientSelect.appendChild(option);
+            });
+        } {
+            const clientSelect = document.getElementById('proforma_client');
+            clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
+            
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.name;
+                option.textContent = client.name;
+                clientSelect.appendChild(option);
+            });
         }
 
         function handleFormSubmit(event) {
@@ -471,6 +940,73 @@
                     saveBtn.disabled = false;
                 });
         }
+        
+        function generateProforma() {
+            const clientName = document.getElementById('proforma_client').value;
+            const fromDate = document.getElementById('proforma_from_date').value;
+            const toDate = document.getElementById('proforma_to_date').value;
+            const causale = document.getElementById('proforma_causale').value;
+            const applicaQuota = document.getElementById('applica_quota').checked;
+            
+            if (!clientName) {
+                alert('Seleziona un cliente');
+                return;
+            }
+            
+            if (!causale || causale.trim() === '') {
+                alert('Inserisci una causale');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generate-proforma-btn');
+            const proformaInfoBox = document.getElementById('proforma-info-box');
+            
+            generateBtn.textContent = 'Generazione in corso...';
+            generateBtn.disabled = true;
+            proformaInfoBox.innerHTML = '<p>⏳ Generazione proforma in corso...</p>';
+            
+            const url = `${APPS_SCRIPT_URL}?action=generate_proforma&client_name=${encodeURIComponent(clientName)}&from_date=${fromDate}&to_date=${toDate}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
+            
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        proformaInfoBox.innerHTML = `
+                            <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">
+                                ✅ Proforma <strong>${data.proforma_number}</strong> generata e inviata!<br>
+                                Timesheet inclusi: ${data.timesheet_count}<br>
+                                Totale: € ${data.totale}
+                            </p>
+                        `;
+                        
+                        document.getElementById('proforma-form').reset();
+                        
+                        setTimeout(function() {
+                            proformaInfoBox.innerHTML = '<p>✅ Pronta per una nuova proforma</p>';
+                        }, 10000);
+                    } else {
+                        proformaInfoBox.innerHTML = `<p style="color: #d32f2f;">❌ Errore: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    proformaInfoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante la generazione della proforma</p>';
+                })
+                .finally(() => {
+                    generateBtn.textContent = 'Genera e Invia Proforma';
+                    generateBtn.disabled = false;
+                });
+        }
+        
+        function updateCausalePreview() {
+            const toDate = document.getElementById('proforma_to_date').value;
+            const causaleField = document.getElementById('proforma_causale');
+            
+            if (toDate && causaleField.value === '') {
+                const dateFormatted = new Date(toDate).toLocaleDateString('it-IT');
+                causaleField.value = `Per interventi, consulenze e formazione al ${dateFormatted}`;
+            }
+        }
 
         window.onload = function() {
             loadFormData();
@@ -495,76 +1031,219 @@
                     }
                 });
             });
+            
+            document.getElementById('applica_quota').addEventListener('change', updateProformaTotals);
         };
     </script>
 </head>
 <body>
-<div class="form-container">
-    <h1>Inserimento Timesheet</h1>
-    
-    <div id="info-box" class="info-box">
-        <p>⏳ Caricamento in corso...</p>
+
+<div class="tabs">
+    <button class="tab-button active" onclick="switchTab('timesheet')">📝 Timesheet</button>
+    <button class="tab-button" onclick="switchTab('proforma')">📄 Proforma</button>
+</div>
+
+<!-- TAB TIMESHEET -->
+<div id="timesheet-tab" class="tab-content active">
+    <div class="form-container">
+        <h1>Inserimento Timesheet</h1>
+        
+        <div id="info-box" class="info-box">
+            <p>⏳ Caricamento in corso...</p>
+        </div>
+        
+        <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec" target="hidden_iframe">
+            
+            <div class="top-row">
+                <div>
+                    <label for="date">Data:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div>
+                    <label for="duration">Durata (ore):</label>
+                    <input type="text" id="duration" name="duration" placeholder="es. 0.5, 1, 1.5" required>
+                </div>
+            </div>
+            
+            <div class="time-group">
+                <div>
+                    <label for="start_time">Ora Inizio (Opzionale):</label>
+                    <input type="time" id="start_time" name="start_time">
+                </div>
+                <div>
+                    <label for="end_time">Ora Fine (Opzionale):</label>
+                    <input type="time" id="end_time" name="end_time">
+                </div>
+            </div>
+            
+            <div class="client-row">
+                <div>
+                    <label for="client">Cliente:</label>
+                    <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
+                    <datalist id="client_list">
+                    </datalist>
+                </div>
+                <button type="button" class="add-client-btn" onclick="openAddClientModal()" title="Aggiungi nuovo cliente">+</button>
+            </div>
+
+            <label for="tipo_intervento">Tipo Intervento:</label>
+            <select id="tipo_intervento" name="tipo_intervento" required>
+                <option value="" disabled selected>Seleziona Tipo Intervento</option> 
+            </select>
+
+            <label for="mod_esecuzione">Modalità Esecuzione:</label>
+            <select id="mod_esecuzione" name="mod_esecuzione" required>
+                <option value="" disabled selected>Seleziona Modalità Esecuzione</option>
+            </select>
+            
+            <label for="mod_addebito">Modalità Addebito:</label>
+            <select id="mod_addebito" name="mod_addebito" required>
+                <option value="" disabled selected>Seleziona Modalità Addebito</option>
+            </select>
+            
+            <label for="description">Descrizione Attività:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="send_email" name="send_email" value="true" checked> 
+                <label for="send_email">Invia Email di Riepilogo al Cliente</label>
+            </div>
+            
+            <input type="submit" id="submit-btn" value="Salva Timesheet">
+        </form>
     </div>
-    
-    <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec" target="hidden_iframe">
-        
-        <div class="top-row">
-            <div>
-                <label for="date">Data:</label>
-                <input type="date" id="date" name="date" required>
-            </div>
-            <div>
-                <label for="duration">Durata (ore):</label>
-                <input type="text" id="duration" name="duration" placeholder="es. 0.5, 1, 1.5" required>
-            </div>
-        </div>
-        
-        <div class="time-group">
-            <div>
-                <label for="start_time">Ora Inizio (Opzionale):</label>
-                <input type="time" id="start_time" name="start_time">
-            </div>
-            <div>
-                <label for="end_time">Ora Fine (Opzionale):</label>
-                <input type="time" id="end_time" name="end_time">
-            </div>
-        </div>
-        
-        <div class="client-row">
-            <div>
-                <label for="client">Cliente:</label>
-                <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
-                <datalist id="client_list">
-                </datalist>
-            </div>
-            <button type="button" class="add-client-btn" onclick="openAddClientModal()" title="Aggiungi nuovo cliente">+</button>
-        </div>
+</div>
 
-        <label for="tipo_intervento">Tipo Intervento:</label>
-        <select id="tipo_intervento" name="tipo_intervento" required>
-            <option value="" disabled selected>Seleziona Tipo Intervento</option> 
-        </select>
-
-        <label for="mod_esecuzione">Modalità Esecuzione:</label>
-        <select id="mod_esecuzione" name="mod_esecuzione" required>
-            <option value="" disabled selected>Seleziona Modalità Esecuzione</option>
-        </select>
+<!-- TAB PROFORMA -->
+<div id="proforma-tab" class="tab-content">
+    <div class="form-container">
+        <h1>Genera Proforma</h1>
         
-        <label for="mod_addebito">Modalità Addebito:</label>
-        <select id="mod_addebito" name="mod_addebito" required>
-            <option value="" disabled selected>Seleziona Modalità Addebito</option>
-        </select>
-        
-        <label for="description">Descrizione Attività:</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
-        
-        <div class="checkbox-container">
-            <input type="checkbox" id="send_email" name="send_email" value="true" checked> 
-            <label for="send_email">Invia Email di Riepilogo al Cliente</label>
+        <div id="proforma-info-box" class="info-box">
+            <p>📄 Seleziona un cliente per iniziare</p>
         </div>
         
-        <input type="submit" id="submit-btn" value="Salva Timesheet">
-    </form>
+        <div class="proforma-steps">
+            
+            <!-- STEP 1: Seleziona Cliente -->
+            <div id="step-1" class="step active">
+                <div class="step-header">
+                    <div class="step-title">Seleziona Cliente</div>
+                    <div class="step-number">1</div>
+                </div>
+                
+                <label for="proforma_client_select">Cliente:</label>
+                <select id="proforma_client_select">
+                    <option value="">Seleziona Cliente</option>
+                </select>
+                
+                <div id="loading-timesheet" class="info-box" style="display: none; margin-top: 20px !important;">
+                    <p>⏳ Caricamento timesheet...</p>
+                </div>
+                
+                <button onclick="loadTimesheetForClient()" class="btn-primary" style="margin-top: 20px !important;">
+                    Carica Timesheet da Fatturare
+                </button>
+            </div>
+            
+            <!-- STEP 2: Seleziona Timesheet -->
+            <div id="step-2" class="step">
+                <div class="step-header">
+                    <div class="step-title">Seleziona Timesheet</div>
+                    <div class="step-number">2</div>
+                </div>
+                
+                <div class="selection-actions">
+                    <button onclick="selectAllTimesheet()">✓ Seleziona Tutti</button>
+                    <button onclick="deselectAllTimesheet()">✗ Deseleziona Tutti</button>
+                </div>
+                
+                <div id="timesheet-table-container">
+                    <table class="timesheet-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">✓</th>
+                                <th>Data</th>
+                                <th>Tipo Intervento</th>
+                                <th>Modalità</th>
+                                <th>Ore</th>
+                                <th>Chiamata</th>
+                                <th>Costo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timesheet-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="selection-info" class="info-box" style="margin-top: 20px !important;">
+                    <p>
+                        <strong>Selezionati:</strong> <span id="selected-count">0</span> timesheet<br>
+                        <strong>Subtotale:</strong> <span id="subtotale-preview">€ 0.00</span>
+                    </p>
+                </div>
+                
+                <div class="btn-row">
+                    <button onclick="showProformaStep(1)" class="btn-secondary">← Indietro</button>
+                    <button id="proceed-to-step3-btn" onclick="proceedToStep3()" class="btn-primary" disabled>Continua →</button>
+                </div>
+            </div>
+            
+            <!-- STEP 3: Configura e Genera -->
+            <div id="step-3" class="step">
+                <div class="step-header">
+                    <div class="step-title">Configura Proforma</div>
+                    <div class="step-number">3</div>
+                </div>
+                
+                <label for="proforma_causale">Causale:</label>
+                <textarea id="proforma_causale" rows="2" placeholder="Es: Per interventi, consulenze e formazione al 31/12/2024"></textarea>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="applica_quota"> 
+                    <label for="applica_quota">Applica Contributo Integrativo 4%</label>
+                </div>
+                
+                <div class="totale-box">
+                    <h3 style="margin-bottom: 15px !important;">Riepilogo Importi</h3>
+                    <div class="totale-row">
+                        <span>Totale compensi e spese:</span>
+                        <span id="totale-subtotale">€ 0.00</span>
+                    </div>
+                    <div class="totale-row" id="totale-quota-row" style="display: none;">
+                        <span>Contributo integrativo (4%):</span>
+                        <span id="totale-quota">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Totale imponibile IVA:</span>
+                        <span id="totale-imponibile">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Ritenuta d'acconto (20%):</span>
+                        <span id="totale-ritenuta">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>IVA (22%):</span>
+                        <span id="totale-iva">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Totale lordo:</span>
+                        <span id="totale-lordo">€ 0.00</span>
+                    </div>
+                    <div class="totale-row final">
+                        <span>NETTO DA LIQUIDARE:</span>
+                        <span id="totale-netto">€ 0.00</span>
+                    </div>
+                </div>
+                
+                <div class="btn-row">
+                    <button onclick="showProformaStep(2)" class="btn-secondary">← Indietro</button>
+                    <button id="generate-proforma-final-btn" onclick="generateProformaFinal()" class="btn-primary">📄 Genera e Invia Proforma</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
 </div>
 
 <!-- Modal per aggiungere nuovo cliente -->
