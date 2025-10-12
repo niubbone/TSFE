@@ -610,7 +610,6 @@
                 return;
             }
             
-            const clientName = document.getElementById('proforma_client_select').value;
             const lastDate = currentTimesheetData
                 .filter((_, index) => selectedTimesheet.includes(currentTimesheetData[index].rowIndex))
                 .reduce((latest, row) => {
@@ -708,18 +707,6 @@
                 });
         }
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            document.getElementById(tabName + '-tab').classList.add('active');
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
-        }
-
         function loadFormData() {
             const dataUrl = `${APPS_SCRIPT_URL}?action=get_data`;
             const submitButton = document.getElementById('submit-btn');
@@ -808,16 +795,6 @@
         
         function populateProformaClients() {
             const clientSelect = document.getElementById('proforma_client_select');
-            clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
-            
-            clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.name;
-                option.textContent = client.name;
-                clientSelect.appendChild(option);
-            });
-        } {
-            const clientSelect = document.getElementById('proforma_client');
             clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
             
             clients.forEach(client => {
@@ -939,73 +916,6 @@
                     saveBtn.textContent = 'Salva';
                     saveBtn.disabled = false;
                 });
-        }
-        
-        function generateProforma() {
-            const clientName = document.getElementById('proforma_client').value;
-            const fromDate = document.getElementById('proforma_from_date').value;
-            const toDate = document.getElementById('proforma_to_date').value;
-            const causale = document.getElementById('proforma_causale').value;
-            const applicaQuota = document.getElementById('applica_quota').checked;
-            
-            if (!clientName) {
-                alert('Seleziona un cliente');
-                return;
-            }
-            
-            if (!causale || causale.trim() === '') {
-                alert('Inserisci una causale');
-                return;
-            }
-            
-            const generateBtn = document.getElementById('generate-proforma-btn');
-            const proformaInfoBox = document.getElementById('proforma-info-box');
-            
-            generateBtn.textContent = 'Generazione in corso...';
-            generateBtn.disabled = true;
-            proformaInfoBox.innerHTML = '<p>⏳ Generazione proforma in corso...</p>';
-            
-            const url = `${APPS_SCRIPT_URL}?action=generate_proforma&client_name=${encodeURIComponent(clientName)}&from_date=${fromDate}&to_date=${toDate}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
-            
-            fetch(url, { method: 'GET' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        proformaInfoBox.innerHTML = `
-                            <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">
-                                ✅ Proforma <strong>${data.proforma_number}</strong> generata e inviata!<br>
-                                Timesheet inclusi: ${data.timesheet_count}<br>
-                                Totale: € ${data.totale}
-                            </p>
-                        `;
-                        
-                        document.getElementById('proforma-form').reset();
-                        
-                        setTimeout(function() {
-                            proformaInfoBox.innerHTML = '<p>✅ Pronta per una nuova proforma</p>';
-                        }, 10000);
-                    } else {
-                        proformaInfoBox.innerHTML = `<p style="color: #d32f2f;">❌ Errore: ${data.error}</p>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore:', error);
-                    proformaInfoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante la generazione della proforma</p>';
-                })
-                .finally(() => {
-                    generateBtn.textContent = 'Genera e Invia Proforma';
-                    generateBtn.disabled = false;
-                });
-        }
-        
-        function updateCausalePreview() {
-            const toDate = document.getElementById('proforma_to_date').value;
-            const causaleField = document.getElementById('proforma_causale');
-            
-            if (toDate && causaleField.value === '') {
-                const dateFormatted = new Date(toDate).toLocaleDateString('it-IT');
-                causaleField.value = `Per interventi, consulenze e formazione al ${dateFormatted}`;
-            }
         }
 
         window.onload = function() {
