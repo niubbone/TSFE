@@ -559,14 +559,27 @@
                 let dataFormatted = 'Data non valida';
                 if (row.data) {
                     try {
-                        const dateObj = new Date(row.data);
-                        if (!isNaN(dateObj.getTime())) {
-                            dataFormatted = dateObj.toLocaleDateString('it-IT');
-                        } else if (typeof row.data === 'string' && row.data.includes('/')) {
-                            dataFormatted = row.data;
+                        // Prova prima a parsare come stringa ISO o date string
+                        let dateObj;
+                        if (typeof row.data === 'string') {
+                            // Se è già in formato italiano dd/MM/yyyy
+                            if (row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                                dataFormatted = row.data;
+                            } else {
+                                // Prova a parsare come ISO o altro formato
+                                dateObj = new Date(row.data);
+                                if (!isNaN(dateObj.getTime())) {
+                                    dataFormatted = dateObj.toLocaleDateString('it-IT');
+                                }
+                            }
+                        } else if (row.data instanceof Date || typeof row.data === 'object') {
+                            dateObj = new Date(row.data);
+                            if (!isNaN(dateObj.getTime())) {
+                                dataFormatted = dateObj.toLocaleDateString('it-IT');
+                            }
                         }
                     } catch(e) {
-                        console.error('Errore conversione data:', e);
+                        console.error('Errore conversione data:', e, row.data);
                     }
                 }
                 
