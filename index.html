@@ -541,6 +541,17 @@
             tbody.innerHTML = '';
             selectedTimesheet = [];
             
+            console.log('=== DEBUG TIMESHEET ===');
+            console.log('Numero timesheet ricevuti:', timesheet.length);
+            if (timesheet.length > 0) {
+                console.log('Primo timesheet completo:', JSON.stringify(timesheet[0], null, 2));
+                console.log('Campo data:', timesheet[0].data);
+                console.log('Campo dataItaliana:', timesheet[0].dataItaliana);
+                console.log('Tipo data:', typeof timesheet[0].data);
+                console.log('Tipo dataItaliana:', typeof timesheet[0].dataItaliana);
+            }
+            console.log('=======================');
+            
             if (timesheet.length === 0) {
                 document.getElementById('timesheet-table-container').innerHTML = `
                     <div class="empty-state">
@@ -557,25 +568,45 @@
             document.getElementById('selection-info').style.display = 'block';
             
             timesheet.forEach((row, index) => {
-                // Usa dataItaliana se disponibile, altrimenti prova a convertire data
-                let dataFormatted = row.dataItaliana || 'Data non valida';
+                let dataFormatted = 'Data non valida';
                 
-                if (!row.dataItaliana && row.data) {
+                console.log(`--- Riga ${index} ---`);
+                console.log('row.dataItaliana:', row.dataItaliana);
+                console.log('row.data:', row.data);
+                
+                // Prima prova: usa dataItaliana se esiste
+                if (row.dataItaliana && row.dataItaliana.trim() !== '') {
+                    dataFormatted = row.dataItaliana;
+                    console.log('Usato dataItaliana:', dataFormatted);
+                }
+                // Seconda prova: converti data se esiste
+                else if (row.data) {
                     try {
-                        if (row.data.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                            // Formato ISO YYYY-MM-DD
+                        // Se è in formato ISO YYYY-MM-DD
+                        if (typeof row.data === 'string' && row.data.match(/^\d{4}-\d{2}-\d{2}$/)) {
                             const parts = row.data.split('-');
                             dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                        } else {
+                            console.log('Convertito da ISO:', dataFormatted);
+                        }
+                        // Se è già in formato italiano
+                        else if (typeof row.data === 'string' && row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                            dataFormatted = row.data;
+                            console.log('Già in formato italiano:', dataFormatted);
+                        }
+                        // Prova a parsare come Date
+                        else {
                             const dateObj = new Date(row.data);
                             if (!isNaN(dateObj.getTime())) {
                                 dataFormatted = dateObj.toLocaleDateString('it-IT');
+                                console.log('Parsato come Date:', dataFormatted);
                             }
                         }
                     } catch(e) {
                         console.error('Errore conversione data:', e, row);
                     }
                 }
+                
+                console.log('Risultato finale dataFormatted:', dataFormatted);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
