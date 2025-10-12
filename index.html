@@ -520,6 +520,7 @@
                 .then(data => {
                     if (data.success) {
                         currentTimesheetData = data.timesheet || [];
+                        console.log('Timesheet ricevuti:', currentTimesheetData);
                         displayTimesheetTable(currentTimesheetData);
                         showProformaStep(2);
                     } else {
@@ -556,30 +557,23 @@
             document.getElementById('selection-info').style.display = 'block';
             
             timesheet.forEach((row, index) => {
-                let dataFormatted = 'Data non valida';
-                if (row.data) {
+                // Usa dataItaliana se disponibile, altrimenti prova a convertire data
+                let dataFormatted = row.dataItaliana || 'Data non valida';
+                
+                if (!row.dataItaliana && row.data) {
                     try {
-                        // Prova prima a parsare come stringa ISO o date string
-                        let dateObj;
-                        if (typeof row.data === 'string') {
-                            // Se è già in formato italiano dd/MM/yyyy
-                            if (row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-                                dataFormatted = row.data;
-                            } else {
-                                // Prova a parsare come ISO o altro formato
-                                dateObj = new Date(row.data);
-                                if (!isNaN(dateObj.getTime())) {
-                                    dataFormatted = dateObj.toLocaleDateString('it-IT');
-                                }
-                            }
-                        } else if (row.data instanceof Date || typeof row.data === 'object') {
-                            dateObj = new Date(row.data);
+                        if (row.data.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                            // Formato ISO YYYY-MM-DD
+                            const parts = row.data.split('-');
+                            dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        } else {
+                            const dateObj = new Date(row.data);
                             if (!isNaN(dateObj.getTime())) {
                                 dataFormatted = dateObj.toLocaleDateString('it-IT');
                             }
                         }
                     } catch(e) {
-                        console.error('Errore conversione data:', e, row.data);
+                        console.error('Errore conversione data:', e, row);
                     }
                 }
                 
