@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Inserimento Timesheet Veloce</title>
+    <title>Timesheet</title>
     
     <!-- PWA Icons -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -556,10 +556,23 @@
             document.getElementById('selection-info').style.display = 'block';
             
             timesheet.forEach((row, index) => {
-                const dataFormatted = new Date(row.data).toLocaleDateString('it-IT');
+                let dataFormatted = 'Data non valida';
+                if (row.data) {
+                    try {
+                        const dateObj = new Date(row.data);
+                        if (!isNaN(dateObj.getTime())) {
+                            dataFormatted = dateObj.toLocaleDateString('it-IT');
+                        } else if (typeof row.data === 'string' && row.data.includes('/')) {
+                            dataFormatted = row.data;
+                        }
+                    } catch(e) {
+                        console.error('Errore conversione data:', e);
+                    }
+                }
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><input type="checkbox" class="timesheet-checkbox" data-index="${index}" data-row="${row.rowIndex}" onchange="updateSelection()"></td>
+                    <td><input type="checkbox" class="timesheet-checkbox" data-index="${index}" data-row="${row.rowIndex}" data-date="${row.data}" onchange="updateSelection()"></td>
                     <td>${dataFormatted}</td>
                     <td>${row.tipo}</td>
                     <td>${row.modalita}</td>
@@ -610,14 +623,22 @@
                 return;
             }
             
-            const lastDate = currentTimesheetData
-                .filter((_, index) => selectedTimesheet.includes(currentTimesheetData[index].rowIndex))
-                .reduce((latest, row) => {
-                    const rowDate = new Date(row.data);
-                    return rowDate > latest ? rowDate : latest;
-                }, new Date(0));
+            let lastDate = new Date(0);
+            document.querySelectorAll('.timesheet-checkbox:checked').forEach(checkbox => {
+                const dateStr = checkbox.dataset.date;
+                if (dateStr) {
+                    const dateObj = new Date(dateStr);
+                    if (!isNaN(dateObj.getTime()) && dateObj > lastDate) {
+                        lastDate = dateObj;
+                    }
+                }
+            });
             
-            const dateFormatted = lastDate.toLocaleDateString('it-IT');
+            let dateFormatted = 'data non disponibile';
+            if (lastDate.getTime() > 0) {
+                dateFormatted = lastDate.toLocaleDateString('it-IT');
+            }
+            
             document.getElementById('proforma_causale').value = `Per interventi, consulenze e formazione al ${dateFormatted}`;
             
             updateProformaTotals();
