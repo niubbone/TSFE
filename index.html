@@ -178,7 +178,7 @@
             color: #333; 
         }
         
-        input[type="date"], input[type="time"], input[type="text"], input[type="email"], textarea, select {
+        input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="number"], textarea, select {
             width: 100% !important;
             padding: 12px !important;
             margin-bottom: 10px !important;
@@ -541,17 +541,6 @@
             tbody.innerHTML = '';
             selectedTimesheet = [];
             
-            console.log('=== DEBUG TIMESHEET ===');
-            console.log('Numero timesheet ricevuti:', timesheet.length);
-            if (timesheet.length > 0) {
-                console.log('Primo timesheet completo:', JSON.stringify(timesheet[0], null, 2));
-                console.log('Campo data:', timesheet[0].data);
-                console.log('Campo dataItaliana:', timesheet[0].dataItaliana);
-                console.log('Tipo data:', typeof timesheet[0].data);
-                console.log('Tipo dataItaliana:', typeof timesheet[0].dataItaliana);
-            }
-            console.log('=======================');
-            
             if (timesheet.length === 0) {
                 document.getElementById('timesheet-table-container').innerHTML = `
                     <div class="empty-state">
@@ -570,43 +559,25 @@
             timesheet.forEach((row, index) => {
                 let dataFormatted = 'Data non valida';
                 
-                console.log(`--- Riga ${index} ---`);
-                console.log('row.dataItaliana:', row.dataItaliana);
-                console.log('row.data:', row.data);
-                
-                // Prima prova: usa dataItaliana se esiste
                 if (row.dataItaliana && row.dataItaliana.trim() !== '') {
                     dataFormatted = row.dataItaliana;
-                    console.log('Usato dataItaliana:', dataFormatted);
-                }
-                // Seconda prova: converti data se esiste
-                else if (row.data) {
+                } else if (row.data) {
                     try {
-                        // Se è in formato ISO YYYY-MM-DD
                         if (typeof row.data === 'string' && row.data.match(/^\d{4}-\d{2}-\d{2}$/)) {
                             const parts = row.data.split('-');
                             dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                            console.log('Convertito da ISO:', dataFormatted);
-                        }
-                        // Se è già in formato italiano
-                        else if (typeof row.data === 'string' && row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                        } else if (typeof row.data === 'string' && row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
                             dataFormatted = row.data;
-                            console.log('Già in formato italiano:', dataFormatted);
-                        }
-                        // Prova a parsare come Date
-                        else {
+                        } else {
                             const dateObj = new Date(row.data);
                             if (!isNaN(dateObj.getTime())) {
                                 dataFormatted = dateObj.toLocaleDateString('it-IT');
-                                console.log('Parsato come Date:', dataFormatted);
                             }
                         }
                     } catch(e) {
                         console.error('Errore conversione data:', e, row);
                     }
                 }
-                
-                console.log('Risultato finale dataFormatted:', dataFormatted);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -856,25 +827,21 @@
             const clientSelect = document.getElementById('proforma_client_select');
             clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
             
-            // Popola anche le datalist per Vendite
             const canoneDatalist = document.getElementById('client_list_canone');
             const firmaDatalist = document.getElementById('client_list_firma');
             canoneDatalist.innerHTML = '';
             firmaDatalist.innerHTML = '';
             
             clients.forEach(client => {
-                // Proforma select
                 const option = document.createElement('option');
                 option.value = client.name;
                 option.textContent = client.name;
                 clientSelect.appendChild(option);
                 
-                // Canone datalist
                 const canoneOption = document.createElement('option');
                 canoneOption.value = client.name;
                 canoneDatalist.appendChild(canoneOption);
                 
-                // Firma datalist
                 const firmaOption = document.createElement('option');
                 firmaOption.value = client.name;
                 firmaDatalist.appendChild(firmaOption);
@@ -993,53 +960,7 @@
                     saveBtn.disabled = false;
                 });
         }
-
-        window.onload = function() {
-            loadFormData();
-            
-            const today = new Date().toISOString().substring(0, 10);
-            document.getElementById('date').value = today;
-
-            const form = document.getElementById('timesheet-form');
-            form.addEventListener('submit', handleFormSubmit);
-
-            document.querySelectorAll('select').forEach(select => {
-                select.addEventListener('focus', function() {
-                    const defaultOption = this.querySelector('option[value=""]');
-                    if (defaultOption) {
-                        defaultOption.style.display = 'none';
-                    }
-                });
-                select.addEventListener('blur', function() {
-                    const defaultOption = this.querySelector('option[value=""]');
-                    if (defaultOption && this.value === '') {
-                        defaultOption.style.display = 'block';
-                    }
-                });
-            });
-            
-            document.getElementById('applica_quota').addEventListener('change', updateProformaTotals);
-            
-            // Handler form Canone
-            const canoneForm = document.getElementById('canone-form');
-            canoneForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                handleCanoneSubmit();
-            });
-            
-            // Handler form Firma
-            const firmaForm = document.getElementById('firma-form');
-            firmaForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                handleFirmaSubmit();
-            });
-            
-            // Imposta data odierna nei form vendite
-            document.getElementById('canone_data_inizio').value = today;
-            document.getElementById('firma_data_inizio').value = today;
-        };
         
-        // Gestione submit Canone
         function handleCanoneSubmit() {
             const form = document.getElementById('canone-form');
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -1080,7 +1001,6 @@
                 });
         }
         
-        // Gestione submit Firma
         function handleFirmaSubmit() {
             const form = document.getElementById('firma-form');
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -1120,6 +1040,48 @@
                     submitBtn.disabled = false;
                 });
         }
+
+        window.onload = function() {
+            loadFormData();
+            
+            const today = new Date().toISOString().substring(0, 10);
+            document.getElementById('date').value = today;
+
+            const form = document.getElementById('timesheet-form');
+            form.addEventListener('submit', handleFormSubmit);
+
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('focus', function() {
+                    const defaultOption = this.querySelector('option[value=""]');
+                    if (defaultOption) {
+                        defaultOption.style.display = 'none';
+                    }
+                });
+                select.addEventListener('blur', function() {
+                    const defaultOption = this.querySelector('option[value=""]');
+                    if (defaultOption && this.value === '') {
+                        defaultOption.style.display = 'block';
+                    }
+                });
+            });
+            
+            document.getElementById('applica_quota').addEventListener('change', updateProformaTotals);
+            
+            const canoneForm = document.getElementById('canone-form');
+            canoneForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleCanoneSubmit();
+            });
+            
+            const firmaForm = document.getElementById('firma-form');
+            firmaForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleFirmaSubmit();
+            });
+            
+            document.getElementById('canone_data_inizio').value = today;
+            document.getElementById('firma_data_inizio').value = today;
+        };
     </script>
 </head>
 <body>
@@ -1212,7 +1174,7 @@
         
         <!-- INSERIMENTO CANONE -->
         <form id="canone-form" style="margin-bottom: 40px;">
-            <h2 style="color: #007bff; margin: 20px 0 !important;">🔔 Nuovo Canone</h2>
+            <h2 style="color: #007bff; margin: 20px 0 !important;">💳 Nuovo Canone</h2>
             
             <div class="client-row">
                 <div>
@@ -1241,7 +1203,7 @@
         
         <!-- INSERIMENTO FIRMA -->
         <form id="firma-form">
-            <h2 style="color: #007bff; margin: 20px 0 !important;">📝 Nuova Firma Digitale</h2>
+            <h2 style="color: #007bff; margin: 20px 0 !important;">✍️ Nuova Firma Digitale</h2>
             
             <div class="client-row">
                 <div>
