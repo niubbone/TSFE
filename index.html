@@ -856,11 +856,28 @@
             const clientSelect = document.getElementById('proforma_client_select');
             clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
             
+            // Popola anche le datalist per Vendite
+            const canoneDatalist = document.getElementById('client_list_canone');
+            const firmaDatalist = document.getElementById('client_list_firma');
+            canoneDatalist.innerHTML = '';
+            firmaDatalist.innerHTML = '';
+            
             clients.forEach(client => {
+                // Proforma select
                 const option = document.createElement('option');
                 option.value = client.name;
                 option.textContent = client.name;
                 clientSelect.appendChild(option);
+                
+                // Canone datalist
+                const canoneOption = document.createElement('option');
+                canoneOption.value = client.name;
+                canoneDatalist.appendChild(canoneOption);
+                
+                // Firma datalist
+                const firmaOption = document.createElement('option');
+                firmaOption.value = client.name;
+                firmaDatalist.appendChild(firmaOption);
             });
         }
 
@@ -1002,13 +1019,115 @@
             });
             
             document.getElementById('applica_quota').addEventListener('change', updateProformaTotals);
+            
+            // Handler form Canone
+            const canoneForm = document.getElementById('canone-form');
+            canoneForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleCanoneSubmit();
+            });
+            
+            // Handler form Firma
+            const firmaForm = document.getElementById('firma-form');
+            firmaForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleFirmaSubmit();
+            });
+            
+            // Imposta data odierna nei form vendite
+            const today = new Date().toISOString().substring(0, 10);
+            document.getElementById('canone_data_inizio').value = today;
+            document.getElementById('firma_data_inizio').value = today;
         };
+        
+        // Gestione submit Canone
+        function handleCanoneSubmit() {
+            const form = document.getElementById('canone-form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const infoBox = document.getElementById('vendite-info-box');
+            
+            const data = {
+                nome_cliente: document.getElementById('canone_cliente').value,
+                descrizione: document.getElementById('canone_descrizione').value,
+                data_inizio: document.getElementById('canone_data_inizio').value,
+                importo: document.getElementById('canone_importo').value
+            };
+            
+            submitBtn.textContent = 'Salvataggio...';
+            submitBtn.disabled = true;
+            infoBox.innerHTML = '<p>⏳ Salvataggio canone in corso...</p>';
+            
+            const url = `${APPS_SCRIPT_URL}?action=insert_canone&nome_cliente=${encodeURIComponent(data.nome_cliente)}&descrizione=${encodeURIComponent(data.descrizione)}&data_inizio=${data.data_inizio}&importo=${data.importo}`;
+            
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Canone salvato! ID: ' + result.id + '</p>';
+                        form.reset();
+                        const today = new Date().toISOString().substring(0, 10);
+                        document.getElementById('canone_data_inizio').value = today;
+                    } else {
+                        infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore: ' + result.error + '</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante il salvataggio</p>';
+                })
+                .finally(() => {
+                    submitBtn.textContent = '💾 Salva Canone';
+                    submitBtn.disabled = false;
+                });
+        }
+        
+        // Gestione submit Firma
+        function handleFirmaSubmit() {
+            const form = document.getElementById('firma-form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const infoBox = document.getElementById('vendite-info-box');
+            
+            const data = {
+                nome_cliente: document.getElementById('firma_cliente').value,
+                tipo: document.getElementById('firma_tipo').value,
+                data_inizio: document.getElementById('firma_data_inizio').value,
+                importo: document.getElementById('firma_importo').value
+            };
+            
+            submitBtn.textContent = 'Salvataggio...';
+            submitBtn.disabled = true;
+            infoBox.innerHTML = '<p>⏳ Salvataggio firma in corso...</p>';
+            
+            const url = `${APPS_SCRIPT_URL}?action=insert_firma&nome_cliente=${encodeURIComponent(data.nome_cliente)}&tipo=${encodeURIComponent(data.tipo)}&data_inizio=${data.data_inizio}&importo=${data.importo}`;
+            
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Firma salvata! ID: ' + result.id + '<br>📧 Email promemoria inviata</p>';
+                        form.reset();
+                        const today = new Date().toISOString().substring(0, 10);
+                        document.getElementById('firma_data_inizio').value = today;
+                    } else {
+                        infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore: ' + result.error + '</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante il salvataggio</p>';
+                })
+                .finally(() => {
+                    submitBtn.textContent = '💾 Salva Firma';
+                    submitBtn.disabled = false;
+                });
+        }
     </script>
 </head>
 <body>
 
 <div class="tabs">
     <button class="tab-button active" onclick="switchTab('timesheet')">⏱️ Timesheet</button>
+    <button class="tab-button" onclick="switchTab('vendite')">💰 Vendite</button>
     <button class="tab-button" onclick="switchTab('proforma')">📄 Proforma</button>
 </div>
 
@@ -1079,6 +1198,79 @@
             </div>
             
             <input type="submit" id="submit-btn" value="Salva Timesheet">
+        </form>
+    </div>
+</div>
+
+<!-- TAB VENDITE -->
+<div id="vendite-tab" class="tab-content">
+    <div class="form-container">
+        <h1>Gestione Vendite</h1>
+        
+        <div id="vendite-info-box" class="info-box">
+            <p>💰 Inserisci Canoni e Firme Digitali</p>
+        </div>
+        
+        <!-- INSERIMENTO CANONE -->
+        <form id="canone-form" style="margin-bottom: 40px;">
+            <h2 style="color: #007bff; margin: 20px 0 !important;">🔔 Nuovo Canone</h2>
+            
+            <div class="client-row">
+                <div>
+                    <label for="canone_cliente">Cliente:</label>
+                    <input type="text" id="canone_cliente" name="canone_cliente" list="client_list_canone" required placeholder="Seleziona cliente">
+                    <datalist id="client_list_canone"></datalist>
+                </div>
+            </div>
+            
+            <label for="canone_descrizione">Descrizione:</label>
+            <input type="text" id="canone_descrizione" name="canone_descrizione" required placeholder="es. Canone gestione sito web">
+            
+            <div class="top-row">
+                <div>
+                    <label for="canone_data_inizio">Data Inizio:</label>
+                    <input type="date" id="canone_data_inizio" name="canone_data_inizio" required>
+                </div>
+                <div>
+                    <label for="canone_importo">Importo (€):</label>
+                    <input type="number" id="canone_importo" name="canone_importo" step="0.01" required placeholder="0.00">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary">💾 Salva Canone</button>
+        </form>
+        
+        <!-- INSERIMENTO FIRMA -->
+        <form id="firma-form">
+            <h2 style="color: #007bff; margin: 20px 0 !important;">📝 Nuova Firma Digitale</h2>
+            
+            <div class="client-row">
+                <div>
+                    <label for="firma_cliente">Cliente:</label>
+                    <input type="text" id="firma_cliente" name="firma_cliente" list="client_list_firma" required placeholder="Seleziona cliente">
+                    <datalist id="client_list_firma"></datalist>
+                </div>
+            </div>
+            
+            <label for="firma_tipo">Tipo:</label>
+            <select id="firma_tipo" name="firma_tipo" required>
+                <option value="">Seleziona Tipo</option>
+                <option value="Firma Digitale">Firma Digitale</option>
+                <option value="Firma Remota">Firma Remota</option>
+            </select>
+            
+            <div class="top-row">
+                <div>
+                    <label for="firma_data_inizio">Data Inizio:</label>
+                    <input type="date" id="firma_data_inizio" name="firma_data_inizio" required>
+                </div>
+                <div>
+                    <label for="firma_importo">Importo (€):</label>
+                    <input type="number" id="firma_importo" name="firma_importo" step="0.01" required placeholder="0.00">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary">💾 Salva Firma</button>
         </form>
     </div>
 </div>
