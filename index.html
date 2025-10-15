@@ -891,18 +891,26 @@
                         if (responseText.includes('|||WARNING|||')) {
                             const warningMessage = responseText.split('|||WARNING|||')[1];
                             
+                            // 🔴 ALERT POPUP
+                            alert('⚠️ ATTENZIONE!\n\n' + warningMessage.replace(/<[^>]*>/g, '').replace(/<br>/g, '\n'));
+                            
                             // Distingui tra warning normale e critico
                             let warningBoxClass = 'warning-box';
                             let warningIcon = '⚠️';
                             
-                            if (warningMessage.includes('PACCHETTO TERMINATO') || warningMessage.includes('SALDO NEGATIVO')) {
+                            if (warningMessage.includes('PACCHETTO TERMINATO') || 
+                                warningMessage.includes('SALDO NEGATIVO') || 
+                                warningMessage.includes('NEGATIVO') ||
+                                warningMessage.includes('SUPERA le ore')) {
                                 warningBoxClass = 'warning-box-critical';
                                 warningIcon = '🚨';
                             }
                             
                             // Formatta le ore negative in rosso
                             let formattedMessage = warningMessage;
-                            if (warningMessage.includes('ore (NEGATIVO)') || warningMessage.includes('SALDO NEGATIVO')) {
+                            if (warningMessage.includes('ore (NEGATIVO)') || 
+                                warningMessage.includes('SALDO NEGATIVO') ||
+                                warningMessage.includes('NEGATIVO')) {
                                 formattedMessage = warningMessage.replace(
                                     /(-?\d+\.?\d*) ore \((NEGATIVO|SALDO NEGATIVO)\)/g, 
                                     '<span class="negative-hours">$1 ore (NEGATIVO)</span>'
