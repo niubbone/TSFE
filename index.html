@@ -124,6 +124,26 @@
             font-weight: bold;
         }
         
+        .warning-box-critical {
+            background-color: #ffe6e6;
+            border-left: 4px solid #dc3545;
+            padding: 15px !important;
+            margin-bottom: 20px !important;
+            border-radius: 4px;
+        }
+
+        .warning-box-critical p {
+            margin: 0 !important;
+            color: #dc3545;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .negative-hours {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
         .top-row {
             display: flex;
             gap: 15px;
@@ -544,7 +564,7 @@
             if (timesheet.length === 0) {
                 document.getElementById('timesheet-table-container').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-icon">🔭</div>
                         <p><strong>Nessun timesheet da fatturare</strong></p>
                         <p>Non ci sono timesheet con modalità addebito "Da fatturare" per questo cliente</p>
                     </div>
@@ -870,9 +890,28 @@
                         
                         if (responseText.includes('|||WARNING|||')) {
                             const warningMessage = responseText.split('|||WARNING|||')[1];
+                            
+                            // Distingui tra warning normale e critico
+                            let warningBoxClass = 'warning-box';
+                            let warningIcon = '⚠️';
+                            
+                            if (warningMessage.includes('PACCHETTO TERMINATO') || warningMessage.includes('SALDO NEGATIVO')) {
+                                warningBoxClass = 'warning-box-critical';
+                                warningIcon = '🚨';
+                            }
+                            
+                            // Formatta le ore negative in rosso
+                            let formattedMessage = warningMessage;
+                            if (warningMessage.includes('ore (NEGATIVO)') || warningMessage.includes('SALDO NEGATIVO')) {
+                                formattedMessage = warningMessage.replace(
+                                    /(-?\d+\.?\d*) ore \((NEGATIVO|SALDO NEGATIVO)\)/g, 
+                                    '<span class="negative-hours">$1 ore (NEGATIVO)</span>'
+                                );
+                            }
+                            
                             infoBox.innerHTML = `
-                                <div class="warning-box">
-                                    <p>⚠️ ${warningMessage}</p>
+                                <div class="${warningBoxClass}">
+                                    <p>${warningIcon} ${formattedMessage}</p>
                                 </div>
                                 <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>
                             `;
@@ -886,12 +925,12 @@
                         document.getElementById('send_email').checked = true;
                         
                         setTimeout(function() {
-                            const warningBox = document.querySelector('.warning-box');
+                            const warningBox = document.querySelector('.warning-box, .warning-box-critical');
                             if (warningBox) {
                                 warningBox.style.display = 'none';
                             }
                             infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
-                        }, 8000);
+                        }, 12000);
                     } else {
                         infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore nel salvataggio</p>';
                     }
@@ -1203,7 +1242,7 @@
         
         <!-- INSERIMENTO FIRMA -->
         <form id="firma-form">
-            <h2 style="color: #007bff; margin: 20px 0 !important;">✍️ Nuova Firma Digitale</h2>
+            <h2 style="color: #007bff; margin: 20px 0 !important;">✏️ Nuova Firma Digitale</h2>
             
             <div class="client-row">
                 <div>
