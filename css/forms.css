@@ -31,8 +31,8 @@ input[type="email"],
 textarea,
 select {
     width: 100% !important;
-    padding: 12px !important;
-    margin-bottom: 10px !important;
+    padding: 10px !important;
+    margin-bottom: 8px !important;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     box-sizing: border-box !important; 
