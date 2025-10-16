@@ -4,9 +4,18 @@
 
 /* Reset e Box Sizing */
 * {
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: auto;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
+    margin: 0;
+    padding: 0;
 }
 
 /* Variabili CSS */
