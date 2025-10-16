@@ -1,0 +1,232 @@
+/* =======================================================================
+   FORMS.CSS - Form, Input, Select, Textarea
+   ======================================================================= */
+
+/* Form Base */
+form { 
+    background: var(--bg-white);
+    padding: 20px !important; 
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    max-width: 600px;
+    margin: 0 auto !important;
+    width: 100% !important; 
+}
+
+/* Labels */
+label { 
+    display: block; 
+    margin-top: 15px !important; 
+    margin-bottom: 5px !important; 
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+/* Input, Select, Textarea Base */
+input[type="date"],
+input[type="time"],
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    width: 100% !important;
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box !important; 
+    font-size: 16px;
+    font-family: inherit;
+    appearance: none;
+    transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Textarea */
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Top Row (Date + Duration) */
+.top-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.top-row > div {
+    flex: 1;
+}
+
+.top-row > div:first-child {
+    flex: 0 0 180px;
+}
+
+/* Time Group */
+.time-group { 
+    display: flex; 
+    gap: 15px; 
+}
+
+.time-group > div { 
+    flex: 1; 
+}
+
+/* Client Row */
+.client-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-top: 15px !important;
+}
+
+.client-row > div {
+    flex: 1;
+}
+
+/* Add Client Button */
+.add-client-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    width: 45px;
+    height: 45px;
+    font-size: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    margin-bottom: 10px !important;
+    transition: background-color 0.3s ease;
+}
+
+.add-client-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Submit Button */
+input[type="submit"],
+.btn-primary {
+    background-color: var(--success-color);
+    color: white;
+    padding: 15px 20px !important;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    width: 100% !important;
+    font-size: 18px;
+    font-weight: 500;
+    margin-top: 20px !important;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover,
+.btn-primary:hover { 
+    background-color: var(--success-dark);
+}
+
+input[type="submit"]:disabled,
+.btn-primary:disabled {
+    background-color: var(--secondary-color);
+    cursor: not-allowed;
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-dark);
+}
+
+/* Button Row */
+.btn-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px !important;
+}
+
+.btn-row button {
+    flex: 1;
+    padding: 12px !important;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Checkbox Container */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px !important;
+    padding: 10px 0 !important;
+    border-top: 1px solid var(--border-light);
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: auto !important;
+    margin-right: 10px !important;
+    height: 18px;
+    width: 18px;
+    cursor: pointer;
+}
+
+.checkbox-container label {
+    margin: 0 !important;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+/* Selection Actions */
+.selection-actions {
+    margin: 15px 0 !important;
+    display: flex;
+    gap: 10px;
+}
+
+.selection-actions button {
+    padding: 8px 15px !important;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.selection-actions button:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .time-group,
+    .top-row { 
+        flex-direction: column; 
+        gap: 0; 
+    }
+    
+    .top-row > div:first-child {
+        flex: 1;
+    }
+    
+    form { 
+        padding: 15px !important; 
+    }
+}
