@@ -1,0 +1,110 @@
+/* =======================================================================
+   TABS.CSS - Navigazione e Tab Content
+   ======================================================================= */
+
+/* Tabs Container */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 10px 10px 10px !important;
+    background-color: var(--bg-white);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Tab Button */
+.tab-button {
+    padding: 12px 30px !important;
+    border: none;
+    background-color: #e9ecef;
+    color: #495057;
+    border-radius: 8px 8px 0 0;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background-color: var(--primary-dark);
+    color: white;
+}
+
+.tab-button.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Form Container */
+.form-container {
+    padding: 10px;
+    width: 100%;
+}
+
+/* Steps Container (per proforma) */
+.proforma-steps {
+    max-width: 900px;
+    margin: 0 auto !important;
+}
+
+.step {
+    display: none;
+    background: var(--bg-white);
+    padding: 20px !important;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 20px !important;
+}
+
+.step.active {
+    display: block;
+}
+
+.step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.step-title {
+    font-size: 1.3em;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.step-number {
+    background-color: var(--primary-color);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .tabs {
+        gap: 5px;
+        padding: 15px 5px 10px 5px !important;
+    }
+    
+    .tab-button {
+        padding: 10px 15px !important;
+        font-size: 14px;
+    }
+}
