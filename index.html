@@ -124,26 +124,6 @@
             font-weight: bold;
         }
         
-        .warning-box-critical {
-            background-color: #ffe6e6;
-            border-left: 4px solid #dc3545;
-            padding: 15px !important;
-            margin-bottom: 20px !important;
-            border-radius: 4px;
-        }
-
-        .warning-box-critical p {
-            margin: 0 !important;
-            color: #dc3545;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .negative-hours {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        
         .top-row {
             display: flex;
             gap: 15px;
@@ -198,7 +178,7 @@
             color: #333; 
         }
         
-        input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="number"], textarea, select {
+        input[type="date"], input[type="time"], input[type="text"], input[type="email"], textarea, select {
             width: 100% !important;
             padding: 12px !important;
             margin-bottom: 10px !important;
@@ -561,10 +541,21 @@
             tbody.innerHTML = '';
             selectedTimesheet = [];
             
+            console.log('=== DEBUG TIMESHEET ===');
+            console.log('Numero timesheet ricevuti:', timesheet.length);
+            if (timesheet.length > 0) {
+                console.log('Primo timesheet completo:', JSON.stringify(timesheet[0], null, 2));
+                console.log('Campo data:', timesheet[0].data);
+                console.log('Campo dataItaliana:', timesheet[0].dataItaliana);
+                console.log('Tipo data:', typeof timesheet[0].data);
+                console.log('Tipo dataItaliana:', typeof timesheet[0].dataItaliana);
+            }
+            console.log('=======================');
+            
             if (timesheet.length === 0) {
                 document.getElementById('timesheet-table-container').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🔭</div>
+                        <div class="empty-state-icon">📭</div>
                         <p><strong>Nessun timesheet da fatturare</strong></p>
                         <p>Non ci sono timesheet con modalità addebito "Da fatturare" per questo cliente</p>
                     </div>
@@ -579,25 +570,43 @@
             timesheet.forEach((row, index) => {
                 let dataFormatted = 'Data non valida';
                 
+                console.log(`--- Riga ${index} ---`);
+                console.log('row.dataItaliana:', row.dataItaliana);
+                console.log('row.data:', row.data);
+                
+                // Prima prova: usa dataItaliana se esiste
                 if (row.dataItaliana && row.dataItaliana.trim() !== '') {
                     dataFormatted = row.dataItaliana;
-                } else if (row.data) {
+                    console.log('Usato dataItaliana:', dataFormatted);
+                }
+                // Seconda prova: converti data se esiste
+                else if (row.data) {
                     try {
+                        // Se è in formato ISO YYYY-MM-DD
                         if (typeof row.data === 'string' && row.data.match(/^\d{4}-\d{2}-\d{2}$/)) {
                             const parts = row.data.split('-');
                             dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                        } else if (typeof row.data === 'string' && row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                            console.log('Convertito da ISO:', dataFormatted);
+                        }
+                        // Se è già in formato italiano
+                        else if (typeof row.data === 'string' && row.data.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
                             dataFormatted = row.data;
-                        } else {
+                            console.log('Già in formato italiano:', dataFormatted);
+                        }
+                        // Prova a parsare come Date
+                        else {
                             const dateObj = new Date(row.data);
                             if (!isNaN(dateObj.getTime())) {
                                 dataFormatted = dateObj.toLocaleDateString('it-IT');
+                                console.log('Parsato come Date:', dataFormatted);
                             }
                         }
                     } catch(e) {
                         console.error('Errore conversione data:', e, row);
                     }
                 }
+                
+                console.log('Risultato finale dataFormatted:', dataFormatted);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -847,24 +856,11 @@
             const clientSelect = document.getElementById('proforma_client_select');
             clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
             
-            const canoneDatalist = document.getElementById('client_list_canone');
-            const firmaDatalist = document.getElementById('client_list_firma');
-            canoneDatalist.innerHTML = '';
-            firmaDatalist.innerHTML = '';
-            
             clients.forEach(client => {
                 const option = document.createElement('option');
                 option.value = client.name;
                 option.textContent = client.name;
                 clientSelect.appendChild(option);
-                
-                const canoneOption = document.createElement('option');
-                canoneOption.value = client.name;
-                canoneDatalist.appendChild(canoneOption);
-                
-                const firmaOption = document.createElement('option');
-                firmaOption.value = client.name;
-                firmaDatalist.appendChild(firmaOption);
             });
         }
 
@@ -890,36 +886,9 @@
                         
                         if (responseText.includes('|||WARNING|||')) {
                             const warningMessage = responseText.split('|||WARNING|||')[1];
-                            
-                            // 🔴 ALERT POPUP
-                            alert('⚠️ ATTENZIONE!\n\n' + warningMessage.replace(/<[^>]*>/g, '').replace(/<br>/g, '\n'));
-                            
-                            // Distingui tra warning normale e critico
-                            let warningBoxClass = 'warning-box';
-                            let warningIcon = '⚠️';
-                            
-                            if (warningMessage.includes('PACCHETTO TERMINATO') || 
-                                warningMessage.includes('SALDO NEGATIVO') || 
-                                warningMessage.includes('NEGATIVO') ||
-                                warningMessage.includes('SUPERA le ore')) {
-                                warningBoxClass = 'warning-box-critical';
-                                warningIcon = '🚨';
-                            }
-                            
-                            // Formatta le ore negative in rosso
-                            let formattedMessage = warningMessage;
-                            if (warningMessage.includes('ore (NEGATIVO)') || 
-                                warningMessage.includes('SALDO NEGATIVO') ||
-                                warningMessage.includes('NEGATIVO')) {
-                                formattedMessage = warningMessage.replace(
-                                    /(-?\d+\.?\d*) ore \((NEGATIVO|SALDO NEGATIVO)\)/g, 
-                                    '<span class="negative-hours">$1 ore (NEGATIVO)</span>'
-                                );
-                            }
-                            
                             infoBox.innerHTML = `
-                                <div class="${warningBoxClass}">
-                                    <p>${warningIcon} ${formattedMessage}</p>
+                                <div class="warning-box">
+                                    <p>⚠️ ${warningMessage}</p>
                                 </div>
                                 <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>
                             `;
@@ -933,12 +902,12 @@
                         document.getElementById('send_email').checked = true;
                         
                         setTimeout(function() {
-                            const warningBox = document.querySelector('.warning-box, .warning-box-critical');
+                            const warningBox = document.querySelector('.warning-box');
                             if (warningBox) {
                                 warningBox.style.display = 'none';
                             }
                             infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
-                        }, 12000);
+                        }, 8000);
                     } else {
                         infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore nel salvataggio</p>';
                     }
@@ -1007,86 +976,6 @@
                     saveBtn.disabled = false;
                 });
         }
-        
-        function handleCanoneSubmit() {
-            const form = document.getElementById('canone-form');
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const infoBox = document.getElementById('vendite-info-box');
-            
-            const data = {
-                nome_cliente: document.getElementById('canone_cliente').value,
-                descrizione: document.getElementById('canone_descrizione').value,
-                data_inizio: document.getElementById('canone_data_inizio').value,
-                importo: document.getElementById('canone_importo').value
-            };
-            
-            submitBtn.textContent = 'Salvataggio...';
-            submitBtn.disabled = true;
-            infoBox.innerHTML = '<p>⏳ Salvataggio canone in corso...</p>';
-            
-            const url = `${APPS_SCRIPT_URL}?action=insert_canone&nome_cliente=${encodeURIComponent(data.nome_cliente)}&descrizione=${encodeURIComponent(data.descrizione)}&data_inizio=${data.data_inizio}&importo=${data.importo}`;
-            
-            fetch(url, { method: 'GET' })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Canone salvato! ID: ' + result.id + '</p>';
-                        form.reset();
-                        const today = new Date().toISOString().substring(0, 10);
-                        document.getElementById('canone_data_inizio').value = today;
-                    } else {
-                        infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore: ' + result.error + '</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore:', error);
-                    infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante il salvataggio</p>';
-                })
-                .finally(() => {
-                    submitBtn.textContent = '💾 Salva Canone';
-                    submitBtn.disabled = false;
-                });
-        }
-        
-        function handleFirmaSubmit() {
-            const form = document.getElementById('firma-form');
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const infoBox = document.getElementById('vendite-info-box');
-            
-            const data = {
-                nome_cliente: document.getElementById('firma_cliente').value,
-                tipo: document.getElementById('firma_tipo').value,
-                data_inizio: document.getElementById('firma_data_inizio').value,
-                importo: document.getElementById('firma_importo').value
-            };
-            
-            submitBtn.textContent = 'Salvataggio...';
-            submitBtn.disabled = true;
-            infoBox.innerHTML = '<p>⏳ Salvataggio firma in corso...</p>';
-            
-            const url = `${APPS_SCRIPT_URL}?action=insert_firma&nome_cliente=${encodeURIComponent(data.nome_cliente)}&tipo=${encodeURIComponent(data.tipo)}&data_inizio=${data.data_inizio}&importo=${data.importo}`;
-            
-            fetch(url, { method: 'GET' })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        infoBox.innerHTML = '<p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Firma salvata! ID: ' + result.id + '<br>📧 Email promemoria inviata</p>';
-                        form.reset();
-                        const today = new Date().toISOString().substring(0, 10);
-                        document.getElementById('firma_data_inizio').value = today;
-                    } else {
-                        infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore: ' + result.error + '</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore:', error);
-                    infoBox.innerHTML = '<p style="color: #d32f2f;">❌ Errore durante il salvataggio</p>';
-                })
-                .finally(() => {
-                    submitBtn.textContent = '💾 Salva Firma';
-                    submitBtn.disabled = false;
-                });
-        }
 
         window.onload = function() {
             loadFormData();
@@ -1113,21 +1002,6 @@
             });
             
             document.getElementById('applica_quota').addEventListener('change', updateProformaTotals);
-            
-            const canoneForm = document.getElementById('canone-form');
-            canoneForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                handleCanoneSubmit();
-            });
-            
-            const firmaForm = document.getElementById('firma-form');
-            firmaForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                handleFirmaSubmit();
-            });
-            
-            document.getElementById('canone_data_inizio').value = today;
-            document.getElementById('firma_data_inizio').value = today;
         };
     </script>
 </head>
@@ -1135,7 +1009,6 @@
 
 <div class="tabs">
     <button class="tab-button active" onclick="switchTab('timesheet')">⏱️ Timesheet</button>
-    <button class="tab-button" onclick="switchTab('vendite')">💰 Vendite</button>
     <button class="tab-button" onclick="switchTab('proforma')">📄 Proforma</button>
 </div>
 
@@ -1206,79 +1079,6 @@
             </div>
             
             <input type="submit" id="submit-btn" value="Salva Timesheet">
-        </form>
-    </div>
-</div>
-
-<!-- TAB VENDITE -->
-<div id="vendite-tab" class="tab-content">
-    <div class="form-container">
-        <h1>Gestione Vendite</h1>
-        
-        <div id="vendite-info-box" class="info-box">
-            <p>💰 Inserisci Canoni e Firme Digitali</p>
-        </div>
-        
-        <!-- INSERIMENTO CANONE -->
-        <form id="canone-form" style="margin-bottom: 40px;">
-            <h2 style="color: #007bff; margin: 20px 0 !important;">💳 Nuovo Canone</h2>
-            
-            <div class="client-row">
-                <div>
-                    <label for="canone_cliente">Cliente:</label>
-                    <input type="text" id="canone_cliente" name="canone_cliente" list="client_list_canone" required placeholder="Seleziona cliente">
-                    <datalist id="client_list_canone"></datalist>
-                </div>
-            </div>
-            
-            <label for="canone_descrizione">Descrizione:</label>
-            <input type="text" id="canone_descrizione" name="canone_descrizione" required placeholder="es. Canone gestione sito web">
-            
-            <div class="top-row">
-                <div>
-                    <label for="canone_data_inizio">Data Inizio:</label>
-                    <input type="date" id="canone_data_inizio" name="canone_data_inizio" required>
-                </div>
-                <div>
-                    <label for="canone_importo">Importo (€):</label>
-                    <input type="number" id="canone_importo" name="canone_importo" step="0.01" required placeholder="0.00">
-                </div>
-            </div>
-            
-            <button type="submit" class="btn-primary">💾 Salva Canone</button>
-        </form>
-        
-        <!-- INSERIMENTO FIRMA -->
-        <form id="firma-form">
-            <h2 style="color: #007bff; margin: 20px 0 !important;">✏️ Nuova Firma Digitale</h2>
-            
-            <div class="client-row">
-                <div>
-                    <label for="firma_cliente">Cliente:</label>
-                    <input type="text" id="firma_cliente" name="firma_cliente" list="client_list_firma" required placeholder="Seleziona cliente">
-                    <datalist id="client_list_firma"></datalist>
-                </div>
-            </div>
-            
-            <label for="firma_tipo">Tipo:</label>
-            <select id="firma_tipo" name="firma_tipo" required>
-                <option value="">Seleziona Tipo</option>
-                <option value="Firma Digitale">Firma Digitale</option>
-                <option value="Firma Remota">Firma Remota</option>
-            </select>
-            
-            <div class="top-row">
-                <div>
-                    <label for="firma_data_inizio">Data Inizio:</label>
-                    <input type="date" id="firma_data_inizio" name="firma_data_inizio" required>
-                </div>
-                <div>
-                    <label for="firma_importo">Importo (€):</label>
-                    <input type="number" id="firma_importo" name="firma_importo" step="0.01" required placeholder="0.00">
-                </div>
-            </div>
-            
-            <button type="submit" class="btn-primary">💾 Salva Firma</button>
         </form>
     </div>
 </div>
