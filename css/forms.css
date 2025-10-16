@@ -5,7 +5,7 @@
 /* Form Base */
 form { 
     background: var(--bg-white);
-    padding: 20px !important; 
+    padding: 12px !important; 
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-md);
     max-width: 600px;
@@ -16,7 +16,7 @@ form {
 /* Labels */
 label { 
     display: block; 
-    margin-top: 15px !important; 
+    margin-top: 10px !important; 
     margin-bottom: 5px !important; 
     font-weight: 600;
     color: var(--text-color);
