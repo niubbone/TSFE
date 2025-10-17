@@ -1,0 +1,140 @@
+/* =========================
+   UTILITIES TAB STYLES
+========================= */
+
+.utility-section {
+    margin-bottom: 40px;
+}
+
+.utility-section h3 {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.utility-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.utility-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.utility-card.full-width {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.utility-info {
+    flex: 1;
+}
+
+.utility-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.utility-info p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.utility-card .btn {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* LOG DISPLAY */
+.log-container {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.log-entry {
+    padding: 8px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-timestamp {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.log-level {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin: 0 8px;
+}
+
+.log-level.info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.log-level.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.log-level.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.log-level.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.log-message {
+    color: var(--text-color);
+}
+
+#version-info {
+    font-family: 'Courier New', monospace;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+    .utility-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .utility-card .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
