@@ -1,4 +1,14 @@
 /* =========================
+   FIX LARGHEZZA UTILITIES
+========================= */
+
+#utilities-tab .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* =========================
    UTILITIES TAB STYLES
 ========================= */
 
@@ -119,7 +129,8 @@
     color: var(--text-color);
 }
 
-#version-info {
+#version-info,
+#version-display {
     font-family: 'Courier New', monospace;
     background: #f8f9fa;
     padding: 10px;
