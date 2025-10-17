@@ -13,9 +13,34 @@ import {
   proceedToStep3,
   generateProformaFinal
 } from './proforma.js';
+import { initUtilities } from './utilities.js';
 
-// Import utilities - AGGIUNTO
-import './utilities.js';
+/**
+ * Cambia tab attivo - ESPOSTA GLOBALMENTE SUBITO
+ */
+window.switchTab = function(tabName) {
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  document.getElementById(tabName + '-tab').classList.add('active');
+  const activeBtn = Array.from(document.querySelectorAll('.tab-button'))
+    .find(btn => btn.textContent.toLowerCase().includes(tabName));
+  if (activeBtn) activeBtn.classList.add('active');
+  
+  // Inizializza il contenuto specifico della tab
+  switch(tabName) {
+    case 'proforma':
+      showProformaStep(1);
+      break;
+    case 'utilities':
+      initUtilities();
+      break;
+  }
+};
 
 /**
  * Inizializzazione applicazione
@@ -53,51 +78,19 @@ function setupTabs() {
       } else if (btn.textContent.includes('Utilities')) {
         tabName = 'utilities';
       }
-      switchTab(tabName);
+      window.switchTab(tabName);
     });
   });
 }
 
 /**
- * Cambia tab attivo
- */
-function switchTab(tabName) {
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  document.getElementById(tabName + '-tab').classList.add('active');
-  const activeBtn = Array.from(document.querySelectorAll('.tab-button'))
-    .find(btn => btn.textContent.toLowerCase().includes(tabName));
-  if (activeBtn) activeBtn.classList.add('active');
-  
-  // Inizializza il contenuto specifico della tab
-  switch(tabName) {
-    case 'proforma':
-      showProformaStep(1);
-      break;
-    case 'utilities':
-      // Carica automaticamente la versione all'apertura della tab
-      if (window.checkVersion) {
-        window.checkVersion();
-      }
-      break;
-  }
-}
-
-/**
  * Espone funzioni globali per onclick HTML
- * (necessario perché HTML usa onclick="nomeFunc()")
  */
 function exposeGlobalFunctions() {
   // Timesheet
   window.openAddClientModal = openAddClientModal;
   window.closeAddClientModal = closeAddClientModal;
   window.saveNewClient = saveNewClient;
-  window.switchTab = switchTab;
   
   // Proforma
   window.showProformaStep = showProformaStep;
@@ -108,6 +101,5 @@ function exposeGlobalFunctions() {
   window.proceedToStep3 = proceedToStep3;
   window.generateProformaFinal = generateProformaFinal;
   
-  // Le funzioni utilities sono già esposte globalmente nel loro modulo
-  // (window.downloadBackup, window.checkVersion, etc.)
+  // switchTab è già esposta all'inizio del file come window.switchTab
 }
