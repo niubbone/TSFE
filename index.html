@@ -243,122 +243,51 @@
         
         <!-- SEZIONE BACKUP -->
         <div class="utility-section">
-            <h3>💾 Backup & Restore</h3>
+            <h3>💾 Backup Frontend</h3>
+            
             <div class="utility-card">
                 <div class="utility-info">
-                    <h4>Backup Completo Backend</h4>
-                    <p>Scarica una copia di tutti i file .gs del progetto Apps Script</p>
+                    <h4>Scarica Backup Completo Frontend</h4>
+                    <p>Scarica uno ZIP con tutti i file del frontend (HTML, CSS, JS, assets)</p>
+                    <p style="font-size: 0.9em; color: #6c757d; margin-top: 8px;">
+                        Include: index.html, tutti i CSS, tutti i JS, icone e manifest
+                    </p>
                 </div>
-                <button class="btn btn-primary" onclick="downloadBackup()">
+                <button class="btn btn-primary" onclick="downloadFrontendBackup()" style="min-width: 180px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Scarica Backup
-                </button>
-            </div>
-<div class="utility-card">
-    <div class="utility-info">
-        <h4>Backup Completo Sistema</h4>
-        <p>Scarica snapshot completo: backend metadata + frontend config + istruzioni ripristino</p>
-    </div>
-    <button class="btn btn-primary" onclick="downloadFullBackup()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Backup Completo
-    </button>
-</div>
-            <div class="utility-card">
-                <div class="utility-info">
-                    <h4>Info Versione Attuale</h4>
-                    <p id="version-info">Caricamento...</p>
-                </div>
-                <button class="btn btn-secondary" onclick="checkVersion()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="16" x2="12" y2="12"/>
-                        <line x1="12" y1="8" x2="12.01" y2="8"/>
-                    </svg>
-                    Verifica Versione
+                    Scarica Backup ZIP
                 </button>
             </div>
         </div>
 
-        <!-- SEZIONE LOG -->
+        <!-- SEZIONE INFO -->
         <div class="utility-section">
-            <h3>📋 Log & Diagnostica</h3>
+            <h3>ℹ️ Informazioni</h3>
             
             <div class="utility-card">
                 <div class="utility-info">
-                    <h4>Visualizza Log Sistema</h4>
-                    <p>Ultimi 100 eventi e operazioni</p>
+                    <h4>Versione Applicazione</h4>
+                    <p id="version-display">Versione: 2.0.0</p>
                 </div>
-                <button class="btn btn-primary" onclick="viewLogs()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                        <line x1="10" y1="9" x2="8" y2="9"/>
-                    </svg>
-                    Visualizza Log
-                </button>
             </div>
-
-            <div class="utility-card">
-                <div class="utility-info">
-                    <h4>Pulisci Log Vecchi</h4>
-                    <p>Elimina log più vecchi di 30 giorni</p>
-                </div>
-                <button class="btn btn-secondary" onclick="cleanOldLogs()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                    Pulisci Log
-                </button>
-            </div>
-
+            
             <div class="utility-card full-width">
-                <h4>Log Recenti</h4>
-                <div id="log-display" class="log-container">
-                    <p class="text-muted">Clicca "Visualizza Log" per caricare gli eventi recenti</p>
+                <h4>Note sul Backup</h4>
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 6px; line-height: 1.6;">
+                    <p style="margin: 0 0 10px 0;"><strong>✅ Questo backup include:</strong></p>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Tutti i file HTML, CSS e JavaScript</li>
+                        <li>Tutte le icone e assets (favicon, manifest, ecc.)</li>
+                        <li>File README con istruzioni di ripristino</li>
+                    </ul>
+                    
+                    <p style="margin: 15px 0 10px 0;"><strong>⚠️ NON include il backend:</strong></p>
+                    <p style="margin: 0;">Il codice di Google Apps Script deve essere salvato manualmente copiando i file .gs da script.google.com</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- SEZIONE DIAGNOSTICA -->
-        <div class="utility-section">
-            <h3>🔍 Diagnostica</h3>
-            
-            <div class="utility-card">
-                <div class="utility-info">
-                    <h4>Test Connessione Backend</h4>
-                    <p>Verifica la connessione con Google Apps Script</p>
-                </div>
-                <button class="btn btn-primary" onclick="testConnection()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                    Test Connessione
-                </button>
-            </div>
-
-            <div class="utility-card">
-                <div class="utility-info">
-                    <h4>Verifica Integrità Dati</h4>
-                    <p>Controlla eventuali anomalie nei fogli Google</p>
-                </div>
-                <button class="btn btn-secondary" onclick="checkDataIntegrity()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Verifica Dati
-                </button>
             </div>
         </div>
     </div>
@@ -383,6 +312,9 @@
 
 <!-- Iframe nascosto per ricevere la risposta del form -->
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+<!-- Libreria JSZip per creare file ZIP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <!-- JavaScript Modulare -->
 <script type="module" src="js/main.js"></script>
