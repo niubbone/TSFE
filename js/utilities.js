@@ -2,7 +2,7 @@
 // === UTILITIES - GESTIONE BACKUP, LOG E DIAGNOSTICA ===
 // =======================================================================
 
-import { APPS_SCRIPT_URL } from './config.js';
+import { CONFIG } from './config.js';
 import { showNotification } from './utils.js';
 
 /**
@@ -12,7 +12,9 @@ export function initUtilities() {
     console.log('Inizializzazione Utilities...');
     
     // Carica automaticamente la versione all'apertura
-    checkVersion();
+    if (window.checkVersion) {
+        window.checkVersion();
+    }
 }
 
 /**
@@ -22,7 +24,7 @@ window.downloadBackup = async function() {
     try {
         showNotification('⏳ Generazione backup in corso...', 'info');
         
-        const url = `${APPS_SCRIPT_URL}?action=generate_backup`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=generate_backup`;
         const response = await fetch(url);
         const data = await response.json();
         
@@ -62,9 +64,14 @@ window.downloadBackup = async function() {
 window.checkVersion = async function() {
     try {
         const versionInfo = document.getElementById('version-info');
+        if (!versionInfo) {
+            console.log('Elemento version-info non trovato');
+            return;
+        }
+        
         versionInfo.textContent = 'Caricamento...';
         
-        const url = `${APPS_SCRIPT_URL}?action=get_version`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=get_version`;
         const response = await fetch(url);
         const data = await response.json();
         
@@ -83,7 +90,10 @@ window.checkVersion = async function() {
         
     } catch (error) {
         console.error('Errore verifica versione:', error);
-        document.getElementById('version-info').textContent = 'Errore: ' + error.message;
+        const versionInfo = document.getElementById('version-info');
+        if (versionInfo) {
+            versionInfo.textContent = 'Errore: ' + error.message;
+        }
     }
 };
 
@@ -95,7 +105,7 @@ window.viewLogs = async function() {
         const logDisplay = document.getElementById('log-display');
         logDisplay.innerHTML = '<p>⏳ Caricamento log...</p>';
         
-        const url = `${APPS_SCRIPT_URL}?action=get_logs&limit=100`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=get_logs&limit=100`;
         const response = await fetch(url);
         const data = await response.json();
         
@@ -139,7 +149,7 @@ window.cleanOldLogs = async function() {
     try {
         showNotification('⏳ Pulizia log in corso...', 'info');
         
-        const url = `${APPS_SCRIPT_URL}?action=clean_logs&days=30`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=clean_logs&days=30`;
         const response = await fetch(url);
         const data = await response.json();
         
@@ -169,7 +179,7 @@ window.testConnection = async function() {
         showNotification('⏳ Test connessione in corso...', 'info');
         
         const startTime = Date.now();
-        const url = `${APPS_SCRIPT_URL}?action=test_connection`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=test_connection`;
         const response = await fetch(url);
         const data = await response.json();
         const endTime = Date.now();
@@ -197,7 +207,7 @@ window.checkDataIntegrity = async function() {
     try {
         showNotification('⏳ Verifica integrità in corso...', 'info');
         
-        const url = `${APPS_SCRIPT_URL}?action=check_integrity`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=check_integrity`;
         const response = await fetch(url);
         const data = await response.json();
         
@@ -220,3 +230,5 @@ window.checkDataIntegrity = async function() {
         showNotification('❌ Errore durante la verifica: ' + error.message, 'error');
     }
 };
+
+console.log('✅ Utilities module caricato');
