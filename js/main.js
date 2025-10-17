@@ -13,7 +13,9 @@ import {
   proceedToStep3,
   generateProformaFinal
 } from './proforma.js';
-import { initUtilities } from './utilities.js';
+
+// Import utilities - AGGIUNTO
+import './utilities.js';
 
 /**
  * Inizializzazione applicazione
@@ -78,7 +80,10 @@ function switchTab(tabName) {
       showProformaStep(1);
       break;
     case 'utilities':
-      initUtilities();
+      // Carica automaticamente la versione all'apertura della tab
+      if (window.checkVersion) {
+        window.checkVersion();
+      }
       break;
   }
 }
@@ -102,4 +107,7 @@ function exposeGlobalFunctions() {
   window.updateSelection = updateSelection;
   window.proceedToStep3 = proceedToStep3;
   window.generateProformaFinal = generateProformaFinal;
+  
+  // Le funzioni utilities sono già esposte globalmente nel loro modulo
+  // (window.downloadBackup, window.checkVersion, etc.)
 }
