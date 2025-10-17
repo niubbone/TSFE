@@ -9,7 +9,7 @@ import { showNotification } from './utils.js';
  * Inizializza la tab Utilities
  */
 export function initUtilities() {
-    console.log('Inizializzazione Utilities...');
+    console.log('✅ Utilities module inizializzato');
     
     // Carica automaticamente la versione all'apertura
     if (window.checkVersion) {
@@ -18,7 +18,7 @@ export function initUtilities() {
 }
 
 /**
- * Scarica backup completo del backend
+ * Scarica backup metadati backend
  */
 window.downloadBackup = async function() {
     try {
@@ -36,7 +36,7 @@ window.downloadBackup = async function() {
             
             // Crea nome file con timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-            const filename = `CRM_backup_${timestamp}.json`;
+            const filename = `CRM_backend_metadata_${timestamp}.json`;
             
             // Trigger download
             const a = document.createElement('a');
@@ -47,7 +47,7 @@ window.downloadBackup = async function() {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(downloadUrl);
             
-            showNotification('✅ Backup scaricato con successo!', 'success');
+            showNotification('✅ Backup metadati scaricato!', 'success');
         } else {
             throw new Error(data.error || 'Errore sconosciuto');
         }
@@ -55,6 +55,69 @@ window.downloadBackup = async function() {
     } catch (error) {
         console.error('Errore download backup:', error);
         showNotification('❌ Errore durante il download del backup: ' + error.message, 'error');
+    }
+};
+
+/**
+ * Scarica backup completo (frontend + backend metadata)
+ */
+window.downloadFullBackup = async function() {
+    try {
+        showNotification('⏳ Generazione backup completo...', 'info');
+        
+        // 1. Scarica metadati backend
+        const urlBackend = `${CONFIG.APPS_SCRIPT_URL}?action=generate_backup`;
+        const responseBackend = await fetch(urlBackend);
+        const backendData = await responseBackend.json();
+        
+        if (!backendData.success) {
+            throw new Error('Errore backend: ' + backendData.error);
+        }
+        
+        // 2. Crea snapshot del frontend (config attuale)
+        const frontendSnapshot = {
+            config: CONFIG,
+            timestamp: new Date().toISOString(),
+            note: "Frontend completo disponibile su GitHub repository",
+            repository: "https://github.com/[tuo-username]/[tuo-repo]"
+        };
+        
+        // 3. Combina tutto
+        const fullBackup = {
+            type: "CRM_Studio_Smart_Full_Backup",
+            created: new Date().toISOString(),
+            backend: backendData.backup,
+            frontend: frontendSnapshot,
+            restoreInstructions: {
+                step1: "Apps Script: ⋮ → 'Crea una copia' del progetto",
+                step2: "Google Sheet: File → Crea una copia",
+                step3: "Frontend: git clone dal repository GitHub",
+                step4: "Aggiorna CONFIG.APPS_SCRIPT_URL in config.js con il nuovo deployment URL"
+            }
+        };
+        
+        // 4. Crea file JSON
+        const backupData = JSON.stringify(fullBackup, null, 2);
+        const blob = new Blob([backupData], { type: 'application/json' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        
+        // 5. Download
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+        const filename = `CRM_FULL_backup_${timestamp}.json`;
+        
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        showNotification('✅ Backup completo scaricato!', 'success');
+        
+    } catch (error) {
+        console.error('Errore backup completo:', error);
+        showNotification('❌ Errore: ' + error.message, 'error');
     }
 };
 
@@ -82,7 +145,6 @@ window.checkVersion = async function() {
                 <strong>Ultimo aggiornamento:</strong> ${info.lastUpdate}<br>
                 <strong>Verificato il:</strong> ${new Date(info.timestamp).toLocaleString('it-IT')}
             `;
-            showNotification('✅ Versione verificata', 'success');
         } else {
             versionInfo.textContent = 'Errore nel caricamento';
             throw new Error(data.error || 'Errore sconosciuto');
@@ -127,13 +189,14 @@ window.viewLogs = async function() {
             showNotification(`✅ Caricati ${data.logs.length} log`, 'success');
         } else if (data.success && data.logs && data.logs.length === 0) {
             logDisplay.innerHTML = '<p class="text-muted">Nessun log presente nel sistema</p>';
+            showNotification('ℹ️ Nessun log disponibile', 'info');
         } else {
             throw new Error(data.error || 'Errore sconosciuto');
         }
         
     } catch (error) {
         console.error('Errore visualizzazione log:', error);
-        document.getElementById('log-display').innerHTML = '<p class="text-danger">Errore: ' + error.message + '</p>';
+        document.getElementById('log-display').innerHTML = '<p style="color: #dc3545;">Errore: ' + error.message + '</p>';
         showNotification('❌ Errore caricamento log', 'error');
     }
 };
@@ -158,8 +221,8 @@ window.cleanOldLogs = async function() {
             
             // Ricarica i log se visibili
             const logDisplay = document.getElementById('log-display');
-            if (logDisplay.querySelector('.log-entry')) {
-                viewLogs();
+            if (logDisplay && logDisplay.querySelector('.log-entry')) {
+                window.viewLogs();
             }
         } else {
             throw new Error(data.error || 'Errore sconosciuto');
@@ -187,7 +250,7 @@ window.testConnection = async function() {
         
         if (data.success) {
             showNotification(
-                `✅ Connessione OK! Tempo di risposta: ${responseTime}ms | Fogli: ${data.sheets}`, 
+                `✅ Connessione OK! Tempo: ${responseTime}ms | Fogli: ${data.sheets}`, 
                 'success'
             );
         } else {
@@ -215,11 +278,9 @@ window.checkDataIntegrity = async function() {
             if (data.healthy) {
                 showNotification('✅ Tutti i dati sono integri!', 'success');
             } else {
-                const issues = data.issues.join('\n- ');
-                showNotification(
-                    `⚠️ Trovate ${data.issues.length} anomalie:\n- ${issues}`, 
-                    'warning'
-                );
+                const issues = data.issues.join('\n• ');
+                alert(`⚠️ Trovate ${data.issues.length} anomalie:\n\n• ${issues}\n\nVerifica la configurazione dei fogli Google.`);
+                showNotification(`⚠️ ${data.issues.length} anomalie trovate`, 'warning');
             }
         } else {
             throw new Error(data.error || 'Errore sconosciuto');
