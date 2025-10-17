@@ -1,7 +1,6 @@
 // =======================================================================
 // === MAIN - INIZIALIZZAZIONE APPLICAZIONE ===
 // =======================================================================
-
 import { initGlobalState } from './config.js';
 import { initTimesheet, openAddClientModal, closeAddClientModal, saveNewClient } from './timesheet.js';
 import { 
@@ -14,6 +13,7 @@ import {
   proceedToStep3,
   generateProformaFinal
 } from './proforma.js';
+import { initUtilities } from './utilities.js';
 
 /**
  * Inizializzazione applicazione
@@ -43,7 +43,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 function setupTabs() {
   document.querySelectorAll('.tab-button').forEach(btn => {
     btn.addEventListener('click', () => {
-      const tabName = btn.textContent.includes('Timesheet') ? 'timesheet' : 'proforma';
+      let tabName;
+      if (btn.textContent.includes('Timesheet')) {
+        tabName = 'timesheet';
+      } else if (btn.textContent.includes('Proforma')) {
+        tabName = 'proforma';
+      } else if (btn.textContent.includes('Utilities')) {
+        tabName = 'utilities';
+      }
       switchTab(tabName);
     });
   });
@@ -65,8 +72,14 @@ function switchTab(tabName) {
     .find(btn => btn.textContent.toLowerCase().includes(tabName));
   if (activeBtn) activeBtn.classList.add('active');
   
-  if (tabName === 'proforma') {
-    showProformaStep(1);
+  // Inizializza il contenuto specifico della tab
+  switch(tabName) {
+    case 'proforma':
+      showProformaStep(1);
+      break;
+    case 'utilities':
+      initUtilities();
+      break;
   }
 }
 
