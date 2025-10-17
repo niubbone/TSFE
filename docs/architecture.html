@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architettura CRM Studio Smart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tree {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .tree-item {
+            display: block;
+            color: #2c3e50;
+        }
+
+        .tree-folder {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tree-file {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .tree-new {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #856404;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .tree-updated {
+            background: #d1ecf1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #0c5460;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .feature-desc {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .comparison-card {
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .comparison-before {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+
+        .comparison-after {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .comparison-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Architettura CRM Studio Smart</h1>
+            <p>Documentazione Tecnica Completa - Versione 2.0</p>
+        </div>
+
+        <div class="content">
+            <!-- BACKEND -->
+            <div class="section">
+                <h2 class="section-title">
+                    🏗️ Backend - Google Apps Script
+                    <span class="badge badge-success">9 Moduli</span>
+                </h2>
+
+                <div class="tree">
+<span class="tree-folder">📁 Google Apps Script Project</span>
+│
+├─ <span class="tree-file">📄 config.gs</span> (17 righe)
+│   └─ Costanti: URL foglio, sheet names, template ID, email
+│
+├─ <span class="tree-file">📄 helpers.gs</span> (108 righe)
+│   ├─ getSpreadsheet()
+│   ├─ getConfigOptions()
+│   └─ convertDurationToHours()
+│
+├─ <span class="tree-file">📄 clienti.gs</span> (118 righe)
+│   ├─ getClientsList()
+│   ├─ getClientEmail()
+│   ├─ getClientID()
+│   └─ getClientData()
+│
+├─ <span class="tree-file">📄 pacchetti.gs</span> (95 righe)
+│   ├─ getActivePacchetto()
+│   └─ updatePacchetto()
+│
+├─ <span class="tree-file">📄 timesheet.gs</span> (222 righe)
+│   ├─ testGetTimesheetHeaders()
+│   ├─ getTimesheetDaFatturare()
+│   ├─ getTimesheetByIds()
+│   └─ updateTimesheetProforma()
+│
+├─ <span class="tree-file">📄 proforma.gs</span> (254 righe)
+│   ├─ generateProformaNumber()
+│   ├─ getProformaFolder()
+│   ├─ getTemplateFile()
+│   └─ createProformaPDF()
+│
+├─ <span class="tree-file">📄 email.gs</span> (372 righe)
+│   ├─ sendProformaEmail()
+│   └─ sendEmailToClient()
+│
+├─ <span class="tree-file">📄 utilities.gs</span> (200 righe) <span class="tree-new">⭐ NUOVO</span>
+│   ├─ writeLog() - Sistema logging
+│   ├─ getLogs() - Recupera log
+│   ├─ cleanOldLogs() - Pulizia log
+│   ├─ generateBackup() - Backup metadata
+│   ├─ getVersionInfo() - Info versione
+│   ├─ testConnection() - Test connessione
+│   └─ checkDataIntegrity() - Verifica integrità
+│
+└─ <span class="tree-file">📄 codice.gs</span> (250 righe) <span class="tree-updated">⚡ AGGIORNATO</span>
+    ├─ doGet() - Router endpoint:
+    │   ├─ action=get_data
+    │   ├─ action=add_client
+    │   ├─ action=get_timesheet_da_fatturare
+    │   ├─ action=generate_proforma
+    │   ├─ action=generate_backup <span class="tree-new">⭐ NUOVO</span>
+    │   ├─ action=get_version <span class="tree-new">⭐ NUOVO</span>
+    │   ├─ action=get_logs <span class="tree-new">⭐ NUOVO</span>
+    │   ├─ action=clean_logs <span class="tree-new">⭐ NUOVO</span>
+    │   ├─ action=test_connection <span class="tree-new">⭐ NUOVO</span>
+    │   └─ action=check_integrity <span class="tree-new">⭐ NUOVO</span>
+    └─ doPost() - Inserimento timesheet
+                </div>
+            </div>
+
+            <!-- FRONTEND -->
+            <div class="section">
+                <h2 class="section-title">
+                    🎨 Frontend - GitHub Pages
+                    <span class="badge badge-success">3 Tab SPA</span>
+                </h2>
+
+                <div class="tree">
+<span class="tree-folder">📁 Repository GitHub</span>
+│
+├─ <span class="tree-file">📄 index.html</span> (~650 righe) <span class="tree-updated">⚡ AGGIORNATO</span>
+│   ├─ Tab Timesheet
+│   ├─ Tab Proforma
+│   └─ Tab Utilities <span class="tree-new">⭐ NUOVO</span>
+│
+├─ <span class="tree-folder">📁 css/</span>
+│   ├─ <span class="tree-file">main.css</span> (150 righe)
+│   │   └─ Reset, variabili CSS, stili globali
+│   │
+│   ├─ <span class="tree-file">tabs.css</span> (100 righe)
+│   │   └─ Navigazione tab, steps proforma
+│   │
+│   ├─ <span class="tree-file">forms.css</span> (180 righe)
+│   │   └─ Form, input, button, checkbox
+│   │
+│   ├─ <span class="tree-file">tables.css</span> (100 righe)
+│   │   └─ Tabelle timesheet, totali
+│   │
+│   ├─ <span class="tree-file">modals.css</span> (80 righe)
+│   │   └─ Modal aggiungi cliente
+│   │
+│   └─ <span class="tree-file">utilities.css</span> (150 righe) <span class="tree-new">⭐ NUOVO</span>
+│       └─ Stili tab utilities, log display, cards
+│
+├─ <span class="tree-folder">📁 js/</span>
+│   ├─ <span class="tree-file">config.js</span> (20 righe)
+│   │   └─ CONFIG: APPS_SCRIPT_URL, APP_NAME, VERSION
+│   │
+│   ├─ <span class="tree-file">api.js</span> (~150 righe)
+│   │   ├─ getClientsAndConfig()
+│   │   ├─ addClient()
+│   │   ├─ getTimesheetDaFatturare()
+│   │   ├─ generateProforma()
+│   │   └─ submitTimesheet()
+│   │
+│   ├─ <span class="tree-file">timesheet.js</span> (~250 righe)
+│   │   ├─ initTimesheet()
+│   │   ├─ handleFormSubmit()
+│   │   ├─ openAddClientModal()
+│   │   ├─ closeAddClientModal()
+│   │   ├─ saveNewClient()
+│   │   └─ populateFormFields()
+│   │
+│   ├─ <span class="tree-file">proforma.js</span> (~350 righe)
+│   │   ├─ initProforma()
+│   │   ├─ loadTimesheetForClient()
+│   │   ├─ displayTimesheetTable()
+│   │   ├─ selectAllTimesheet()
+│   │   ├─ deselectAllTimesheet()
+│   │   ├─ updateSelection()
+│   │   ├─ proceedToStep3()
+│   │   ├─ updateProformaTotals()
+│   │   └─ generateProformaFinal()
+│   │
+│   ├─ <span class="tree-file">utilities.js</span> (~120 righe) <span class="tree-new">⭐ NUOVO</span>
+│   │   ├─ initUtilities()
+│   │   └─ downloadFrontendBackup() - ZIP completo
+│   │
+│   ├─ <span class="tree-file">utils.js</span> (~100 righe)
+│   │   ├─ formatDate() - Formatta date
+│   │   ├─ formatCurrency() - Formatta valute
+│   │   ├─ showNotification() - Notifiche
+│   │   ├─ sleep() - Ritardo asincrono
+│   │   ├─ capitalize() - Capitalizza
+│   │   └─ getTodayDate() - Data odierna
+│   │
+│   └─ <span class="tree-file">main.js</span> (~80 righe)
+│       ├─ switchTab() - Navigazione tab
+│       ├─ setupTabs() - Setup events
+│       ├─ exposeGlobalFunctions()
+│       └─ DOMContentLoaded - Init app
+│
+├─ <span class="tree-folder">📁 assets/</span>
+│   ├─ favicon.ico ✅
+│   ├─ favicon.svg ✅
+│   ├─ favicon-96x96.png ✅
+│   ├─ apple-touch-icon.png ✅
+│   ├─ web-app-manifest-192x192.png ✅
+│   └─ web-app-manifest-512x512.png ✅
+│
+└─ <span class="tree-file">📄 manifest.json</span> ✅
+                </div>
+            </div>
+
+            <!-- STATISTICHE -->
+            <div class="section">
+                <h2 class="section-title">📊 Statistiche Progetto</h2>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <span class="stat-number">23</span>
+                        <span class="stat-label">File Totali</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">~4.075</span>
+                        <span class="stat-label">Righe di Codice</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">9</span>
+                        <span class="stat-label">Moduli Backend</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">14</span>
+                        <span class="stat-label">Moduli Frontend</span>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <div class="comparison-card comparison-before">
+                        <div class="comparison-title">❌ PRIMA</div>
+                        <div class="comparison-value">2</div>
+                        <p>File monolitici<br>(~2.800 righe)</p>
+                    </div>
+                    <div class="comparison-card comparison-after">
+                        <div class="comparison-title">✅ DOPO</div>
+                        <div class="comparison-value">23</div>
+                        <p>File modulari<br>(~4.075 righe)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FUNZIONALITÀ -->
+            <div class="section">
+                <h2 class="section-title">🎯 Funzionalità Principali</h2>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">⏱️</div>
+                        <div class="feature-title">Timesheet</div>
+                        <div class="feature-desc">
+                            Gestione completa delle ore lavorate con invio automatico email di riepilogo ai clienti
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <div class="feature-title">Proforma</div>
+                        <div class="feature-desc">
+                            Generazione automatica PDF proforma con calcolo IVA, ritenuta d'acconto e invio via email
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">💾</div>
+                        <div class="feature-title">Backup</div>
+                        <div class="feature-desc">
+                            Backup ZIP completo del frontend con tutti i file HTML, CSS, JS e assets
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📋</div>
+                        <div class="feature-title">Logging</div>
+                        <div class="feature-desc">
+                            Sistema completo di logging con visualizzazione eventi e pulizia automatica
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <div class="feature-title">Diagnostica</div>
+                        <div class="feature-desc">
+                            Test connessione backend, verifica integrità dati e monitoring sistema
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <div class="feature-title">PWA Ready</div>
+                        <div class="feature-desc">
+                            Installabile come app, funziona offline, responsive design per mobile e desktop
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VANTAGGI -->
+            <div class="section">
+                <h2 class="section-title">✨ Vantaggi Architettura</h2>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🧩</div>
+                        <div class="feature-title">Modularità</div>
+                        <div class="feature-desc">
+                            Ogni modulo ha responsabilità specifiche e ben definite
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🚀</div>
+                        <div class="feature-title">Scalabilità</div>
+                        <div class="feature-desc">
+                            Facile aggiungere nuove funzionalità senza impattare l'esistente
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🐛</div>
+                        <div class="feature-title">Debugging</div>
+                        <div class="feature-desc">
+                            Errori isolati per modulo, più facile individuare e risolvere problemi
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-title">Performance</div>
+                        <div class="feature-desc">
+                            Lazy loading dei moduli utilities, caricamento ottimizzato
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">👨‍💻</div>
+                        <div class="feature-title">DX</div>
+                        <div class="feature-desc">
+                            Developer Experience eccellente: codice pulito, commentato e ben strutturato
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-title">Manutenibilità</div>
+                        <div class="feature-desc">
+                            Codice più facile da leggere, modificare e mantenere nel tempo
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>CRM Studio Smart</strong> - Versione 2.0</p>
+            <p>Aggiornato: Gennaio 2025</p>
+            <p style="margin-top: 15px;">
+                <a href="https://github.com/[tuo-username]/[tuo-repo]" target="_blank">📦 Repository GitHub</a> |
+                <a href="mailto:info@studio-smart.it">📧 Supporto</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
