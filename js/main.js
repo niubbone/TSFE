@@ -13,12 +13,11 @@ import {
   proceedToStep3,
   generateProformaFinal
 } from './proforma.js';
-import { initUtilities } from './utilities.js';
 
 /**
  * Cambia tab attivo - ESPOSTA GLOBALMENTE SUBITO
  */
-window.switchTab = function(tabName) {
+window.switchTab = async function(tabName) {
   document.querySelectorAll('.tab-content').forEach(tab => {
     tab.classList.remove('active');
   });
@@ -37,7 +36,21 @@ window.switchTab = function(tabName) {
       showProformaStep(1);
       break;
     case 'utilities':
-      initUtilities();
+      // Lazy load utilities solo quando serve
+      if (!window.utilitiesLoaded) {
+        try {
+          const { initUtilities } = await import('./utilities.js');
+          initUtilities();
+          window.utilitiesLoaded = true;
+        } catch (error) {
+          console.error('Errore caricamento utilities:', error);
+        }
+      } else {
+        // Solo checkVersion se già caricato
+        if (window.checkVersion) {
+          window.checkVersion();
+        }
+      }
       break;
   }
 };
@@ -54,7 +67,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Setup tab switching
   setupTabs();
   
-  // Inizializza moduli
+  // Inizializza moduli essenziali
   await initTimesheet();
   initProforma();
   
@@ -102,4 +115,5 @@ function exposeGlobalFunctions() {
   window.generateProformaFinal = generateProformaFinal;
   
   // switchTab è già esposta all'inizio del file come window.switchTab
+  // utilities funzioni sono esposte nel loro modulo quando caricato (lazy)
 }
