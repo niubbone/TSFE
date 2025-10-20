@@ -261,6 +261,90 @@
         .footer a:hover {
             text-decoration: underline;
         }
+/* =========================
+   MOBILE OPTIMIZATION
+========================= */
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .header {
+        padding: 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .header p {
+        font-size: 0.9rem;
+    }
+    
+    .content {
+        padding: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    /* ALBERO RESPONSIVE */
+    .tree {
+        font-size: 0.75rem;
+        padding: 15px;
+        line-height: 1.5;
+    }
+    
+    /* Nascondi caratteri ASCII dell'albero su mobile */
+    .tree::before {
+        content: "📱 Vista semplificata mobile";
+        display: block;
+        background: #fff3cd;
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        font-size: 0.8rem;
+        color: #856404;
+    }
+    
+    /* Rimuovi indentazione su mobile */
+    .tree {
+        white-space: normal;
+    }
+    
+    .tree-folder,
+    .tree-file {
+        display: block;
+        margin: 8px 0;
+    }
+    
+    .feature-card {
+        padding: 15px;
+    }
+    
+    .feature-icon {
+        font-size: 1.5rem;
+    }
+    
+    .feature-title {
+        font-size: 1.1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .comparison-value {
+        font-size: 2rem;
+    }
+    
+    .footer {
+        padding: 20px;
+        font-size: 0.9rem;
+    }
+}
     </style>
 </head>
 <body>
