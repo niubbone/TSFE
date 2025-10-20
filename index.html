@@ -241,6 +241,11 @@
     <div class="form-container">
         <h1>⚙️ Utilities & Manutenzione</h1>
         
+        <!-- INFO BOX GLOBALE -->
+        <div id="info-box" class="info-box">
+            <p>Benvenuto nella sezione Utilities</p>
+        </div>
+        
         <!-- SEZIONE BACKUP -->
         <div class="utility-section">
             <h3>💾 Backup Frontend</h3>
@@ -264,6 +269,93 @@
             </div>
         </div>
 
+        <!-- SEZIONE LOG -->
+        <div class="utility-section">
+            <h3>📋 Log Sistema</h3>
+            
+            <div id="log-info" class="info-box" style="margin-bottom: 15px;">
+                <p>Visualizza e gestisci i log di sistema</p>
+            </div>
+            
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Carica Log Sistema</h4>
+                    <p>Visualizza gli ultimi 100 eventi e operazioni</p>
+                </div>
+                <button class="btn btn-primary" onclick="viewLogs()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    Visualizza Log
+                </button>
+            </div>
+            
+            <!-- FILTRI E AZIONI LOG -->
+            <div id="log-controls" class="log-controls" style="display: none;">
+                <div class="log-filters">
+                    <button class="filter-btn active" onclick="filterLogs('ALL')">Tutti</button>
+                    <button class="filter-btn" onclick="filterLogs('INFO')">ℹ️ Info</button>
+                    <button class="filter-btn" onclick="filterLogs('SUCCESS')">✅ Success</button>
+                    <button class="filter-btn" onclick="filterLogs('WARNING')">⚠️ Warning</button>
+                    <button class="filter-btn" onclick="filterLogs('ERROR')">❌ Error</button>
+                </div>
+                <div class="log-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportLogsCSV()">
+                        📥 Esporta CSV
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="cleanOldLogs()">
+                        🗑️ Pulisci Vecchi
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DISPLAY LOG -->
+            <div class="utility-card full-width">
+                <div id="log-display" class="log-container">
+                    <p class="text-muted">Clicca "Visualizza Log" per caricare gli eventi recenti</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE DIAGNOSTICA -->
+        <div class="utility-section">
+            <h3>🔍 Diagnostica</h3>
+            
+            <div id="diagnostic-info" class="info-box" style="margin-bottom: 15px;">
+                <p>Strumenti di test e verifica sistema</p>
+            </div>
+            
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Test Connessione Backend</h4>
+                    <p>Verifica la connessione con Google Apps Script</p>
+                </div>
+                <button class="btn btn-primary" onclick="testConnection()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Test Connessione
+                </button>
+            </div>
+
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Verifica Integrità Dati</h4>
+                    <p>Controlla eventuali anomalie nei fogli Google</p>
+                </div>
+                <button class="btn btn-secondary" onclick="checkDataIntegrity()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Verifica Dati
+                </button>
+            </div>
+        </div>
+        
         <!-- SEZIONE INFO -->
         <div class="utility-section">
             <h3>ℹ️ Informazioni</h3>
@@ -274,42 +366,28 @@
                     <p id="version-display">Versione: 2.0.0</p>
                 </div>
             </div>
-
-            <div class="utility-card">
-    <div class="utility-info">
-        <h4>📋 Documentazione Architettura</h4>
-        <p>Visualizza la documentazione tecnica completa del progetto</p>
-    </div>
-    <a href="docs/architecture.html" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <line x1="10" y1="9" x2="8" y2="9"/>
-        </svg>
-        Visualizza Docs
-    </a>
-</div>
             
-            <div class="utility-card full-width">
-                <h4>Note sul Backup</h4>
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 6px; line-height: 1.6;">
-                    <p style="margin: 0 0 10px 0;"><strong>✅ Questo backup include:</strong></p>
-                    <ul style="margin: 0; padding-left: 20px;">
-                        <li>Tutti i file HTML, CSS e JavaScript</li>
-                        <li>Tutte le icone e assets (favicon, manifest, ecc.)</li>
-                        <li>File README con istruzioni di ripristino</li>
-                    </ul>
-                    
-                    <p style="margin: 15px 0 10px 0;"><strong>⚠️ NON include il backend:</strong></p>
-                    <p style="margin: 0;">Il codice di Google Apps Script deve essere salvato manualmente copiando i file .gs da script.google.com</p>
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>📋 Documentazione Architettura</h4>
+                    <p>Visualizza la documentazione tecnica completa del progetto</p>
                 </div>
+                <a href="docs/architecture.html" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    Visualizza Docs
+                </a>
             </div>
         </div>
+        
     </div>
 </div>
-
+    
 <!-- Modal per aggiungere nuovo cliente -->
 <div id="add-client-modal" class="modal">
     <div class="modal-content">
