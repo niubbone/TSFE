@@ -129,93 +129,79 @@ function handleFormSubmit(event) {
   
   const iframe = document.getElementById('hidden_iframe');
   
-  iframe.onload = function() {
+  iframe.onload = async function() {
     try {
-      const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
-      const responseText = iframeContent.body.textContent || iframeContent.body.innerText;
+      // Attendi un attimo che il backend completi il salvataggio
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // DEBUG: Logga la risposta completa
-      console.log('=== RISPOSTA BACKEND ===');
-      console.log('Testo completo:', responseText);
-      console.log('Contiene Success?', responseText.includes('Success'));
-      console.log('Contiene WARNING?', responseText.includes('|||WARNING|||'));
-      if (responseText.includes('|||WARNING|||')) {
-        const parts = responseText.split('|||WARNING|||');
-        console.log('Parte DOPO WARNING:', parts[1]);
-      }
-      console.log('========================');
+      // Recupera eventuali warning dal backend
+      const warningMessage = await getLastWarning();
       
       submitButton.value = "Salva Timesheet";
       submitButton.disabled = false;
       
-      if (responseText.includes('Success')) {
-        if (responseText.includes('|||WARNING|||')) {
-          let warningMessage = responseText.split('|||WARNING|||')[1];
-          
-          // Sostituisci il marcatore |||BREAK||| con doppio a capo
-          warningMessage = warningMessage.replace(/\|\|\|BREAK\|\|\|/g, '\n\n');
-          
-          // Determina il tipo di alert in base al contenuto
-          let alertType = 'warning';
-          let alertDuration = 12000; // Default 12 secondi
-          
-          if (warningMessage.includes('TERMINATO')) {
-            alertType = 'terminated';
-            alertDuration = 15000; // 15 secondi per TERMINATO
-          } else if (warningMessage.includes('OVER')) {
-            alertType = 'over';
-            alertDuration = 20000; // 20 secondi per OVER (critico)
-          } else if (warningMessage.includes('SCADUTO')) {
-            alertType = 'expired';
-            alertDuration = 15000; // 15 secondi per SCADUTO
-          }
-          
-          // Stili diversi per tipo di alert
-          const alertStyles = {
-            warning: 'background: #fff3cd; border-left: 5px solid #ffc107; color: #856404;',
-            terminated: 'background: #d1ecf1; border-left: 5px solid #17a2b8; color: #0c5460;',
-            over: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #721c24;',
-            expired: 'background: #f8d7da; border-left: 5px solid #fd7e14; color: #721c24;'
-          };
-          
-          infoBox.innerHTML = `
-            <div class="alert-box" style="${alertStyles[alertType]} padding: 20px !important; margin-bottom: 15px !important; border-radius: 8px; font-size: 15px; line-height: 1.6;">
-              <strong style="display: block; margin-bottom: 10px; font-size: 16px;">
-                ${alertType === 'over' ? '🚨 ALERT CRITICO' : 
-                  alertType === 'terminated' ? '✅ PACCHETTO COMPLETATO' : 
-                  alertType === 'expired' ? '⏰ ATTENZIONE' : 
-                  '⚠️ ATTENZIONE'}
-              </strong>
-              <div style="white-space: pre-line;">${warningMessage}</div>
-            </div>
-            <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>
-          `;
-          
-          // Nascondi alert dopo il tempo specificato
-          setTimeout(function() {
-            const alertBox = document.querySelector('.alert-box');
-            if (alertBox) {
-              alertBox.style.transition = 'opacity 0.5s ease';
-              alertBox.style.opacity = '0';
-              setTimeout(() => alertBox.remove(), 500);
-            }
-            infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
-          }, alertDuration);
-          
-        } else {
-          showNotification('info-box', '✅ Timesheet salvato con successo!', 'success');
+      if (warningMessage) {
+        // Determina il tipo di alert in base al contenuto
+        let alertType = 'warning';
+        let alertDuration = 12000; // Default 12 secondi
+        
+        if (warningMessage.includes('TERMINATO')) {
+          alertType = 'terminated';
+          alertDuration = 15000; // 15 secondi per TERMINATO
+        } else if (warningMessage.includes('OVER')) {
+          alertType = 'over';
+          alertDuration = 20000; // 20 secondi per OVER (critico)
+        } else if (warningMessage.includes('SCADUTO')) {
+          alertType = 'expired';
+          alertDuration = 15000; // 15 secondi per SCADUTO
         }
         
-        const currentDate = document.getElementById('date').value;
-        document.getElementById('timesheet-form').reset();
-        document.getElementById('date').value = currentDate;
-        document.getElementById('send_email').checked = true;
+        // Stili diversi per tipo di alert
+        const alertStyles = {
+          warning: 'background: #fff3cd; border-left: 5px solid #ffc107; color: #856404;',
+          terminated: 'background: #d1ecf1; border-left: 5px solid #17a2b8; color: #0c5460;',
+          over: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #721c24;',
+          expired: 'background: #f8d7da; border-left: 5px solid #fd7e14; color: #721c24;'
+        };
+        
+        // Sostituisci il marcatore |||BREAK||| con doppio a capo per visualizzazione
+        const displayMessage = warningMessage.replace(/\|\|\|BREAK\|\|\|/g, '\n\n');
+        
+        infoBox.innerHTML = `
+          <div class="alert-box" style="${alertStyles[alertType]} padding: 20px !important; margin-bottom: 15px !important; border-radius: 8px; font-size: 15px; line-height: 1.6;">
+            <strong style="display: block; margin-bottom: 10px; font-size: 16px;">
+              ${alertType === 'over' ? '🚨 ALERT CRITICO' : 
+                alertType === 'terminated' ? '✅ PACCHETTO COMPLETATO' : 
+                alertType === 'expired' ? '⏰ ATTENZIONE' : 
+                '⚠️ ATTENZIONE'}
+            </strong>
+            <div style="white-space: pre-line;">${displayMessage}</div>
+          </div>
+          <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>
+        `;
+        
+        // Nascondi alert dopo il tempo specificato
+        setTimeout(function() {
+          const alertBox = document.querySelector('.alert-box');
+          if (alertBox) {
+            alertBox.style.transition = 'opacity 0.5s ease';
+            alertBox.style.opacity = '0';
+            setTimeout(() => alertBox.remove(), 500);
+          }
+          infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
+        }, alertDuration);
         
       } else {
-        showNotification('info-box', '❌ Errore nel salvataggio', 'error');
+        showNotification('info-box', '✅ Timesheet salvato con successo!', 'success');
       }
+      
+      const currentDate = document.getElementById('date').value;
+      document.getElementById('timesheet-form').reset();
+      document.getElementById('date').value = currentDate;
+      document.getElementById('send_email').checked = true;
+      
     } catch (e) {
-      console.error('Errore lettura risposta:', e);
+      console.error('Errore gestione submit:', e);
       submitButton.value = "Salva Timesheet";
       submitButton.disabled = false;
       showNotification('info-box', '✅ Timesheet salvato', 'success');
