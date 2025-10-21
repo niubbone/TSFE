@@ -139,7 +139,10 @@ function handleFormSubmit(event) {
       
       if (responseText.includes('Success')) {
         if (responseText.includes('|||WARNING|||')) {
-          const warningMessage = responseText.split('|||WARNING|||')[1];
+          let warningMessage = responseText.split('|||WARNING|||')[1];
+          
+          // Sostituisci il marcatore |||BREAK||| con doppio a capo
+          warningMessage = warningMessage.replace(/\|\|\|BREAK\|\|\|/g, '\n\n');
           
           // Determina il tipo di alert in base al contenuto
           let alertType = 'warning';
