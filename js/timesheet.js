@@ -140,12 +140,54 @@ function handleFormSubmit(event) {
       if (responseText.includes('Success')) {
         if (responseText.includes('|||WARNING|||')) {
           const warningMessage = responseText.split('|||WARNING|||')[1];
+          
+          // Determina il tipo di alert in base al contenuto
+          let alertType = 'warning';
+          let alertDuration = 12000; // Default 12 secondi
+          
+          if (warningMessage.includes('TERMINATO')) {
+            alertType = 'terminated';
+            alertDuration = 15000; // 15 secondi per TERMINATO
+          } else if (warningMessage.includes('OVER')) {
+            alertType = 'over';
+            alertDuration = 20000; // 20 secondi per OVER (critico)
+          } else if (warningMessage.includes('SCADUTO')) {
+            alertType = 'expired';
+            alertDuration = 15000; // 15 secondi per SCADUTO
+          }
+          
+          // Stili diversi per tipo di alert
+          const alertStyles = {
+            warning: 'background: #fff3cd; border-left: 5px solid #ffc107; color: #856404;',
+            terminated: 'background: #d1ecf1; border-left: 5px solid #17a2b8; color: #0c5460;',
+            over: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #721c24;',
+            expired: 'background: #f8d7da; border-left: 5px solid #fd7e14; color: #721c24;'
+          };
+          
           infoBox.innerHTML = `
-            <div class="warning-box">
-              <p>⚠️ ${warningMessage}</p>
+            <div class="alert-box" style="${alertStyles[alertType]} padding: 20px !important; margin-bottom: 15px !important; border-radius: 8px; font-size: 15px; line-height: 1.6;">
+              <strong style="display: block; margin-bottom: 10px; font-size: 16px;">
+                ${alertType === 'over' ? '🚨 ALERT CRITICO' : 
+                  alertType === 'terminated' ? '✅ PACCHETTO COMPLETATO' : 
+                  alertType === 'expired' ? '⏰ ATTENZIONE' : 
+                  '⚠️ ATTENZIONE'}
+              </strong>
+              <div style="white-space: pre-line;">${warningMessage}</div>
             </div>
             <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">✅ Timesheet salvato</p>
           `;
+          
+          // Nascondi alert dopo il tempo specificato
+          setTimeout(function() {
+            const alertBox = document.querySelector('.alert-box');
+            if (alertBox) {
+              alertBox.style.transition = 'opacity 0.5s ease';
+              alertBox.style.opacity = '0';
+              setTimeout(() => alertBox.remove(), 500);
+            }
+            infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
+          }, alertDuration);
+          
         } else {
           showNotification('info-box', '✅ Timesheet salvato con successo!', 'success');
         }
@@ -155,13 +197,6 @@ function handleFormSubmit(event) {
         document.getElementById('date').value = currentDate;
         document.getElementById('send_email').checked = true;
         
-        setTimeout(function() {
-          const warningBox = document.querySelector('.warning-box');
-          if (warningBox) {
-            warningBox.style.display = 'none';
-          }
-          infoBox.innerHTML = '<p>✅ Pronto per un nuovo inserimento</p>';
-        }, 8000);
       } else {
         showNotification('info-box', '❌ Errore nel salvataggio', 'error');
       }
