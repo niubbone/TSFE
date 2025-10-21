@@ -134,6 +134,17 @@ function handleFormSubmit(event) {
       const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
       const responseText = iframeContent.body.textContent || iframeContent.body.innerText;
       
+      // DEBUG: Logga la risposta completa
+      console.log('=== RISPOSTA BACKEND ===');
+      console.log('Testo completo:', responseText);
+      console.log('Contiene Success?', responseText.includes('Success'));
+      console.log('Contiene WARNING?', responseText.includes('|||WARNING|||'));
+      if (responseText.includes('|||WARNING|||')) {
+        const parts = responseText.split('|||WARNING|||');
+        console.log('Parte DOPO WARNING:', parts[1]);
+      }
+      console.log('========================');
+      
       submitButton.value = "Salva Timesheet";
       submitButton.disabled = false;
       
