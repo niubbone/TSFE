@@ -24,6 +24,72 @@
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/modals.css">
     <link rel="stylesheet" href="css/utilities.css">
+    
+    <style>
+        /* STILI PER CAMPI OPZIONALI COLLASSABILI */
+        .optional-fields-toggle {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            user-select: none;
+        }
+        
+        @media (max-width: 768px) {
+            .optional-fields-toggle {
+                display: flex;
+            }
+        }
+        
+        .optional-fields-toggle svg {
+            transition: transform 0.3s ease;
+        }
+        
+        .optional-fields-toggle.active svg {
+            transform: rotate(180deg);
+        }
+        
+        .optional-fields-toggle span {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .time-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .time-group {
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+                margin-bottom: 0;
+            }
+            
+            .time-group.show {
+                max-height: 200px;
+                opacity: 1;
+                margin-bottom: 15px;
+            }
+        }
+        
+        /* STILE CAMPO CHIAMATA */
+        .chiamata-field {
+            width: 80px;
+        }
+        
+        .chiamata-field input {
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
 
@@ -55,7 +121,15 @@
                 </div>
             </div>
             
-            <div class="time-group">
+            <!-- TOGGLE PER CAMPI OPZIONALI (SOLO MOBILE) -->
+            <div class="optional-fields-toggle" id="optional-fields-toggle" onclick="toggleOptionalFields()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                <span>Campi opzionali (Ora Inizio/Fine)</span>
+            </div>
+            
+            <div class="time-group" id="time-group">
                 <div>
                     <label for="start_time">Ora Inizio (Opzionale):</label>
                     <input type="time" id="start_time" name="start_time">
@@ -90,6 +164,12 @@
             <select id="mod_addebito" name="mod_addebito" required>
                 <option value="" disabled selected>Seleziona Modalità Addebito</option>
             </select>
+            
+            <!-- CAMPO CHIAMATA OPZIONALE -->
+            <div class="chiamata-field">
+                <label for="chiamata">Chiamata (€):</label>
+                <input type="number" id="chiamata" name="chiamata" step="0.01" min="0" max="999" placeholder="0">
+            </div>
             
             <label for="description">Descrizione Attività:</label>
             <textarea id="description" name="description" rows="4" required></textarea>
@@ -413,6 +493,17 @@
 
 <!-- JavaScript Modulare -->
 <script type="module" src="js/main.js"></script>
+
+<!-- SCRIPT PER TOGGLE CAMPI OPZIONALI -->
+<script>
+function toggleOptionalFields() {
+    const toggle = document.getElementById('optional-fields-toggle');
+    const timeGroup = document.getElementById('time-group');
+    
+    toggle.classList.toggle('active');
+    timeGroup.classList.toggle('show');
+}
+</script>
 
 </body>
 </html>
