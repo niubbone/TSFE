@@ -131,21 +131,16 @@ function handleFormSubmit(event) {
   
   iframe.onload = async function() {
     try {
-      console.log('[TIMESHEET] iframe.onload triggered');
-      
       // Attendi un attimo che il backend completi il salvataggio
       await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('[TIMESHEET] Attesa completata, recupero warning...');
       
       // Recupera eventuali warning dal backend
       const warningMessage = await getLastWarning();
-      console.log('[TIMESHEET] Warning ricevuto:', warningMessage);
       
       submitButton.value = "Salva Timesheet";
       submitButton.disabled = false;
       
       if (warningMessage) {
-        console.log('[TIMESHEET] Mostro alert per warning:', warningMessage);
         // Determina il tipo di alert in base al contenuto
         let alertType = 'warning';
         let alertDuration = 12000; // Default 12 secondi
@@ -163,10 +158,10 @@ function handleFormSubmit(event) {
         
         // Stili diversi per tipo di alert
         const alertStyles = {
-          warning: 'background: #fff3cd; border-left: 5px solid #ffc107; color: #856404;',
-          terminated: 'background: #d1ecf1; border-left: 5px solid #17a2b8; color: #0c5460;',
-          over: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #721c24;',
-          expired: 'background: #f8d7da; border-left: 5px solid #fd7e14; color: #721c24;'
+          warning: 'background: #fff3cd; border-left: 5px solid #ffc107; color: #856404; border: 2px solid #ffc107;',
+          terminated: 'background: #cfe2ff; border-left: 5px solid #0d6efd; color: #084298; border: 2px solid #0d6efd;',
+          over: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #842029; border: 2px solid #dc3545; font-weight: 500;',
+          expired: 'background: #ffe5d0; border-left: 5px solid #fd7e14; color: #984c0c; border: 2px solid #fd7e14;'
         };
         
         // Sostituisci il marcatore |||BREAK||| con doppio a capo per visualizzazione
