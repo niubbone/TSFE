@@ -131,16 +131,21 @@ function handleFormSubmit(event) {
   
   iframe.onload = async function() {
     try {
+      console.log('[TIMESHEET] iframe.onload triggered');
+      
       // Attendi un attimo che il backend completi il salvataggio
       await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('[TIMESHEET] Attesa completata, recupero warning...');
       
       // Recupera eventuali warning dal backend
       const warningMessage = await getLastWarning();
+      console.log('[TIMESHEET] Warning ricevuto:', warningMessage);
       
       submitButton.value = "Salva Timesheet";
       submitButton.disabled = false;
       
       if (warningMessage) {
+        console.log('[TIMESHEET] Mostro alert per warning:', warningMessage);
         // Determina il tipo di alert in base al contenuto
         let alertType = 'warning';
         let alertDuration = 12000; // Default 12 secondi
