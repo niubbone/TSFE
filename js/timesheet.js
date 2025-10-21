@@ -2,7 +2,7 @@
 // === TIMESHEET - GESTIONE TAB TIMESHEET ===
 // =======================================================================
 
-import { getClientsAndConfig, addClient } from './api.js';
+import { getClientsAndConfig, addClient, getLastWarning } from './api.js';
 import { getTodayDate, showNotification } from './utils.js';
 
 /**
