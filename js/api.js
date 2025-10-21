@@ -1,7 +1,6 @@
 // =======================================================================
 // === API - CHIAMATE AL BACKEND ===
 // =======================================================================
-
 import { CONFIG } from './config.js';
 
 /**
@@ -81,6 +80,26 @@ export async function generateProforma(clientName, timesheetIds, causale, applic
   }
   
   return data;
+}
+
+/**
+ * Recupera l'ultimo warning generato dal backend
+ */
+export async function getLastWarning() {
+  const url = `${CONFIG.APPS_SCRIPT_URL}?action=get_last_warning`;
+  
+  try {
+    const response = await fetch(url, { method: 'GET' });
+    const data = await response.json();
+    
+    if (data.success && data.warning) {
+      return data.warning;
+    }
+    return null;
+  } catch (error) {
+    console.error('Errore recupero warning:', error);
+    return null;
+  }
 }
 
 /**
