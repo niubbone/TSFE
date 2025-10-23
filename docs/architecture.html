@@ -394,7 +394,7 @@
                     <h3 class="subsection-title">Backend (Google Apps Script)</h3>
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; line-height: 1.8; white-space: pre;">📁 Apps Script Project
 │
-├─ 📄 <strong>Code.gs</strong> (~580 righe)
+├─ 📄 <strong>Codice.gs</strong> (~580 righe)
 │   ├─ doGet() - Router GET
 │   ├─ doPost() - Router POST
 │   ├─ convertDateToSheetFormat()
@@ -406,7 +406,7 @@
 │   ├─ SHEET NAMES
 │   └─ WEB_APP_EXEC_URL
 │
-├─ 📄 <strong>DataService.gs</strong> (~150 righe)
+├─ 📄 <strong>Clienti.gs</strong> (~150 righe)
 │   ├─ getSpreadsheet()
 │   ├─ getClientsList()
 │   ├─ getConfigOptions()
@@ -415,26 +415,26 @@
 │   ├─ getClientID()
 │   └─ getTimesheetDaFatturare()
 │
-├─ 📄 <strong>EmailService.gs</strong> (~100 righe)
+├─ 📄 <strong>email.gs</strong> (~100 righe)
 │   ├─ sendEmailToClient()
 │   └─ sendProformaEmail()
 │
-├─ 📄 <strong>ProformaService.gs</strong> (~250 righe)
+├─ 📄 <strong>proforma.gs</strong> (~250 righe)
 │   ├─ generateAndSendProforma()
 │   ├─ createProformaDocument()
 │   ├─ getNextProformaNumber()
 │   └─ convertPdfAndSave()
 │
-├─ 📄 <strong>PacchettiService.gs</strong> (~200 righe)
+├─ 📄 <strong>pacchetti.gs</strong> (~200 righe)
 │   ├─ getActivePacchetto()
 │   ├─ updatePacchetto()
 │   └─ checkPacchettoStatus()
 │
-├─ 📄 <strong>CanoniService.gs</strong> (~100 righe)
+├─ 📄 <strong>timesheet.gs</strong> (~100 righe)
 │   ├─ getActiveCanone()
 │   └─ updateCanone()
 │
-├─ 📄 <strong>Utilities.gs</strong> (~200 righe)
+├─ 📄 <strong>utilities.gs</strong> (~200 righe)
 │   ├─ writeLog()
 │   ├─ getLogs()
 │   ├─ cleanOldLogs()
@@ -442,7 +442,7 @@
 │   ├─ testConnection()
 │   └─ checkDataIntegrity()
 │
-└─ 📄 <strong>Helpers.gs</strong> (~50 righe)
+└─ 📄 <strong>helpers.gs</strong> (~50 righe)
     ├─ formatCurrency()
     ├─ convertDurationToHours()
     └─ sanitizeInput()</div>
@@ -516,9 +516,9 @@
             <div class="section" id="backend">
                 <h2 class="section-title">⚙️ 3. Backend - Funzioni Dettagliate</h2>
 
-                <!-- Code.gs -->
+                <!-- Codice.gs -->
                 <div class="subsection">
-                    <h3 class="subsection-title">📄 Code.gs - Router Principale</h3>
+                    <h3 class="subsection-title">📄 Codice.gs - Router Principale</h3>
 
                     <div class="function-card">
                         <div class="function-name">doGet(e)</div>
@@ -614,8 +614,8 @@
                         </div>
                         <div class="correlation">
                             <div class="correlation-title">🔗 Chiama:</div>
-                            <code>getSpreadsheet()</code><br>
-                            <code>writeLog()</code> - Log di SUCCESS o ERROR
+                            <code>getSpreadsheet()</code> (da Clienti.gs)<br>
+                            <code>writeLog()</code> (da utilities.gs) - Log di SUCCESS o ERROR
                         </div>
                     </div>
 
@@ -641,9 +641,9 @@
                     </div>
                 </div>
 
-                <!-- DataService.gs -->
+                <!-- Clienti.gs -->
                 <div class="subsection">
-                    <h3 class="subsection-title">📄 DataService.gs - Accesso Dati</h3>
+                    <h3 class="subsection-title">📄 Clienti.gs - Accesso Dati</h3>
 
                     <div class="function-card">
                         <div class="function-name">getClientsList()</div>
@@ -692,9 +692,9 @@
                     </div>
                 </div>
 
-                <!-- ProformaService.gs -->
+                <!-- proforma.gs -->
                 <div class="subsection">
-                    <h3 class="subsection-title">📄 ProformaService.gs - Generazione Proforma</h3>
+                    <h3 class="subsection-title">📄 proforma.gs - Generazione Proforma</h3>
 
                     <div class="function-card">
                         <div class="function-name">generateAndSendProforma(clientData, timesheet, causale, applicaQuota)</div>
@@ -724,9 +724,9 @@
                     </div>
                 </div>
 
-                <!-- PacchettiService.gs -->
+                <!-- pacchetti.gs -->
                 <div class="subsection">
-                    <h3 class="subsection-title">📄 PacchettiService.gs - Gestione Pacchetti</h3>
+                    <h3 class="subsection-title">📄 pacchetti.gs - Gestione Pacchetti</h3>
 
                     <div class="function-card">
                         <div class="function-name">getActivePacchetto(clientID)</div>
@@ -764,9 +764,9 @@
                     </div>
                 </div>
 
-                <!-- Utilities.gs -->
+                <!-- utilities.gs -->
                 <div class="subsection">
-                    <h3 class="subsection-title">📄 Utilities.gs - Sistema di Logging</h3>
+                    <h3 class="subsection-title">📄 utilities.gs - Sistema di Logging</h3>
 
                     <div class="function-card">
                         <div class="function-name">writeLog(level, action, message, data)</div>
@@ -1317,37 +1317,37 @@ writeLog('ERROR', 'VALIDATE_CLIENT', 'Cliente non trovato', {
                                 <td><strong>timesheet.js</strong></td>
                                 <td>getClientsAndConfig()</td>
                                 <td>?action=get_data</td>
-                                <td>Code.gs (doGet) → DataService.gs</td>
+                                <td>Codice.gs (doGet) → Clienti.gs</td>
                             </tr>
                             <tr>
                                 <td><strong>timesheet.js</strong></td>
                                 <td>addClient()</td>
                                 <td>?action=add_client</td>
-                                <td>Code.gs (doGet)</td>
+                                <td>Codice.gs (doGet)</td>
                             </tr>
                             <tr>
                                 <td><strong>timesheet.js</strong></td>
                                 <td>Form submit (POST)</td>
                                 <td>Direct POST</td>
-                                <td>Code.gs (doPost) → validateClient() ⭐</td>
+                                <td>Codice.gs (doPost) → validateClient() ⭐</td>
                             </tr>
                             <tr>
                                 <td><strong>proforma.js</strong></td>
                                 <td>getTimesheetDaFatturare()</td>
                                 <td>?action=get_timesheet_da_fatturare</td>
-                                <td>Code.gs (doGet) → DataService.gs</td>
+                                <td>Codice.gs (doGet) → Clienti.gs</td>
                             </tr>
                             <tr>
                                 <td><strong>proforma.js</strong></td>
                                 <td>generateProforma()</td>
                                 <td>?action=generate_proforma</td>
-                                <td>Code.gs (doGet) → ProformaService.gs</td>
+                                <td>Codice.gs (doGet) → proforma.gs</td>
                             </tr>
                             <tr>
                                 <td><strong>utilities.js</strong></td>
                                 <td>getLogs()</td>
                                 <td>?action=get_logs</td>
-                                <td>Code.gs (doGet) → Utilities.gs</td>
+                                <td>Codice.gs (doGet) → utilities.gs</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1361,17 +1361,17 @@ writeLog('ERROR', 'VALIDATE_CLIENT', 'Cliente non trovato', {
                         <code>timesheet.js: handleFormSubmit()</code><br>
                         └─ ⭐ Valida cliente in <code>window.clients</code><br>
                         └─ Se OK: Submit form via iframe<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;└─ <code>Code.gs: doPost()</code><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;└─ <code>Codice.gs: doPost()</code><br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ ⭐ <code>validateClient(clientName)</code><br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Se NON valido: BLOCCA + writeLog(ERROR)<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Se valido: Return clientID<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>generateInterventoID()</code><br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Se "Scala da pacchetto":<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>PacchettiService: getActivePacchetto()</code><br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>PacchettiService: updatePacchetto()</code><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>pacchetti.gs: getActivePacchetto()</code><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>pacchetti.gs: updatePacchetto()</code><br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Salva timesheet<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>EmailService: sendEmailToClient()</code><br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>Utilities: writeLog(SUCCESS)</code><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>email.gs: sendEmailToClient()</code><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <code>utilities.gs: writeLog(SUCCESS)</code><br>
                         └─ Frontend: <code>getLastWarning()</code><br>
                         └─ Mostra successo + warning pacchetti
                     </div>
@@ -1403,37 +1403,37 @@ writeLog('ERROR', 'VALIDATE_CLIENT', 'Cliente non trovato', {
                         <tbody>
                             <tr style="background: #f8d7da;">
                                 <td><code>validateClient()</code> ⭐</td>
-                                <td>Code.gs</td>
+                                <td>Codice.gs</td>
                                 <td>🚨 MASSIMA</td>
                                 <td>Impedisce inserimenti con clienti non validi. Se fallisce, dati corrotti.</td>
                             </tr>
                             <tr style="background: #f8d7da;">
                                 <td><code>doPost()</code></td>
-                                <td>Code.gs</td>
+                                <td>Codice.gs</td>
                                 <td>🚨 MASSIMA</td>
                                 <td>Gestisce TUTTI gli inserimenti timesheet. Errori = perdita dati.</td>
                             </tr>
                             <tr style="background: #fff3cd;">
                                 <td><code>generateInterventoID()</code></td>
-                                <td>Code.gs</td>
+                                <td>Codice.gs</td>
                                 <td>⚠️ ALTA</td>
                                 <td>Genera ID univoci. Duplicati o errori causano conflitti.</td>
                             </tr>
                             <tr style="background: #fff3cd;">
                                 <td><code>updatePacchetto()</code></td>
-                                <td>PacchettiService.gs</td>
+                                <td>pacchetti.gs</td>
                                 <td>⚠️ ALTA</td>
                                 <td>Scala ore da pacchetti. Errori = contabilità errata.</td>
                             </tr>
                             <tr style="background: #fff3cd;">
                                 <td><code>generateAndSendProforma()</code></td>
-                                <td>ProformaService.gs</td>
+                                <td>proforma.gs</td>
                                 <td>⚠️ ALTA</td>
                                 <td>Genera fatture. Errori = documenti fiscali errati.</td>
                             </tr>
                             <tr>
                                 <td><code>writeLog()</code></td>
-                                <td>Utilities.gs</td>
+                                <td>utilities.gs</td>
                                 <td>📊 MEDIA</td>
                                 <td>Tracciabilità. Se fallisce, perdi visibilità sugli errori.</td>
                             </tr>
