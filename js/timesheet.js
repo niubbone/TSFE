@@ -13,6 +13,7 @@ export async function initTimesheet() {
   setupFormSubmit();
   setTodayDate();
   setupSelectFocus();
+  setupClientValidation(); // NUOVO!
 }
 
 /**
@@ -31,6 +32,13 @@ async function loadFormData() {
     
     window.clients = data.clients;
     window.config = data.config;
+    
+    // IMPORTANTE: Cancella la cache del browser per il campo cliente
+    const clientInput = document.getElementById('client');
+    if (clientInput) {
+      clientInput.value = '';
+      clientInput.setAttribute('autocomplete', 'off');
+    }
     
     populateFormFields();
     populateProformaClients();
@@ -109,6 +117,44 @@ function populateProformaClients() {
 }
 
 /**
+ * Setup validazione real-time del campo cliente
+ * NUOVO: Impedisce inserimento di clienti non validi
+ */
+function setupClientValidation() {
+  const clientInput = document.getElementById('client');
+  
+  if (!clientInput) return;
+  
+  // Feedback visivo real-time
+  clientInput.addEventListener('input', function() {
+    const clientName = this.value.trim();
+    
+    if (!clientName) {
+      this.style.borderColor = '';
+      return;
+    }
+    
+    const isValid = window.clients.some(client => client.name === clientName);
+    
+    if (isValid) {
+      this.style.borderColor = '#28a745'; // Verde
+      this.style.borderWidth = '2px';
+    } else {
+      this.style.borderColor = '#dc3545'; // Rosso
+      this.style.borderWidth = '2px';
+    }
+  });
+  
+  // Reset colore quando perde focus
+  clientInput.addEventListener('blur', function() {
+    setTimeout(() => {
+      this.style.borderColor = '';
+      this.style.borderWidth = '';
+    }, 2000);
+  });
+}
+
+/**
  * Setup submit del form timesheet
  */
 function setupFormSubmit() {
@@ -118,8 +164,38 @@ function setupFormSubmit() {
 
 /**
  * Gestisce il submit del form
+ * MODIFICATO: Aggiunta validazione stricta del cliente
  */
 function handleFormSubmit(event) {
+  // 🚨 VALIDAZIONE CRITICA: Verifica che il cliente esista
+  const clientInput = document.getElementById('client');
+  const clientName = clientInput.value.trim();
+  
+  if (!clientName) {
+    event.preventDefault();
+    showNotification('info-box', '❌ ERRORE: Devi selezionare un cliente', 'error');
+    clientInput.focus();
+    return false;
+  }
+  
+  // Verifica che il nome cliente sia nella lista valida
+  const validClient = window.clients.find(client => client.name === clientName);
+  
+  if (!validClient) {
+    event.preventDefault();
+    showNotification('info-box', 
+      `❌ ERRORE CRITICO: Cliente "${clientName}" non esiste nel database.<br><br>` +
+      `<strong>Possibili cause:</strong><br>` +
+      `• Nome cliente modificato nel foglio Google<br>` +
+      `• Cache del browser con dati obsoleti<br>` +
+      `• Cliente non ancora sincronizzato<br><br>` +
+      `<strong>Soluzione:</strong> Ricarica la pagina (F5) e seleziona il cliente dalla lista aggiornata`, 
+      'error');
+    clientInput.focus();
+    clientInput.select();
+    return false;
+  }
+  
   const submitButton = document.getElementById('submit-btn');
   const infoBox = document.getElementById('info-box');
   
@@ -282,7 +358,10 @@ export async function saveNewClient() {
   
   try {
     await addClient(clientName, clientEmail);
+    
+    // IMPORTANTE: Forza il refresh completo dei dati
     await loadFormData();
+    
     document.getElementById('client').value = clientName;
     closeAddClientModal();
     showNotification('info-box', '✅ Cliente aggiunto con successo!', 'success');
