@@ -13,7 +13,7 @@ export async function initTimesheet() {
   setupFormSubmit();
   setTodayDate();
   setupSelectFocus();
-  setupClientValidation(); // NUOVO!
+  setupClientValidation();
 }
 
 /**
@@ -65,6 +65,14 @@ function populateFormFields() {
     clientDatalist.appendChild(option);
   });
 
+  // ⭐ FILTRO MODALITÀ ADDEBITO - Solo valori inseribili dall'utente
+  const MOD_ADDEBITO_INSERIBILI = [
+    'Da fatturare',
+    'Scala da pacchetto',
+    'Incluso nel canone',
+    'Startup Kleos'
+  ];
+
   // Popola select con configurazioni
   const selectDataMap = {
     'tipo_intervento': window.config.tipoIntervento || [],
@@ -74,7 +82,12 @@ function populateFormFields() {
 
   for (const id in selectDataMap) {
     const select = document.getElementById(id);
-    const options = selectDataMap[id];
+    let options = selectDataMap[id];
+    
+    // ⭐ FILTRO: Se è mod_addebito, mostra solo opzioni inseribili
+    if (id === 'mod_addebito') {
+      options = options.filter(item => MOD_ADDEBITO_INSERIBILI.includes(item));
+    }
     
     if (options && Array.isArray(options) && options.length > 0) {
       select.innerHTML = '';
@@ -230,6 +243,9 @@ function handleFormSubmit(event) {
         } else if (warningMessage.includes('SCADUTO')) {
           alertType = 'expired';
           alertDuration = 15000; // 15 secondi per SCADUTO
+        } else if (warningMessage.includes('ERRORE')) {
+          alertType = 'error';
+          alertDuration = 20000; // 20 secondi per ERRORE
         }
         
         // Stili diversi per tipo di alert
@@ -237,7 +253,8 @@ function handleFormSubmit(event) {
           warning: 'background: #fff3cd; border-left: 5px solid #ffc107; color: #856404; border: 2px solid #ffc107;',
           terminated: 'background: #cfe2ff; border-left: 5px solid #0d6efd; color: #084298; border: 2px solid #0d6efd;',
           over: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #842029; border: 2px solid #dc3545; font-weight: 500;',
-          expired: 'background: #ffe5d0; border-left: 5px solid #fd7e14; color: #984c0c; border: 2px solid #fd7e14;'
+          expired: 'background: #ffe5d0; border-left: 5px solid #fd7e14; color: #984c0c; border: 2px solid #fd7e14;',
+          error: 'background: #f8d7da; border-left: 5px solid #dc3545; color: #721c24; border: 2px solid #dc3545; font-weight: 500;'
         };
         
         // Sostituisci il marcatore |||BREAK||| con doppio a capo per visualizzazione
@@ -247,6 +264,7 @@ function handleFormSubmit(event) {
           <div class="alert-box" style="${alertStyles[alertType]} padding: 20px !important; margin-bottom: 15px !important; border-radius: 8px; font-size: 15px; line-height: 1.6;">
             <strong style="display: block; margin-bottom: 10px; font-size: 16px;">
               ${alertType === 'over' ? '🚨 ALERT CRITICO' : 
+                alertType === 'error' ? '❌ ERRORE' :
                 alertType === 'terminated' ? '✅ PACCHETTO COMPLETATO' : 
                 alertType === 'expired' ? '⏰ ATTENZIONE' : 
                 '⚠️ ATTENZIONE'}
