@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/modals.css">
     <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="css/vendite.css">
     
     <style>
         /* STILI PER CAMPI OPZIONALI COLLASSABILI */
@@ -96,7 +97,7 @@
 <div class="tabs">
     <button class="tab-button active" onclick="switchTab('timesheet')">⏱️ Timesheet</button>
     <button class="tab-button" onclick="switchTab('proforma')">📄 Proforma</button>
-    <button class="tab" data-tab="vendite">🛒 Vendite</button>
+    <button class="tab-button" onclick="switchTab('vendite')">🛒 Vendite</button>
     <button class="tab-button" onclick="switchTab('utilities')">⚙️ Utilities</button>
 </div>
 
@@ -317,6 +318,139 @@
     </div>
 </div>
 
+
+<!-- TAB VENDITE -->
+<div id="vendite-tab" class="tab-content">
+    <div class="form-container">
+        <h1>🛒 Vendite</h1>
+        
+        <!-- Sezione Nuova Vendita -->
+        <div class="section-vendite">
+            <h3>📦 Nuova Vendita</h3>
+            <div class="vendita-buttons">
+                <button class="btn-vendita" onclick="openVenditaModal('pacchetto')">
+                    <span class="icon">📦</span>
+                    <span>Pacchetto Ore</span>
+                </button>
+                <button class="btn-vendita" onclick="openVenditaModal('canone')">
+                    <span class="icon">📅</span>
+                    <span>Canone</span>
+                </button>
+                <button class="btn-vendita" onclick="openVenditaModal('firma')">
+                    <span class="icon">✍️</span>
+                    <span>Firma Digitale</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sezione Scadenze -->
+        <div class="section-vendite" style="margin-top: 30px;">
+            <h3>🔄 Prodotti in Scadenza</h3>
+            <div class="info-banner">
+                Prodotti in scadenza nei prossimi 90 giorni
+            </div>
+            <div id="scadenzeContainer" class="loading-scadenze">
+                Caricamento scadenze...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Vendita -->
+<div id="venditaModal" class="modal-vendite">
+    <div class="modal-content-vendite">
+        <div class="modal-header-vendite">
+            <span id="modalVenditaTitle">Nuova Vendita</span>
+            <button class="modal-close-vendite" onclick="closeVenditaModal()">&times;</button>
+        </div>
+        
+        <form id="venditaForm" onsubmit="submitVendita(event)">
+            <input type="hidden" id="tipoVendita" value="">
+            
+            <div class="form-group">
+                <label>Cliente *</label>
+                <select id="venditaCliente" required>
+                    <option value="">Caricamento...</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="venditaTipoFirmaGroup" style="display:none;">
+                <label>Tipo Firma</label>
+                <select id="venditaTipoFirma">
+                    <option value="Token">Token (Smart card)</option>
+                    <option value="Remota">Remota (Software)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label id="venditaDescrizioneLabel">Descrizione</label>
+                <textarea id="venditaDescrizione" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Importo (€) *</label>
+                <input type="number" id="venditaImporto" step="0.01" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label>Data Inizio</label>
+                <input type="date" id="venditaDataInizio" required>
+            </div>
+
+            <div class="form-group" id="venditaDurataGroup">
+                <label id="venditaDurataLabel">Durata (anni)</label>
+                <input type="number" id="venditaDurataAnni" min="1" value="1">
+            </div>
+
+            <button type="submit" class="btn-primary" id="venditaSubmitBtn">
+                Crea Vendita
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Rinnovo -->
+<div id="rinnovoModal" class="modal-vendite">
+    <div class="modal-content-vendite">
+        <div class="modal-header-vendite">
+            <span>Rinnova Prodotto</span>
+            <button class="modal-close-vendite" onclick="closeRinnovoModal()">&times;</button>
+        </div>
+        
+        <form id="rinnovoForm" onsubmit="submitRinnovo(event)">
+            <input type="hidden" id="rinnovoId">
+            <input type="hidden" id="rinnovoTipo">
+            
+            <div class="info-banner" style="margin-bottom: 16px;">
+                <strong id="rinnovoClienteNome"></strong><br>
+                <span id="rinnovoDettagli"></span>
+            </div>
+
+            <div class="form-group" id="rinnovoTipoFirmaGroup" style="display:none;">
+                <label>Tipo Firma</label>
+                <select id="rinnovoTipoFirma">
+                    <option value="Token">Token</option>
+                    <option value="Remota">Remota</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Descrizione</label>
+                <textarea id="rinnovoDescrizione" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Nuovo Importo (€)</label>
+                <input type="number" id="rinnovoImporto" step="0.01" min="0">
+            </div>
+
+            <button type="submit" class="btn-primary" id="rinnovoSubmitBtn">
+                Conferma Rinnovo
+            </button>
+        </form>
+    </div>
+</div>
+
 <!-- TAB UTILITIES -->
 <div id="utilities-tab" class="tab-content">
     <div class="form-container">
@@ -491,6 +625,7 @@
             
             <div class="utility-card">
                 <div class="utility-info">
+<script src="js/vendite.js"></script>
                     <h4>Carica Log Sistema</h4>
                     <p>Visualizza gli ultimi 100 eventi e operazioni</p>
                 </div>
