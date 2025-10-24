@@ -39,6 +39,11 @@ window.switchTab = function(tabName) {
     case 'utilities':
       initUtilities();  // ← CHIAMA INIT
       break;
+    case 'vendite':
+      if (typeof initVenditeTab === 'function') {
+        initVenditeTab();  // u2190 INIZIALIZZA TAB VENDITE
+      }
+      break;
   }
 };
 
@@ -77,6 +82,8 @@ function setupTabs() {
         tabName = 'proforma';
       } else if (btn.textContent.includes('Utilities')) {
         tabName = 'utilities';
+      } else if (btn.textContent.includes('Vendite')) {
+        tabName = 'vendite';
       }
       window.switchTab(tabName);
     });
