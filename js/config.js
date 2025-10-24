@@ -8,6 +8,9 @@ export const CONFIG = {
   VERSION: "2.0.0"
 };
 
+// Esponi CONFIG globalmente per script non-module (come vendite.js)
+window.CONFIG = CONFIG;
+
 // Variabili globali condivise (accessibili da window)
 export function initGlobalState() {
   window.clients = [];
@@ -15,3 +18,4 @@ export function initGlobalState() {
   window.selectedTimesheet = [];
   window.currentTimesheetData = [];
 }
+
