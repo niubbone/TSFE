@@ -1,0 +1,271 @@
+/* ========================================
+   VENDITE TAB STYLES
+   ======================================== */
+
+.section-vendite {
+    margin-top: 20px;
+}
+
+.vendita-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.btn-vendita {
+    background: white;
+    border: 2px solid #e0e0e0;
+    padding: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-vendita:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-vendita:active {
+    transform: translateY(0);
+}
+
+.btn-vendita .icon {
+    font-size: 32px;
+}
+
+.info-banner {
+    background: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 15px 0;
+    font-size: 14px;
+    color: #1976d2;
+}
+
+.loading-scadenze {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.scadenze-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.scadenza-card {
+    background: #f8f9fa;
+    border-left: 4px solid #ffc107;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.scadenza-card:hover {
+    transform: translateX(4px);
+}
+
+.scadenza-card.urgente {
+    border-left-color: #f44336;
+    background: #ffebee;
+}
+
+.scadenza-card.media {
+    border-left-color: #ff9800;
+    background: #fff3e0;
+}
+
+.scadenza-card.bassa {
+    border-left-color: #4caf50;
+    background: #e8f5e9;
+}
+
+.scadenza-info {
+    flex: 1;
+}
+
+.scadenza-id {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.scadenza-cliente {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.scadenza-data {
+    color: #888;
+    font-size: 13px;
+}
+
+.scadenza-urgenza {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.urgenza-alta {
+    background: #f44336;
+    color: white;
+}
+
+.urgenza-media {
+    background: #ff9800;
+    color: white;
+}
+
+.urgenza-bassa {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-rinnova {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-rinnova:hover {
+    background: #45a049;
+}
+
+.btn-rinnova:active {
+    transform: scale(0.98);
+}
+
+/* Modal Vendite */
+.modal-vendite {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-vendite.active {
+    display: flex;
+}
+
+.modal-content-vendite {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header-vendite {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #333;
+}
+
+.modal-close-vendite {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close-vendite:hover {
+    color: #333;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.empty-state div {
+    margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vendita-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .scadenza-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .btn-rinnova {
+        width: 100%;
+    }
+    
+    .modal-content-vendite {
+        padding: 20px;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-vendita {
+        padding: 16px;
+    }
+    
+    .btn-vendita .icon {
+        font-size: 28px;
+    }
+    
+    .scadenza-card {
+        padding: 12px;
+    }
+}
