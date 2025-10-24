@@ -54,12 +54,21 @@ async function loadVenditaClienti() {
         if (clientsList.length > 0) {
             clientsList.forEach(cliente => {
                 const option = document.createElement('option');
-                option.value = cliente;
-                option.textContent = cliente;
+                // Gestisci sia stringhe che oggetti
+                if (typeof cliente === 'string') {
+                    option.value = cliente;
+                    option.textContent = cliente;
+                } else if (cliente && cliente.name) {
+                    option.value = cliente.name;
+                    option.textContent = cliente.name;
+                } else {
+                    option.value = JSON.stringify(cliente);
+                    option.textContent = cliente.toString();
+                }
                 select.appendChild(option);
             });
         } else {
-            select.innerHTML = '<option value="">Errore caricamento clienti</option>';
+            select.innerHTML = '<option value="">Nessun cliente disponibile</option>';
         }
     } catch (error) {
         console.error('Errore caricamento clienti vendite:', error);
