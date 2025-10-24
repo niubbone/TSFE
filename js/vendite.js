@@ -2,6 +2,19 @@
 // VENDITE TAB - JavaScript
 // ========================================
 
+// Importa configurazione (se disponibile come modulo)
+// In alternativa, accede direttamente a window.CONFIG se esportato
+const getAPIUrl = () => {
+    // Prova a usare CONFIG se disponibile
+    if (typeof CONFIG !== 'undefined' && CONFIG.APPS_SCRIPT_URL) {
+        return CONFIG.APPS_SCRIPT_URL;
+    }
+    // Fallback: URL hardcoded
+    return 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec';
+};
+
+const API_URL = getAPIUrl();
+
 let scadenzeData = null;
 
 /**
@@ -35,8 +48,10 @@ async function loadVenditaClienti() {
         
         select.innerHTML = '<option value="">Seleziona cliente...</option>';
         
-        // Usa la lista clienti già caricata globalmente
-        if (typeof clientsList !== 'undefined' && clientsList.length > 0) {
+        // Usa la lista clienti già caricata globalmente (window.clients da config.js)
+        const clientsList = window.clients || [];
+        
+        if (clientsList.length > 0) {
             clientsList.forEach(cliente => {
                 const option = document.createElement('option');
                 option.value = cliente;
