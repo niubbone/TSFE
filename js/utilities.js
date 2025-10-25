@@ -81,9 +81,9 @@ window.downloadFrontendBackup = async function() {
         
         // 6. README
         const readmeContent = `
-═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════
 CRM STUDIO SMART - BACKUP FRONTEND
-═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════
 
 Data backup: ${new Date().toLocaleString('it-IT')}
 Versione: ${CONFIG.VERSION}
@@ -173,7 +173,7 @@ window.testConnection = async function() {
 };
 
 /**
- * Verifica integrità dati
+ * Verifica integrità dati - VERSIONE CORRETTA
  */
 window.checkDataIntegrity = async function() {
     try {
@@ -183,16 +183,30 @@ window.checkDataIntegrity = async function() {
         const response = await fetch(url);
         const data = await response.json();
         
-        if (data.success) {
-            if (data.healthy) {
-                showNotification('diagnostic-info', '✅ Tutti i dati sono integri!', 'success');
-            } else {
-                const issues = data.issues.join('\n• ');
-                alert(`⚠️ Trovate ${data.issues.length} anomalie:\n\n• ${issues}\n\nVerifica la configurazione dei fogli Google.`);
-                showNotification('diagnostic-info', `⚠️ ${data.issues.length} anomalie trovate`, 'warning');
-            }
-        } else {
+        if (!data.success) {
             throw new Error(data.error || 'Errore sconosciuto');
+        }
+        
+        // ✅ GESTIONE CORRETTA DELLA RISPOSTA
+        if (data.healthy) {
+            // Sistema integro - mostra statistiche
+            const statsText = formatStats(data.stats);
+            alert(`✅ SISTEMA INTEGRO!\n\n${statsText}\n\nNessuna anomalia rilevata.`);
+            showNotification('diagnostic-info', '✅ Tutti i dati sono integri!', 'success');
+        } else {
+            // Anomalie trovate - formatta il report
+            const report = formatIntegrityReport(data);
+            
+            // Mostra in un alert dettagliato
+            alert(report);
+            
+            // Notifica sommaria
+            const totalProblems = (data.issues?.length || 0) + (data.warnings?.length || 0);
+            showNotification(
+                'diagnostic-info', 
+                `⚠️ ${totalProblems} anomalie trovate (vedi dettagli)`, 
+                'warning'
+            );
         }
         
     } catch (error) {
@@ -200,6 +214,139 @@ window.checkDataIntegrity = async function() {
         showNotification('diagnostic-info', '❌ Errore durante la verifica: ' + error.message, 'error');
     }
 };
+
+/**
+ * Formatta le statistiche del sistema
+ */
+function formatStats(stats) {
+    if (!stats) return 'Statistiche non disponibili';
+    
+    let text = '📊 STATISTICHE SISTEMA:\n';
+    text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    
+    if (stats.clienti !== undefined) {
+        text += `👥 Clienti: ${stats.clienti}\n`;
+    }
+    if (stats.timesheet !== undefined) {
+        text += `📋 Timesheet: ${stats.timesheet}\n`;
+    }
+    if (stats.pacchetti !== undefined) {
+        text += `📦 Pacchetti: ${stats.pacchetti}`;
+        if (stats.pacchettiAttivi !== undefined) {
+            text += ` (${stats.pacchettiAttivi} attivi)`;
+        }
+        text += '\n';
+    }
+    if (stats.canoni !== undefined) {
+        text += `💰 Canoni: ${stats.canoni}`;
+        if (stats.canoniAttivi !== undefined) {
+            text += ` (${stats.canoniAttivi} attivi)`;
+        }
+        text += '\n';
+    }
+    if (stats.firme !== undefined) {
+        text += `📝 Firme: ${stats.firme}`;
+        if (stats.firmeAttive !== undefined) {
+            text += ` (${stats.firmeAttive} attive)`;
+        }
+        text += '\n';
+    }
+    
+    return text;
+}
+
+/**
+ * Formatta il report di integrità completo
+ */
+function formatIntegrityReport(data) {
+    let report = '⚠️ REPORT INTEGRITÀ DATI\n';
+    report += '═══════════════════════════════════════\n\n';
+    
+    // Statistiche
+    if (data.stats) {
+        report += formatStats(data.stats);
+        report += '\n';
+    }
+    
+    // Sommario
+    if (data.summary) {
+        report += '📊 SOMMARIO PROBLEMI:\n';
+        report += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+        if (data.summary.critical > 0) {
+            report += `🔴 Critici: ${data.summary.critical}\n`;
+        }
+        if (data.summary.high > 0) {
+            report += `🟠 Alta priorità: ${data.summary.high}\n`;
+        }
+        if (data.summary.medium > 0) {
+            report += `🟡 Media priorità: ${data.summary.medium}\n`;
+        }
+        if (data.summary.warnings > 0) {
+            report += `⚠️ Avvisi: ${data.summary.warnings}\n`;
+        }
+        report += '\n';
+    }
+    
+    // Issues critici e ad alta priorità
+    if (data.issues && data.issues.length > 0) {
+        const criticalIssues = data.issues.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH');
+        
+        if (criticalIssues.length > 0) {
+            report += '🚨 PROBLEMI CRITICI:\n';
+            report += '━━━━━━━━━━━━━━━━━━━━━━\n';
+            
+            criticalIssues.forEach((issue, index) => {
+                const emoji = issue.severity === 'CRITICAL' ? '🔴' : '🟠';
+                report += `${emoji} ${index + 1}. ${issue.message}\n`;
+                if (issue.solution) {
+                    report += `   💡 Soluzione: ${issue.solution}\n`;
+                }
+                report += '\n';
+            });
+        }
+        
+        // Altri issues
+        const otherIssues = data.issues.filter(i => i.severity !== 'CRITICAL' && i.severity !== 'HIGH');
+        if (otherIssues.length > 0) {
+            report += `\n🟡 ALTRI PROBLEMI (${otherIssues.length}):\n`;
+            report += '━━━━━━━━━━━━━━━━━━━━━━\n';
+            
+            otherIssues.slice(0, 5).forEach((issue, index) => {
+                report += `• ${issue.message}\n`;
+                if (issue.solution) {
+                    report += `  💡 ${issue.solution}\n`;
+                }
+            });
+            
+            if (otherIssues.length > 5) {
+                report += `\n... e altri ${otherIssues.length - 5} problemi\n`;
+            }
+        }
+    }
+    
+    // Warnings
+    if (data.warnings && data.warnings.length > 0) {
+        report += `\n⚠️ AVVISI (${data.warnings.length}):\n`;
+        report += '━━━━━━━━━━━━━━━━━━━━━━\n';
+        
+        data.warnings.slice(0, 5).forEach((warning, index) => {
+            report += `• ${warning.message}\n`;
+            if (warning.solution) {
+                report += `  💡 ${warning.solution}\n`;
+            }
+        });
+        
+        if (data.warnings.length > 5) {
+            report += `\n... e altri ${data.warnings.length - 5} avvisi\n`;
+        }
+    }
+    
+    report += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+    report += '💡 AZIONE CONSIGLIATA:\n';
+    report += 'Verifica i problemi nel foglio Google e correggi le anomalie.\n';
+    
+    return report;
+}
 
 /**
  * Visualizza log sistema
