@@ -196,6 +196,8 @@ function openVenditaModal(tipo) {
     // Configura modal in base al tipo
     const modalTitle = document.getElementById('modalVenditaTitle');
     const tipoFirmaGroup = document.getElementById('venditaTipoFirmaGroup');
+    const oreGroup = document.getElementById('venditaOreGroup');
+    const oreInput = document.getElementById('venditaOreTotali');
     const durataGroup = document.getElementById('venditaDurataGroup');
     const durataLabel = document.getElementById('venditaDurataLabel');
     const durataInput = document.getElementById('venditaDurataAnni');
@@ -204,11 +206,18 @@ function openVenditaModal(tipo) {
     if (tipo === 'pacchetto') {
         if (modalTitle) modalTitle.textContent = '📦 Nuovo Pacchetto Ore';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'none';
+        if (oreGroup) oreGroup.style.display = 'block';
+        if (oreInput) {
+            oreInput.required = true;
+            oreInput.value = '';
+        }
         if (durataGroup) durataGroup.style.display = 'none';
         if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione';
     } else if (tipo === 'canone') {
         if (modalTitle) modalTitle.textContent = '📅 Nuovo Canone';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'none';
+        if (oreGroup) oreGroup.style.display = 'none';
+        if (oreInput) oreInput.required = false;
         if (durataGroup) durataGroup.style.display = 'block';
         if (durataLabel) durataLabel.textContent = 'Durata (anni)';
         if (durataInput) durataInput.value = 1;
@@ -216,6 +225,8 @@ function openVenditaModal(tipo) {
     } else if (tipo === 'firma') {
         if (modalTitle) modalTitle.textContent = '✍️ Nuova Firma Digitale';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'block';
+        if (oreGroup) oreGroup.style.display = 'none';
+        if (oreInput) oreInput.required = false;
         if (durataGroup) durataGroup.style.display = 'block';
         if (durataLabel) durataLabel.textContent = 'Durata (anni)';
         if (durataInput) durataInput.value = 3;
@@ -247,6 +258,7 @@ async function submitVendita(e) {
     const importo = document.getElementById('venditaImporto').value;
     const dataInizio = document.getElementById('venditaDataInizio').value;
     const durataAnni = document.getElementById('venditaDurataAnni').value;
+    const oreTotali = document.getElementById('venditaOreTotali')?.value;
     
     if (!cliente) {
         alert('⚠️ Seleziona un cliente');
@@ -255,6 +267,12 @@ async function submitVendita(e) {
     
     if (!importo || importo <= 0) {
         alert('⚠️ Inserisci un importo valido');
+        return;
+    }
+    
+    // Validazione ore per pacchetto
+    if (tipo === 'pacchetto' && (!oreTotali || oreTotali <= 0)) {
+        alert('⚠️ Inserisci il numero di ore del pacchetto');
         return;
     }
     
@@ -267,18 +285,16 @@ async function submitVendita(e) {
         let action = '';
         let params = `cliente_nome=${encodeURIComponent(cliente)}&importo=${importo}&data_inizio=${dataInizio}`;
         
-        if (tipo === 'canone') {
+        if (tipo === 'pacchetto') {
+            action = 'insert_pacchetto';
+            params += `&ore_totali=${oreTotali}&descrizione=${encodeURIComponent(descrizione)}`;
+        } else if (tipo === 'canone') {
             action = 'insert_canone';
             params += `&descrizione=${encodeURIComponent(descrizione)}&durata_anni=${durataAnni}`;
         } else if (tipo === 'firma') {
             action = 'insert_firma';
             const tipoFirma = document.getElementById('venditaTipoFirma').value;
             params += `&tipo=${tipoFirma}&durata_anni=${durataAnni}`;
-        } else if (tipo === 'pacchetto') {
-            alert('⚠️ Funzionalità pacchetti in arrivo');
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-            return;
         }
         
         const response = await fetch(`${API_URL}?action=${action}&${params}`);
@@ -287,6 +303,7 @@ async function submitVendita(e) {
         if (result.success) {
             alert('✅ Vendita creata con successo!');
             closeVenditaModal();
+            document.getElementById('venditaForm').reset();
             loadScadenze(); // Refresh lista scadenze
         } else {
             throw new Error(result.error || 'Errore sconosciuto');
