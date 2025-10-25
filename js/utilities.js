@@ -173,7 +173,7 @@ window.testConnection = async function() {
 };
 
 /**
- * Verifica integrità dati - VERSIONE CORRETTA
+ * Verifica integrità dati - VERSIONE CON MODALE SCROLLABILE
  */
 window.checkDataIntegrity = async function() {
     try {
@@ -187,20 +187,17 @@ window.checkDataIntegrity = async function() {
             throw new Error(data.error || 'Errore sconosciuto');
         }
         
-        // ✅ GESTIONE CORRETTA DELLA RISPOSTA
+        // ✅ MOSTRA IN MODALE INVECE CHE IN ALERT
         if (data.healthy) {
-            // Sistema integro - mostra statistiche
-            const statsText = formatStats(data.stats);
-            alert(`✅ SISTEMA INTEGRO!\n\n${statsText}\n\nNessuna anomalia rilevata.`);
+            // Sistema integro
+            const statsHTML = formatStatsHTML(data.stats);
+            showIntegrityModal('✅ SISTEMA INTEGRO', statsHTML + '<p style="color: #28a745; font-weight: bold; margin-top: 20px;">Nessuna anomalia rilevata.</p>', 'success');
             showNotification('diagnostic-info', '✅ Tutti i dati sono integri!', 'success');
         } else {
-            // Anomalie trovate - formatta il report
-            const report = formatIntegrityReport(data);
+            // Anomalie trovate
+            const reportHTML = formatIntegrityReportHTML(data);
+            showIntegrityModal('⚠️ REPORT INTEGRITÀ DATI', reportHTML, 'warning');
             
-            // Mostra in un alert dettagliato
-            alert(report);
-            
-            // Notifica sommaria
             const totalProblems = (data.issues?.length || 0) + (data.warnings?.length || 0);
             showNotification(
                 'diagnostic-info', 
@@ -216,75 +213,214 @@ window.checkDataIntegrity = async function() {
 };
 
 /**
- * Formatta le statistiche del sistema
+ * Mostra modale con report di integrità
  */
-function formatStats(stats) {
-    if (!stats) return 'Statistiche non disponibili';
-    
-    let text = '📊 STATISTICHE SISTEMA:\n';
-    text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    
-    if (stats.clienti !== undefined) {
-        text += `👥 Clienti: ${stats.clienti}\n`;
-    }
-    if (stats.timesheet !== undefined) {
-        text += `📋 Timesheet: ${stats.timesheet}\n`;
-    }
-    if (stats.pacchetti !== undefined) {
-        text += `📦 Pacchetti: ${stats.pacchetti}`;
-        if (stats.pacchettiAttivi !== undefined) {
-            text += ` (${stats.pacchettiAttivi} attivi)`;
-        }
-        text += '\n';
-    }
-    if (stats.canoni !== undefined) {
-        text += `💰 Canoni: ${stats.canoni}`;
-        if (stats.canoniAttivi !== undefined) {
-            text += ` (${stats.canoniAttivi} attivi)`;
-        }
-        text += '\n';
-    }
-    if (stats.firme !== undefined) {
-        text += `📝 Firme: ${stats.firme}`;
-        if (stats.firmeAttive !== undefined) {
-            text += ` (${stats.firmeAttive} attive)`;
-        }
-        text += '\n';
+function showIntegrityModal(title, contentHTML, type) {
+    // Rimuovi modale esistente se presente
+    const existingModal = document.getElementById('integrity-modal');
+    if (existingModal) {
+        existingModal.remove();
     }
     
-    return text;
+    // Crea modale
+    const modal = document.createElement('div');
+    modal.id = 'integrity-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    `;
+    
+    const modalContent = document.createElement('div');
+    const borderColor = type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#dc3545';
+    modalContent.style.cssText = `
+        background: white;
+        border-radius: 8px;
+        max-width: 800px;
+        max-height: 80vh;
+        width: 90%;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        border-top: 4px solid ${borderColor};
+        display: flex;
+        flex-direction: column;
+    `;
+    
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = `
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    `;
+    
+    const titleEl = document.createElement('h3');
+    titleEl.style.cssText = 'margin: 0; font-size: 20px; color: #333;';
+    titleEl.textContent = title;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '×';
+    closeBtn.style.cssText = `
+        background: none;
+        border: none;
+        font-size: 32px;
+        cursor: pointer;
+        color: #666;
+        line-height: 1;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+    `;
+    closeBtn.onclick = () => modal.remove();
+    
+    header.appendChild(titleEl);
+    header.appendChild(closeBtn);
+    
+    // Body (scrollabile)
+    const body = document.createElement('div');
+    body.style.cssText = `
+        padding: 20px;
+        overflow-y: auto;
+        max-height: calc(80vh - 140px);
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+    `;
+    body.innerHTML = contentHTML;
+    
+    // Footer
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+        padding: 15px 20px;
+        border-top: 1px solid #e0e0e0;
+        text-align: right;
+    `;
+    
+    const okBtn = document.createElement('button');
+    okBtn.textContent = 'Chiudi';
+    okBtn.style.cssText = `
+        background: ${borderColor};
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+    `;
+    okBtn.onclick = () => modal.remove();
+    
+    footer.appendChild(okBtn);
+    
+    // Assembla modale
+    modalContent.appendChild(header);
+    modalContent.appendChild(body);
+    modalContent.appendChild(footer);
+    modal.appendChild(modalContent);
+    
+    // Chiudi cliccando fuori
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    };
+    
+    // Chiudi con ESC
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+    
+    document.body.appendChild(modal);
 }
 
 /**
- * Formatta il report di integrità completo
+ * Formatta le statistiche come HTML
  */
-function formatIntegrityReport(data) {
-    let report = '⚠️ REPORT INTEGRITÀ DATI\n';
-    report += '═══════════════════════════════════════\n\n';
+function formatStatsHTML(stats) {
+    if (!stats) return '<p>Statistiche non disponibili</p>';
+    
+    let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">';
+    html += '<h4 style="margin: 0 0 10px 0; color: #333;">📊 Statistiche Sistema</h4>';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+    
+    if (stats.clienti !== undefined) {
+        html += `<tr><td style="padding: 5px 0;"><strong>👥 Clienti:</strong></td><td style="text-align: right;">${stats.clienti}</td></tr>`;
+    }
+    if (stats.timesheet !== undefined) {
+        html += `<tr><td style="padding: 5px 0;"><strong>📋 Timesheet:</strong></td><td style="text-align: right;">${stats.timesheet}</td></tr>`;
+    }
+    if (stats.pacchetti !== undefined) {
+        html += `<tr><td style="padding: 5px 0;"><strong>📦 Pacchetti:</strong></td><td style="text-align: right;">${stats.pacchetti}`;
+        if (stats.pacchettiAttivi !== undefined) {
+            html += ` <span style="color: #28a745;">(${stats.pacchettiAttivi} attivi)</span>`;
+        }
+        html += `</td></tr>`;
+    }
+    if (stats.canoni !== undefined) {
+        html += `<tr><td style="padding: 5px 0;"><strong>💰 Canoni:</strong></td><td style="text-align: right;">${stats.canoni}`;
+        if (stats.canoniAttivi !== undefined) {
+            html += ` <span style="color: #28a745;">(${stats.canoniAttivi} attivi)</span>`;
+        }
+        html += `</td></tr>`;
+    }
+    if (stats.firme !== undefined) {
+        html += `<tr><td style="padding: 5px 0;"><strong>📝 Firme:</strong></td><td style="text-align: right;">${stats.firme}`;
+        if (stats.firmeAttive !== undefined) {
+            html += ` <span style="color: #28a745;">(${stats.firmeAttive} attive)</span>`;
+        }
+        html += `</td></tr>`;
+    }
+    
+    html += '</table>';
+    html += '</div>';
+    
+    return html;
+}
+
+/**
+ * Formatta il report di integrità come HTML
+ */
+function formatIntegrityReportHTML(data) {
+    let html = '';
     
     // Statistiche
     if (data.stats) {
-        report += formatStats(data.stats);
-        report += '\n';
+        html += formatStatsHTML(data.stats);
     }
     
     // Sommario
     if (data.summary) {
-        report += '📊 SOMMARIO PROBLEMI:\n';
-        report += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+        html += '<div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffc107;">';
+        html += '<h4 style="margin: 0 0 10px 0; color: #856404;">📊 Sommario Problemi</h4>';
+        html += '<table style="width: 100%;">';
+        
         if (data.summary.critical > 0) {
-            report += `🔴 Critici: ${data.summary.critical}\n`;
+            html += `<tr><td style="padding: 3px 0;">🔴 <strong>Critici:</strong></td><td style="text-align: right;">${data.summary.critical}</td></tr>`;
         }
         if (data.summary.high > 0) {
-            report += `🟠 Alta priorità: ${data.summary.high}\n`;
+            html += `<tr><td style="padding: 3px 0;">🟠 <strong>Alta priorità:</strong></td><td style="text-align: right;">${data.summary.high}</td></tr>`;
         }
         if (data.summary.medium > 0) {
-            report += `🟡 Media priorità: ${data.summary.medium}\n`;
+            html += `<tr><td style="padding: 3px 0;">🟡 <strong>Media priorità:</strong></td><td style="text-align: right;">${data.summary.medium}</td></tr>`;
         }
         if (data.summary.warnings > 0) {
-            report += `⚠️ Avvisi: ${data.summary.warnings}\n`;
+            html += `<tr><td style="padding: 3px 0;">⚠️ <strong>Avvisi:</strong></td><td style="text-align: right;">${data.summary.warnings}</td></tr>`;
         }
-        report += '\n';
+        
+        html += '</table>';
+        html += '</div>';
     }
     
     // Issues critici e ad alta priorità
@@ -292,60 +428,81 @@ function formatIntegrityReport(data) {
         const criticalIssues = data.issues.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH');
         
         if (criticalIssues.length > 0) {
-            report += '🚨 PROBLEMI CRITICI:\n';
-            report += '━━━━━━━━━━━━━━━━━━━━━━\n';
+            html += '<div style="background: #f8d7da; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #dc3545;">';
+            html += '<h4 style="margin: 0 0 10px 0; color: #721c24;">🚨 Problemi Critici</h4>';
+            html += '<ol style="margin: 0; padding-left: 20px;">';
             
-            criticalIssues.forEach((issue, index) => {
+            criticalIssues.forEach((issue) => {
                 const emoji = issue.severity === 'CRITICAL' ? '🔴' : '🟠';
-                report += `${emoji} ${index + 1}. ${issue.message}\n`;
+                html += `<li style="margin-bottom: 10px;">`;
+                html += `<strong>${emoji} ${issue.message}</strong>`;
                 if (issue.solution) {
-                    report += `   💡 Soluzione: ${issue.solution}\n`;
+                    html += `<br><span style="color: #856404;">💡 Soluzione: ${issue.solution}</span>`;
                 }
-                report += '\n';
+                html += `</li>`;
             });
+            
+            html += '</ol>';
+            html += '</div>';
         }
         
         // Altri issues
         const otherIssues = data.issues.filter(i => i.severity !== 'CRITICAL' && i.severity !== 'HIGH');
         if (otherIssues.length > 0) {
-            report += `\n🟡 ALTRI PROBLEMI (${otherIssues.length}):\n`;
-            report += '━━━━━━━━━━━━━━━━━━━━━━\n';
+            html += '<div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffc107;">';
+            html += `<h4 style="margin: 0 0 10px 0; color: #856404;">🟡 Altri Problemi (${otherIssues.length})</h4>`;
+            html += '<ul style="margin: 0; padding-left: 20px;">';
             
-            otherIssues.slice(0, 5).forEach((issue, index) => {
-                report += `• ${issue.message}\n`;
+            const displayCount = Math.min(otherIssues.length, 10);
+            otherIssues.slice(0, displayCount).forEach((issue) => {
+                html += `<li style="margin-bottom: 8px;">`;
+                html += `${issue.message}`;
                 if (issue.solution) {
-                    report += `  💡 ${issue.solution}\n`;
+                    html += `<br><span style="color: #856404; font-size: 12px;">💡 ${issue.solution}</span>`;
                 }
+                html += `</li>`;
             });
             
-            if (otherIssues.length > 5) {
-                report += `\n... e altri ${otherIssues.length - 5} problemi\n`;
+            if (otherIssues.length > displayCount) {
+                html += `<li style="color: #666; font-style: italic;">... e altri ${otherIssues.length - displayCount} problemi</li>`;
             }
+            
+            html += '</ul>';
+            html += '</div>';
         }
     }
     
     // Warnings
     if (data.warnings && data.warnings.length > 0) {
-        report += `\n⚠️ AVVISI (${data.warnings.length}):\n`;
-        report += '━━━━━━━━━━━━━━━━━━━━━━\n';
+        html += '<div style="background: #d1ecf1; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #17a2b8;">';
+        html += `<h4 style="margin: 0 0 10px 0; color: #0c5460;">⚠️ Avvisi (${data.warnings.length})</h4>`;
+        html += '<ul style="margin: 0; padding-left: 20px;">';
         
-        data.warnings.slice(0, 5).forEach((warning, index) => {
-            report += `• ${warning.message}\n`;
+        const displayCount = Math.min(data.warnings.length, 10);
+        data.warnings.slice(0, displayCount).forEach((warning) => {
+            html += `<li style="margin-bottom: 8px;">`;
+            html += `${warning.message}`;
             if (warning.solution) {
-                report += `  💡 ${warning.solution}\n`;
+                html += `<br><span style="color: #0c5460; font-size: 12px;">💡 ${warning.solution}</span>`;
             }
+            html += `</li>`;
         });
         
-        if (data.warnings.length > 5) {
-            report += `\n... e altri ${data.warnings.length - 5} avvisi\n`;
+        if (data.warnings.length > displayCount) {
+            html += `<li style="color: #666; font-style: italic;">... e altri ${data.warnings.length - displayCount} avvisi</li>`;
         }
+        
+        html += '</ul>';
+        html += '</div>';
     }
     
-    report += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-    report += '💡 AZIONE CONSIGLIATA:\n';
-    report += 'Verifica i problemi nel foglio Google e correggi le anomalie.\n';
+    // Azione consigliata
+    html += '<div style="background: #e7f3ff; padding: 15px; border-radius: 4px; border-left: 4px solid #007bff;">';
+    html += '<h4 style="margin: 0 0 10px 0; color: #004085;">💡 Azione Consigliata</h4>';
+    html += '<p style="margin: 0;">Verifica i problemi nel foglio Google e correggi le anomalie indicate.</p>';
+    html += '</div>';
     
-    return report;
+    return html;
 }
 
 /**
