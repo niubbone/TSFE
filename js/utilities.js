@@ -37,7 +37,7 @@ window.downloadFrontendBackup = async function() {
         
         // 3. CSS
         const cssFolder = zip.folder('css');
-        const cssFiles = ['main.css', 'tabs.css', 'forms.css', 'tables.css', 'modals.css', 'utilities.css'];
+        const cssFiles = ['main.css', 'tabs.css', 'forms.css', 'tables.css', 'modals.css', 'utilities.css', 'vendite.css'];
         
         for (const file of cssFiles) {
             try {
@@ -51,7 +51,7 @@ window.downloadFrontendBackup = async function() {
         
         // 4. JAVASCRIPT
         const jsFolder = zip.folder('js');
-        const jsFiles = ['config.js', 'main.js', 'api.js', 'timesheet.js', 'proforma.js', 'utilities.js', 'utils.js'];
+        const jsFiles = ['config.js', 'main.js', 'api.js', 'timesheet.js', 'proforma.js', 'utilities.js', 'utils.js', 'vendite.js'];
         
         for (const file of jsFiles) {
             try {
