@@ -389,20 +389,29 @@ function formatStatsForDisplay(stats) {
     
     let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">';
     
+    if (stats.clienti !== undefined) {
+        html += `<div><strong>👥 Clienti:</strong> ${stats.clienti} totali</div>`;
+    }
     if (stats.timesheet !== undefined) {
         html += `<div><strong>⏱️ Timesheet:</strong> ${stats.timesheet} record</div>`;
     }
-    if (stats.proforma !== undefined) {
-        html += `<div><strong>📄 Proforma:</strong> ${stats.proforma} proforma</div>`;
+    if (stats.pacchetti !== undefined) {
+        html += `<div><strong>📦 Pacchetti:</strong> ${stats.pacchetti} totali</div>`;
     }
-    if (stats.vendite !== undefined) {
-        html += `<div><strong>🛒 Vendite:</strong> ${stats.vendite} vendite</div>`;
+    if (stats.pacchettiAttivi !== undefined) {
+        html += `<div><strong>✅ Pacchetti Attivi:</strong> ${stats.pacchettiAttivi}</div>`;
     }
-    if (stats.clienti !== undefined) {
-        html += `<div><strong>👥 Clienti:</strong> ${stats.clienti} clienti</div>`;
+    if (stats.canoni !== undefined) {
+        html += `<div><strong>💰 Canoni:</strong> ${stats.canoni} totali</div>`;
     }
-    if (stats.prodotti !== undefined) {
-        html += `<div><strong>📦 Prodotti:</strong> ${stats.prodotti} prodotti</div>`;
+    if (stats.canoniAttivi !== undefined) {
+        html += `<div><strong>✅ Canoni Attivi:</strong> ${stats.canoniAttivi}</div>`;
+    }
+    if (stats.firme !== undefined) {
+        html += `<div><strong>✍️ Firme:</strong> ${stats.firme} totali</div>`;
+    }
+    if (stats.firmeAttive !== undefined) {
+        html += `<div><strong>✅ Firme Attive:</strong> ${stats.firmeAttive}</div>`;
     }
     
     html += '</div>';
