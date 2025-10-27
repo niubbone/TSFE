@@ -3,7 +3,7 @@
 // =======================================================================
 
 // Importa CONFIG dall'applicazione principale
-const CONFIG = window.CONFIG || { APPS_SCRIPT_URL: '' };
+const CONFIG = window.CONFIG || { APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec' };
 
 let currentCliente = null;
 let allClienti = [];
