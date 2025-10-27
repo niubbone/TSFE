@@ -1,0 +1,385 @@
+/* =========================
+   CLIENTI TAB STYLES
+========================= */
+
+#clienti-tab .form-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* =========================
+   SEZIONI
+========================= */
+
+.clienti-section {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.clienti-section h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+/* =========================
+   RICERCA
+========================= */
+
+.search-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* =========================
+   RISULTATI RICERCA
+========================= */
+
+.search-results {
+    margin-top: 20px;
+}
+
+.search-results h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-color);
+}
+
+#search-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cliente-card {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cliente-card:hover {
+    background: #e9ecef;
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.cliente-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.cliente-card-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.cliente-card-status {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.cliente-card-status.attivo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.cliente-card-status.non-attivo {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.cliente-card-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.cliente-card-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* =========================
+   FORM CLIENTE
+========================= */
+
+.cliente-form {
+    margin-top: 20px;
+}
+
+.form-row.two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group input:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* =========================
+   PRODOTTI E TIMESHEET
+========================= */
+
+.prodotto-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.prodotto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.prodotto-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.prodotto-type.pacchetto {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.prodotto-type.canone {
+    background: #d4edda;
+    color: #155724;
+}
+
+.prodotto-type.firma {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.prodotto-status {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.prodotto-status.attivo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.prodotto-status.scaduto {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.prodotto-status.esaurito {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.prodotto-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.prodotto-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.prodotto-info-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.prodotto-info-value {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.prodotto-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* =========================
+   TIMESHEET TABLE
+========================= */
+
+.timesheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.timesheet-table th,
+.timesheet-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timesheet-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.timesheet-table tr:hover {
+    background: #f8f9fa;
+}
+
+.timesheet-table .actions-column {
+    width: 100px;
+    text-align: center;
+}
+
+.timesheet-edit-btn {
+    padding: 5px 10px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.timesheet-edit-btn:hover {
+    background: #0056b3;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
+.empty-state svg {
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+    .search-controls {
+        flex-direction: column;
+    }
+    
+    .search-input {
+        min-width: 100%;
+    }
+    
+    .form-row.two-cols {
+        grid-template-columns: 1fr;
+    }
+    
+    .cliente-card-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .prodotto-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .timesheet-table {
+        font-size: 0.85rem;
+    }
+    
+    .timesheet-table th,
+    .timesheet-table td {
+        padding: 8px;
+    }
+}
