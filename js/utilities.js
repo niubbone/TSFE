@@ -173,10 +173,16 @@ window.testConnection = async function() {
 };
 
 /**
- * Verifica integrità dati - VERSIONE CON MODALE SCROLLABILE
+ * Verifica integrità dati - VERSIONE CON DISPLAY COME I LOG
  */
 window.checkDataIntegrity = async function() {
     try {
+        const integrityDisplay = document.getElementById('integrity-display');
+        const integrityControls = document.getElementById('integrity-controls');
+        
+        integrityDisplay.innerHTML = '<p class="loading">⏳ Verifica integrità in corso...</p>';
+        integrityControls.style.display = 'none';
+        
         showNotification('diagnostic-info', '⏳ Verifica integrità in corso...', 'info');
         
         const url = `${CONFIG.APPS_SCRIPT_URL}?action=check_integrity`;
@@ -187,323 +193,300 @@ window.checkDataIntegrity = async function() {
             throw new Error(data.error || 'Errore sconosciuto');
         }
         
-        // ✅ MOSTRA IN MODALE INVECE CHE IN ALERT
+        // Mostra risultati nel display
+        displayIntegrityResults(data);
+        integrityControls.style.display = 'flex';
+        
         if (data.healthy) {
-            // Sistema integro
-            const statsHTML = formatStatsHTML(data.stats);
-            showIntegrityModal('✅ SISTEMA INTEGRO', statsHTML + '<p style="color: #28a745; font-weight: bold; margin-top: 20px;">Nessuna anomalia rilevata.</p>', 'success');
             showNotification('diagnostic-info', '✅ Tutti i dati sono integri!', 'success');
         } else {
-            // Anomalie trovate
-            const reportHTML = formatIntegrityReportHTML(data);
-            showIntegrityModal('⚠️ REPORT INTEGRITÀ DATI', reportHTML, 'warning');
-            
             const totalProblems = (data.issues?.length || 0) + (data.warnings?.length || 0);
             showNotification(
                 'diagnostic-info', 
-                `⚠️ ${totalProblems} anomalie trovate (vedi dettagli)`, 
+                `⚠️ ${totalProblems} anomalie trovate (vedi dettagli sotto)`, 
                 'warning'
             );
         }
         
     } catch (error) {
         console.error('Errore verifica integrità:', error);
+        document.getElementById('integrity-display').innerHTML = '<p style="color: #dc3545;">Errore: ' + error.message + '</p>';
         showNotification('diagnostic-info', '❌ Errore durante la verifica: ' + error.message, 'error');
     }
 };
 
 /**
- * Mostra modale con report di integrità
+ * Mostra risultati verifica integrità in stile log
  */
-function showIntegrityModal(title, contentHTML, type) {
-    // Rimuovi modale esistente se presente
-    const existingModal = document.getElementById('integrity-modal');
-    if (existingModal) {
-        existingModal.remove();
+function displayIntegrityResults(data) {
+    const integrityDisplay = document.getElementById('integrity-display');
+    
+    let html = '<div class="log-entries">';
+    
+    // STATISTICHE GENERALI
+    html += `
+        <div class="log-entry" data-level="INFO">
+            <div class="log-header">
+                <span class="log-level info">📊 STATISTICHE</span>
+                <span class="log-timestamp">${new Date().toLocaleString('it-IT')}</span>
+            </div>
+            <div class="log-body">
+                ${formatStatsForDisplay(data.stats)}
+            </div>
+        </div>
+    `;
+    
+    // STATO SISTEMA
+    if (data.healthy) {
+        html += `
+            <div class="log-entry" data-level="SUCCESS">
+                <div class="log-header">
+                    <span class="log-level success">✅ SISTEMA INTEGRO</span>
+                </div>
+                <div class="log-body">
+                    <strong>Nessuna anomalia rilevata</strong><br>
+                    Tutti i controlli sono stati superati con successo.
+                </div>
+            </div>
+        `;
+    } else {
+        // ERRORI CRITICI
+        if (data.issues && data.issues.length > 0) {
+            const orphanIssues = data.issues.filter(i => i.type === 'orphan');
+            const duplicateIssues = data.issues.filter(i => i.type === 'duplicate');
+            const referenceIssues = data.issues.filter(i => i.type === 'reference');
+            const otherIssues = data.issues.filter(i => !['orphan', 'duplicate', 'reference'].includes(i.type));
+            
+            // Orfani
+            if (orphanIssues.length > 0) {
+                html += `
+                    <div class="log-entry" data-level="ERROR">
+                        <div class="log-header">
+                            <span class="log-level error">❌ RECORD ORFANI (${orphanIssues.length})</span>
+                        </div>
+                        <div class="log-body">
+                `;
+                orphanIssues.slice(0, 5).forEach(issue => {
+                    html += `<strong>• ${issue.message}</strong><br>`;
+                    if (issue.solution) {
+                        html += `<small style="color: #721c24;">💡 ${issue.solution}</small><br>`;
+                    }
+                });
+                if (orphanIssues.length > 5) {
+                    html += `<small style="color: #666; font-style: italic;">... e altri ${orphanIssues.length - 5} record orfani</small>`;
+                }
+                html += `</div></div>`;
+            }
+            
+            // Duplicati
+            if (duplicateIssues.length > 0) {
+                html += `
+                    <div class="log-entry" data-level="ERROR">
+                        <div class="log-header">
+                            <span class="log-level error">❌ DUPLICATI (${duplicateIssues.length})</span>
+                        </div>
+                        <div class="log-body">
+                `;
+                duplicateIssues.slice(0, 5).forEach(issue => {
+                    html += `<strong>• ${issue.message}</strong><br>`;
+                    if (issue.solution) {
+                        html += `<small style="color: #721c24;">💡 ${issue.solution}</small><br>`;
+                    }
+                });
+                if (duplicateIssues.length > 5) {
+                    html += `<small style="color: #666; font-style: italic;">... e altri ${duplicateIssues.length - 5} duplicati</small>`;
+                }
+                html += `</div></div>`;
+            }
+            
+            // Riferimenti
+            if (referenceIssues.length > 0) {
+                html += `
+                    <div class="log-entry" data-level="ERROR">
+                        <div class="log-header">
+                            <span class="log-level error">❌ RIFERIMENTI NON VALIDI (${referenceIssues.length})</span>
+                        </div>
+                        <div class="log-body">
+                `;
+                referenceIssues.slice(0, 5).forEach(issue => {
+                    html += `<strong>• ${issue.message}</strong><br>`;
+                    if (issue.solution) {
+                        html += `<small style="color: #721c24;">💡 ${issue.solution}</small><br>`;
+                    }
+                });
+                if (referenceIssues.length > 5) {
+                    html += `<small style="color: #666; font-style: italic;">... e altri ${referenceIssues.length - 5} riferimenti non validi</small>`;
+                }
+                html += `</div></div>`;
+            }
+            
+            // Altri problemi
+            if (otherIssues.length > 0) {
+                html += `
+                    <div class="log-entry" data-level="ERROR">
+                        <div class="log-header">
+                            <span class="log-level error">❌ ALTRI PROBLEMI (${otherIssues.length})</span>
+                        </div>
+                        <div class="log-body">
+                `;
+                otherIssues.slice(0, 5).forEach(issue => {
+                    html += `<strong>• ${issue.message}</strong><br>`;
+                    if (issue.solution) {
+                        html += `<small style="color: #721c24;">💡 ${issue.solution}</small><br>`;
+                    }
+                });
+                if (otherIssues.length > 5) {
+                    html += `<small style="color: #666; font-style: italic;">... e altri ${otherIssues.length - 5} problemi</small>`;
+                }
+                html += `</div></div>`;
+            }
+        }
+        
+        // AVVISI
+        if (data.warnings && data.warnings.length > 0) {
+            html += `
+                <div class="log-entry" data-level="WARNING">
+                    <div class="log-header">
+                        <span class="log-level warning">⚠️ AVVISI (${data.warnings.length})</span>
+                    </div>
+                    <div class="log-body">
+            `;
+            data.warnings.slice(0, 10).forEach(warning => {
+                html += `<strong>• ${warning.message}</strong><br>`;
+                if (warning.solution) {
+                    html += `<small style="color: #856404;">💡 ${warning.solution}</small><br>`;
+                }
+            });
+            if (data.warnings.length > 10) {
+                html += `<small style="color: #666; font-style: italic;">... e altri ${data.warnings.length - 10} avvisi</small>`;
+            }
+            html += `</div></div>`;
+        }
+        
+        // AZIONE CONSIGLIATA
+        html += `
+            <div class="log-entry" data-level="INFO">
+                <div class="log-header">
+                    <span class="log-level info">💡 AZIONE CONSIGLIATA</span>
+                </div>
+                <div class="log-body">
+                    <strong>Verifica i problemi nel foglio Google e correggi le anomalie indicate.</strong><br>
+                    Utilizza i filtri sopra per concentrarti su specifiche tipologie di problemi.
+                </div>
+            </div>
+        `;
     }
     
-    // Crea modale
-    const modal = document.createElement('div');
-    modal.id = 'integrity-modal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-    `;
-    
-    const modalContent = document.createElement('div');
-    const borderColor = type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#dc3545';
-    modalContent.style.cssText = `
-        background: white;
-        border-radius: 8px;
-        max-width: 800px;
-        max-height: 80vh;
-        width: 90%;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        border-top: 4px solid ${borderColor};
-        display: flex;
-        flex-direction: column;
-    `;
-    
-    // Header
-    const header = document.createElement('div');
-    header.style.cssText = `
-        padding: 20px;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    `;
-    
-    const titleEl = document.createElement('h3');
-    titleEl.style.cssText = 'margin: 0; font-size: 20px; color: #333;';
-    titleEl.textContent = title;
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '×';
-    closeBtn.style.cssText = `
-        background: none;
-        border: none;
-        font-size: 32px;
-        cursor: pointer;
-        color: #666;
-        line-height: 1;
-        padding: 0;
-        width: 32px;
-        height: 32px;
-    `;
-    closeBtn.onclick = () => modal.remove();
-    
-    header.appendChild(titleEl);
-    header.appendChild(closeBtn);
-    
-    // Body (scrollabile)
-    const body = document.createElement('div');
-    body.style.cssText = `
-        padding: 20px;
-        overflow-y: auto;
-        max-height: calc(80vh - 140px);
-        font-family: 'Courier New', monospace;
-        font-size: 13px;
-        line-height: 1.6;
-    `;
-    body.innerHTML = contentHTML;
-    
-    // Footer
-    const footer = document.createElement('div');
-    footer.style.cssText = `
-        padding: 15px 20px;
-        border-top: 1px solid #e0e0e0;
-        text-align: right;
-    `;
-    
-    const okBtn = document.createElement('button');
-    okBtn.textContent = 'Chiudi';
-    okBtn.style.cssText = `
-        background: ${borderColor};
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-    `;
-    okBtn.onclick = () => modal.remove();
-    
-    footer.appendChild(okBtn);
-    
-    // Assembla modale
-    modalContent.appendChild(header);
-    modalContent.appendChild(body);
-    modalContent.appendChild(footer);
-    modal.appendChild(modalContent);
-    
-    // Chiudi cliccando fuori
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    };
-    
-    // Chiudi con ESC
-    const escHandler = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', escHandler);
-        }
-    };
-    document.addEventListener('keydown', escHandler);
-    
-    document.body.appendChild(modal);
+    html += '</div>';
+    integrityDisplay.innerHTML = html;
 }
 
 /**
- * Formatta le statistiche come HTML
+ * Formatta le statistiche per il display
  */
-function formatStatsHTML(stats) {
-    if (!stats) return '<p>Statistiche non disponibili</p>';
+function formatStatsForDisplay(stats) {
+    if (!stats) return 'Nessuna statistica disponibile';
     
-    let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">';
-    html += '<h4 style="margin: 0 0 10px 0; color: #333;">📊 Statistiche Sistema</h4>';
-    html += '<table style="width: 100%; border-collapse: collapse;">';
+    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">';
     
-    if (stats.clienti !== undefined) {
-        html += `<tr><td style="padding: 5px 0;"><strong>👥 Clienti:</strong></td><td style="text-align: right;">${stats.clienti}</td></tr>`;
-    }
     if (stats.timesheet !== undefined) {
-        html += `<tr><td style="padding: 5px 0;"><strong>📋 Timesheet:</strong></td><td style="text-align: right;">${stats.timesheet}</td></tr>`;
+        html += `<div><strong>⏱️ Timesheet:</strong> ${stats.timesheet} record</div>`;
     }
-    if (stats.pacchetti !== undefined) {
-        html += `<tr><td style="padding: 5px 0;"><strong>📦 Pacchetti:</strong></td><td style="text-align: right;">${stats.pacchetti}`;
-        if (stats.pacchettiAttivi !== undefined) {
-            html += ` <span style="color: #28a745;">(${stats.pacchettiAttivi} attivi)</span>`;
-        }
-        html += `</td></tr>`;
+    if (stats.proforma !== undefined) {
+        html += `<div><strong>📄 Proforma:</strong> ${stats.proforma} proforma</div>`;
     }
-    if (stats.canoni !== undefined) {
-        html += `<tr><td style="padding: 5px 0;"><strong>💰 Canoni:</strong></td><td style="text-align: right;">${stats.canoni}`;
-        if (stats.canoniAttivi !== undefined) {
-            html += ` <span style="color: #28a745;">(${stats.canoniAttivi} attivi)</span>`;
-        }
-        html += `</td></tr>`;
+    if (stats.vendite !== undefined) {
+        html += `<div><strong>🛒 Vendite:</strong> ${stats.vendite} vendite</div>`;
     }
-    if (stats.firme !== undefined) {
-        html += `<tr><td style="padding: 5px 0;"><strong>📝 Firme:</strong></td><td style="text-align: right;">${stats.firme}`;
-        if (stats.firmeAttive !== undefined) {
-            html += ` <span style="color: #28a745;">(${stats.firmeAttive} attive)</span>`;
-        }
-        html += `</td></tr>`;
+    if (stats.clienti !== undefined) {
+        html += `<div><strong>👥 Clienti:</strong> ${stats.clienti} clienti</div>`;
+    }
+    if (stats.prodotti !== undefined) {
+        html += `<div><strong>📦 Prodotti:</strong> ${stats.prodotti} prodotti</div>`;
     }
     
-    html += '</table>';
     html += '</div>';
-    
     return html;
 }
 
 /**
- * Formatta il report di integrità come HTML
+ * Filtra risultati integrità per tipo
  */
-function formatIntegrityReportHTML(data) {
-    let html = '';
+window.filterIntegrity = function(type) {
+    const entries = document.querySelectorAll('#integrity-display .log-entry');
     
-    // Statistiche
-    if (data.stats) {
-        html += formatStatsHTML(data.stats);
+    entries.forEach(entry => {
+        const level = entry.dataset.level;
+        const text = entry.textContent.toLowerCase();
+        
+        let shouldShow = false;
+        
+        if (type === 'ALL') {
+            shouldShow = true;
+        } else if (type === 'STATS') {
+            shouldShow = level === 'INFO' && text.includes('statistiche');
+        } else if (type === 'ERRORS') {
+            shouldShow = level === 'ERROR';
+        } else if (type === 'WARNINGS') {
+            shouldShow = level === 'WARNING';
+        } else if (type === 'SUCCESS') {
+            shouldShow = level === 'SUCCESS';
+        }
+        
+        entry.style.display = shouldShow ? 'block' : 'none';
+    });
+    
+    // Update active button
+    document.querySelectorAll('#integrity-controls .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+};
+
+/**
+ * Esporta report integrità come testo
+ */
+window.exportIntegrityReport = function() {
+    const entries = document.querySelectorAll('#integrity-display .log-entry:not([style*="display: none"])');
+    
+    if (entries.length === 0) {
+        alert('Nessun dato da esportare');
+        return;
     }
     
-    // Sommario
-    if (data.summary) {
-        html += '<div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffc107;">';
-        html += '<h4 style="margin: 0 0 10px 0; color: #856404;">📊 Sommario Problemi</h4>';
-        html += '<table style="width: 100%;">';
-        
-        if (data.summary.critical > 0) {
-            html += `<tr><td style="padding: 3px 0;">🔴 <strong>Critici:</strong></td><td style="text-align: right;">${data.summary.critical}</td></tr>`;
-        }
-        if (data.summary.high > 0) {
-            html += `<tr><td style="padding: 3px 0;">🟠 <strong>Alta priorità:</strong></td><td style="text-align: right;">${data.summary.high}</td></tr>`;
-        }
-        if (data.summary.medium > 0) {
-            html += `<tr><td style="padding: 3px 0;">🟡 <strong>Media priorità:</strong></td><td style="text-align: right;">${data.summary.medium}</td></tr>`;
-        }
-        if (data.summary.warnings > 0) {
-            html += `<tr><td style="padding: 3px 0;">⚠️ <strong>Avvisi:</strong></td><td style="text-align: right;">${data.summary.warnings}</td></tr>`;
-        }
-        
-        html += '</table>';
-        html += '</div>';
-    }
+    let text = '═══════════════════════════════════════\n';
+    text += 'REPORT INTEGRITÀ DATI CRM\n';
+    text += '═══════════════════════════════════════\n';
+    text += `Data: ${new Date().toLocaleString('it-IT')}\n\n`;
     
-    // Issues critici e ad alta priorità
-    if (data.issues && data.issues.length > 0) {
-        const criticalIssues = data.issues.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH');
+    entries.forEach(entry => {
+        const header = entry.querySelector('.log-header');
+        const body = entry.querySelector('.log-body');
         
-        if (criticalIssues.length > 0) {
-            html += '<div style="background: #f8d7da; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #dc3545;">';
-            html += '<h4 style="margin: 0 0 10px 0; color: #721c24;">🚨 Problemi Critici</h4>';
-            html += '<ol style="margin: 0; padding-left: 20px;">';
+        if (header && body) {
+            const level = header.querySelector('.log-level')?.textContent || '';
+            const timestamp = header.querySelector('.log-timestamp')?.textContent || '';
+            const content = body.textContent.trim();
             
-            criticalIssues.forEach((issue) => {
-                const emoji = issue.severity === 'CRITICAL' ? '🔴' : '🟠';
-                html += `<li style="margin-bottom: 10px;">`;
-                html += `<strong>${emoji} ${issue.message}</strong>`;
-                if (issue.solution) {
-                    html += `<br><span style="color: #856404;">💡 Soluzione: ${issue.solution}</span>`;
-                }
-                html += `</li>`;
-            });
-            
-            html += '</ol>';
-            html += '</div>';
+            text += `${level}\n`;
+            if (timestamp) text += `${timestamp}\n`;
+            text += `${content}\n`;
+            text += '───────────────────────────────────────\n\n';
         }
-        
-        // Altri issues
-        const otherIssues = data.issues.filter(i => i.severity !== 'CRITICAL' && i.severity !== 'HIGH');
-        if (otherIssues.length > 0) {
-            html += '<div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffc107;">';
-            html += `<h4 style="margin: 0 0 10px 0; color: #856404;">🟡 Altri Problemi (${otherIssues.length})</h4>`;
-            html += '<ul style="margin: 0; padding-left: 20px;">';
-            
-            const displayCount = Math.min(otherIssues.length, 10);
-            otherIssues.slice(0, displayCount).forEach((issue) => {
-                html += `<li style="margin-bottom: 8px;">`;
-                html += `${issue.message}`;
-                if (issue.solution) {
-                    html += `<br><span style="color: #856404; font-size: 12px;">💡 ${issue.solution}</span>`;
-                }
-                html += `</li>`;
-            });
-            
-            if (otherIssues.length > displayCount) {
-                html += `<li style="color: #666; font-style: italic;">... e altri ${otherIssues.length - displayCount} problemi</li>`;
-            }
-            
-            html += '</ul>';
-            html += '</div>';
-        }
-    }
+    });
     
-    // Warnings
-    if (data.warnings && data.warnings.length > 0) {
-        html += '<div style="background: #d1ecf1; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #17a2b8;">';
-        html += `<h4 style="margin: 0 0 10px 0; color: #0c5460;">⚠️ Avvisi (${data.warnings.length})</h4>`;
-        html += '<ul style="margin: 0; padding-left: 20px;">';
-        
-        const displayCount = Math.min(data.warnings.length, 10);
-        data.warnings.slice(0, displayCount).forEach((warning) => {
-            html += `<li style="margin-bottom: 8px;">`;
-            html += `${warning.message}`;
-            if (warning.solution) {
-                html += `<br><span style="color: #0c5460; font-size: 12px;">💡 ${warning.solution}</span>`;
-            }
-            html += `</li>`;
-        });
-        
-        if (data.warnings.length > displayCount) {
-            html += `<li style="color: #666; font-style: italic;">... e altri ${data.warnings.length - displayCount} avvisi</li>`;
-        }
-        
-        html += '</ul>';
-        html += '</div>';
-    }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `integrity_report_${new Date().toISOString().substring(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
     
-    // Azione consigliata
-    html += '<div style="background: #e7f3ff; padding: 15px; border-radius: 4px; border-left: 4px solid #007bff;">';
-    html += '<h4 style="margin: 0 0 10px 0; color: #004085;">💡 Azione Consigliata</h4>';
-    html += '<p style="margin: 0;">Verifica i problemi nel foglio Google e correggi le anomalie indicate.</p>';
-    html += '</div>';
-    
-    return html;
-}
+    showNotification('diagnostic-info', '✅ Report esportato', 'success');
+};
 
 /**
  * Visualizza log sistema
@@ -601,22 +584,102 @@ window.filterLogs = function(level) {
 };
 
 /**
- * Pulisci log vecchi
+ * Mostra dropdown per scegliere quanti giorni di log cancellare
  */
-window.cleanOldLogs = async function() {
-    if (!confirm('Sei sicuro di voler eliminare i log più vecchi di 30 giorni?')) {
+window.showCleanLogsMenu = function() {
+    const btn = event.target.closest('button');
+    const rect = btn.getBoundingClientRect();
+    
+    // Rimuovi menu esistente se presente
+    const existingMenu = document.getElementById('clean-logs-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+        return;
+    }
+    
+    // Crea menu dropdown
+    const menu = document.createElement('div');
+    menu.id = 'clean-logs-menu';
+    menu.style.cssText = `
+        position: fixed;
+        top: ${rect.bottom + 5}px;
+        right: ${window.innerWidth - rect.right}px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        z-index: 1000;
+        min-width: 180px;
+    `;
+    
+    const options = [
+        { label: 'Più vecchi di 30 giorni', days: 30 },
+        { label: 'Più vecchi di 15 giorni', days: 15 },
+        { label: 'Più vecchi di 7 giorni', days: 7 },
+        { label: 'Tutti i log', days: 0 }
+    ];
+    
+    options.forEach(option => {
+        const item = document.createElement('div');
+        item.style.cssText = `
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        `;
+        item.textContent = option.label;
+        
+        item.onmouseover = () => item.style.background = '#f8f9fa';
+        item.onmouseout = () => item.style.background = 'white';
+        
+        item.onclick = () => {
+            menu.remove();
+            cleanLogsWithDays(option.days);
+        };
+        
+        menu.appendChild(item);
+    });
+    
+    document.body.appendChild(menu);
+    
+    // Chiudi menu cliccando fuori
+    setTimeout(() => {
+        document.addEventListener('click', function closeMenu(e) {
+            if (!menu.contains(e.target) && e.target !== btn) {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            }
+        });
+    }, 100);
+};
+
+/**
+ * Pulisci log con giorni specificati
+ */
+async function cleanLogsWithDays(days) {
+    let confirmMessage;
+    if (days === 0) {
+        confirmMessage = 'Sei sicuro di voler eliminare TUTTI i log?';
+    } else {
+        confirmMessage = `Sei sicuro di voler eliminare i log più vecchi di ${days} giorni?`;
+    }
+    
+    if (!confirm(confirmMessage)) {
         return;
     }
     
     try {
         showNotification('log-info', '⏳ Pulizia log in corso...', 'info');
         
-        const url = `${CONFIG.APPS_SCRIPT_URL}?action=clean_logs&days=30`;
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=clean_logs&days=${days}`;
         const response = await fetch(url);
         const data = await response.json();
         
         if (data.success) {
-            showNotification('log-info', `✅ Eliminati ${data.deleted} log`, 'success');
+            const message = days === 0 
+                ? `✅ Eliminati tutti i ${data.deleted} log` 
+                : `✅ Eliminati ${data.deleted} log`;
+            showNotification('log-info', message, 'success');
             
             // Ricarica i log
             const logDisplay = document.getElementById('log-display');
@@ -631,7 +694,7 @@ window.cleanOldLogs = async function() {
         console.error('Errore pulizia log:', error);
         showNotification('log-info', '❌ Errore durante la pulizia: ' + error.message, 'error');
     }
-};
+}
 
 /**
  * Esporta log come CSV
