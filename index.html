@@ -779,6 +779,243 @@
         
     </div>
 </div>
+
+<!-- TAB CLIENTI -->
+<div id="clienti-tab" class="tab-content">
+    <div class="form-container">
+        <h1>👥 Gestione Clienti</h1>
+        
+        <div id="clienti-info" class="info-box">
+            <p>Cerca, visualizza e modifica i dati dei tuoi clienti</p>
+        </div>
+        
+        <!-- =========================
+             SEZIONE RICERCA
+        ========================= -->
+        <div class="clienti-section">
+            <h3>🔍 Ricerca Cliente</h3>
+            
+            <div class="search-controls">
+                <input 
+                    type="text" 
+                    id="cliente-search" 
+                    class="search-input" 
+                    placeholder="Cerca per nome, P.IVA, CF, email..."
+                    onkeypress="if(event.key === 'Enter') searchCliente()"
+                >
+                <button class="btn btn-primary" onclick="searchCliente()">
+                    🔍 Cerca
+                </button>
+                <button class="btn btn-secondary" onclick="openNewClienteForm()">
+                    ➕ Nuovo Cliente
+                </button>
+            </div>
+            
+            <!-- Risultati ricerca -->
+            <div id="search-results" class="search-results" style="display: none;">
+                <h4>Risultati della ricerca:</h4>
+                <div id="search-results-list"></div>
+            </div>
+        </div>
+        
+        <!-- =========================
+             SEZIONE DETTAGLIO CLIENTE
+        ========================= -->
+        <div id="cliente-detail-section" class="clienti-section" style="display: none;">
+            <div class="section-header">
+                <h3>📝 Dati Cliente</h3>
+                <button class="btn btn-secondary" onclick="closeClienteDetail()">✖ Chiudi</button>
+            </div>
+            
+            <form id="cliente-form" onsubmit="saveClienteChanges(event)">
+                <!-- ID Cliente (non modificabile) -->
+                <div class="form-group">
+                    <label for="edit-id-cliente">ID Cliente</label>
+                    <input 
+                        type="text" 
+                        id="edit-id-cliente" 
+                        class="form-control" 
+                        disabled
+                        placeholder="Verrà assegnato automaticamente"
+                    >
+                </div>
+                
+                <!-- Nome Cliente (obbligatorio) -->
+                <div class="form-group">
+                    <label for="edit-nome-cliente">Nome Cliente *</label>
+                    <input 
+                        type="text" 
+                        id="edit-nome-cliente" 
+                        class="form-control" 
+                        required
+                        placeholder="Nome del cliente"
+                    >
+                </div>
+                
+                <!-- Titolo -->
+                <div class="form-group">
+                    <label for="edit-titolo">Titolo</label>
+                    <select id="edit-titolo" class="form-control">
+                        <option value="Spett.le">Spett.le</option>
+                        <option value="Egregio">Egregio</option>
+                        <option value="Gentile">Gentile</option>
+                        <option value="Dott.">Dott.</option>
+                        <option value="Dott.ssa">Dott.ssa</option>
+                        <option value="Ing.">Ing.</option>
+                        <option value="Avv.">Avv.</option>
+                    </select>
+                </div>
+                
+                <!-- Indirizzo, CAP, Città -->
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="edit-indirizzo">Indirizzo</label>
+                        <input 
+                            type="text" 
+                            id="edit-indirizzo" 
+                            class="form-control" 
+                            placeholder="Via, Numero"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-cap">CAP</label>
+                        <input 
+                            type="text" 
+                            id="edit-cap" 
+                            class="form-control" 
+                            placeholder="CAP"
+                            maxlength="5"
+                        >
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-citta">Città</label>
+                    <input 
+                        type="text" 
+                        id="edit-citta" 
+                        class="form-control" 
+                        placeholder="Città"
+                    >
+                </div>
+                
+                <!-- P.IVA, CF -->
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="edit-piva">P.IVA</label>
+                        <input 
+                            type="text" 
+                            id="edit-piva" 
+                            class="form-control" 
+                            placeholder="Partita IVA"
+                            maxlength="11"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-cf">Codice Fiscale</label>
+                        <input 
+                            type="text" 
+                            id="edit-cf" 
+                            class="form-control" 
+                            placeholder="Codice Fiscale"
+                            maxlength="16"
+                        >
+                    </div>
+                </div>
+                
+                <!-- SDI -->
+                <div class="form-group">
+                    <label for="edit-sdi">Codice SDI</label>
+                    <input 
+                        type="text" 
+                        id="edit-sdi" 
+                        class="form-control" 
+                        placeholder="Codice SDI per fatturazione elettronica"
+                        maxlength="7"
+                    >
+                </div>
+                
+                <!-- Email, Referente -->
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="edit-email">Email</label>
+                        <input 
+                            type="email" 
+                            id="edit-email" 
+                            class="form-control" 
+                            placeholder="email@esempio.it"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-referente">Referente</label>
+                        <input 
+                            type="text" 
+                            id="edit-referente" 
+                            class="form-control" 
+                            placeholder="Nome referente"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Stato Attivo -->
+                <div class="form-group">
+                    <label for="edit-attivo">Stato</label>
+                    <select id="edit-attivo" class="form-control">
+                        <option value="SI">✅ Attivo</option>
+                        <option value="NO">❌ Non Attivo</option>
+                    </select>
+                </div>
+                
+                <!-- Pulsanti azione -->
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        💾 Salva Modifiche
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeClienteDetail()">
+                        Annulla
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- =========================
+             SEZIONE PRODOTTI CLIENTE
+        ========================= -->
+        <div id="cliente-prodotti-section" class="clienti-section" style="display: none;">
+            <h3>📦 Prodotti Attivi</h3>
+            <div id="cliente-prodotti-content">
+                <p class="empty-state">Seleziona un cliente per visualizzare i suoi prodotti</p>
+            </div>
+        </div>
+        
+        <!-- =========================
+             SEZIONE TIMESHEET CLIENTE
+        ========================= -->
+        <div id="cliente-timesheet-section" class="clienti-section" style="display: none;">
+            <h3>⏱️ Timesheet Non Fatturati</h3>
+            <div id="cliente-timesheet-content">
+                <p class="empty-state">Seleziona un cliente per visualizzare i suoi timesheet</p>
+            </div>
+        </div>
+        
+        <!-- =========================
+             UTILITIES
+        ========================= -->
+        <div class="clienti-section">
+            <h3>⚙️ Utilities</h3>
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Assegna ID mancanti</h4>
+                    <p>Assegna automaticamente ID_Cliente ai clienti che non ne hanno uno</p>
+                </div>
+                <button class="btn btn-warning" onclick="assignMissingClientIDs()">
+                    🔢 Assegna ID
+                </button>
+            </div>
+        </div>
+        
+    </div>
+</div>
     
 <!-- Modal per aggiungere nuovo cliente -->
 <div id="add-client-modal" class="modal">
