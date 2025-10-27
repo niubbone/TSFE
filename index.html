@@ -527,8 +527,8 @@
                     <button class="btn btn-secondary btn-sm" onclick="exportLogsCSV()">
                         📥 Esporta CSV
                     </button>
-                    <button class="btn btn-secondary btn-sm" onclick="cleanOldLogs()">
-                        🗑️ Pulisci Vecchi
+                    <button class="btn btn-secondary btn-sm" onclick="showCleanLogsMenu()">
+                        🗑️ Cancella Log
                     </button>
                 </div>
             </div>
@@ -573,6 +573,29 @@
                     </svg>
                     Verifica Dati
                 </button>
+            </div>
+            
+            <!-- FILTRI E AZIONI INTEGRITY -->
+            <div id="integrity-controls" class="log-controls" style="display: none;">
+                <div class="log-filters">
+                    <button class="filter-btn active" onclick="filterIntegrity('ALL')">Tutti</button>
+                    <button class="filter-btn" onclick="filterIntegrity('STATS')">📊 Statistiche</button>
+                    <button class="filter-btn" onclick="filterIntegrity('ERRORS')">❌ Errori</button>
+                    <button class="filter-btn" onclick="filterIntegrity('WARNINGS')">⚠️ Avvisi</button>
+                    <button class="filter-btn" onclick="filterIntegrity('SUCCESS')">✅ Integro</button>
+                </div>
+                <div class="log-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportIntegrityReport()">
+                        📥 Esporta Report
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DISPLAY INTEGRITY -->
+            <div class="utility-card full-width">
+                <div id="integrity-display" class="log-container">
+                    <p class="text-muted">Clicca "Verifica Dati" per analizzare l'integrità del sistema</p>
+                </div>
             </div>
         </div>
         
