@@ -9,6 +9,58 @@ let currentCliente = null;
 let allClienti = [];
 
 // =======================================================================
+// === FUNZIONE HELPER PER NOTIFICHE ===
+// =======================================================================
+
+/**
+ * Mostra una notifica nella info-box
+ */
+function showNotification(elementId, message, type) {
+    const element = document.getElementById(elementId);
+    
+    if (!element) {
+        console.error('❌ Elemento non trovato:', elementId);
+        if (type === 'error') alert(message);
+        return;
+    }
+    
+    element.className = 'info-box';
+    
+    if (type === 'success') {
+        element.className = 'info-box success';
+        element.style.backgroundColor = '#d4edda';
+        element.style.borderColor = '#c3e6cb';
+        element.style.color = '#155724';
+    } else if (type === 'error') {
+        element.className = 'info-box error';
+        element.style.backgroundColor = '#f8d7da';
+        element.style.borderColor = '#f5c6cb';
+        element.style.color = '#721c24';
+    } else if (type === 'warning') {
+        element.className = 'info-box warning';
+        element.style.backgroundColor = '#fff3cd';
+        element.style.borderColor = '#ffeaa7';
+        element.style.color = '#856404';
+    } else {
+        element.style.backgroundColor = '#d1ecf1';
+        element.style.borderColor = '#bee5eb';
+        element.style.color = '#0c5460';
+    }
+    
+    element.innerHTML = '<p>' + message + '</p>';
+    
+    if (type === 'success') {
+        setTimeout(() => {
+            element.className = 'info-box';
+            element.style.backgroundColor = '';
+            element.style.borderColor = '';
+            element.style.color = '';
+            element.innerHTML = '<p>Cerca, visualizza e modifica i dati dei tuoi clienti</p>';
+        }, 5000);
+    }
+}
+
+// =======================================================================
 // === RICERCA CLIENTI ===
 // =======================================================================
 
