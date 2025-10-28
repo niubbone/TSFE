@@ -309,7 +309,7 @@ async function saveClienteChanges(event) {
 /**
  * Mostra il form per un nuovo cliente
  */
-function showNewClienteForm() {
+function openNewClienteForm() {
     currentCliente = { id: '', isNew: true };
     
     // Reset del form
