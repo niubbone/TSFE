@@ -128,7 +128,7 @@ function displaySearchResults(clienti) {
                     ${cliente.id ? `<div class="cliente-card-info">🆔 ${cliente.id}</div>` : ''}
                     ${cliente.email ? `<div class="cliente-card-info">📧 ${cliente.email}</div>` : ''}
                     ${cliente.piva ? `<div class="cliente-card-info">🏢 P.IVA: ${cliente.piva}</div>` : ''}
-                    ${cliente.cf ? `<div class="cliente-card-info">🆔 CF: ${cliente.cf}</div>` : ''}
+                    ${cliente.cf ? `<div class="cliente-card-info">📄 CF: ${cliente.cf}</div>` : ''}
                     ${cliente.citta ? `<div class="cliente-card-info">📍 ${cliente.citta}</div>` : ''}
                 </div>
             </div>
@@ -550,7 +550,7 @@ function displayClienteTimesheet(timesheet) {
             <tr>
                 <td>${ts.data}</td>
                 <td>${ts.descrizione}</td>
-                <td>${ts.ore} h</td>
+                <td style="white-space: nowrap;">${ts.ore} h</td>
                 <td>${ts.tipoIntervento}</td>
                 <td>${ts.modEsecuzione}</td>
                 <td>${ts.chiamata || '-'}</td>
@@ -569,7 +569,7 @@ function displayClienteTimesheet(timesheet) {
             <tfoot>
                 <tr style="font-weight: bold; background: #f8f9fa;">
                     <td colspan="2" style="text-align: right;">TOTALE:</td>
-                    <td>${totalOre.toFixed(2)} h</td>
+                    <td style="white-space: nowrap;">${totalOre.toFixed(2)} h</td>
                     <td colspan="3"></td>
                     <td style="text-align: right;">€&nbsp;${totalCosto.toFixed(2)}</td>
                     <td></td>
