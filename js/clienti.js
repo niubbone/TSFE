@@ -521,6 +521,10 @@ function displayClienteTimesheet(timesheet) {
         return;
     }
     
+    // Calcola totale
+    let totalOre = 0;
+    let totalCosto = 0;
+    
     let html = `
         <table class="timesheet-table">
             <thead>
@@ -530,6 +534,8 @@ function displayClienteTimesheet(timesheet) {
                     <th>Ore</th>
                     <th>Tipo</th>
                     <th>Modalità</th>
+                    <th>Chiamata</th>
+                    <th>Costo €</th>
                     <th>Azioni</th>
                 </tr>
             </thead>
@@ -537,6 +543,9 @@ function displayClienteTimesheet(timesheet) {
     `;
     
     timesheet.forEach(ts => {
+        totalOre += parseFloat(ts.ore) || 0;
+        totalCosto += parseFloat(ts.costo) || 0;
+        
         html += `
             <tr>
                 <td>${ts.data}</td>
@@ -544,9 +553,11 @@ function displayClienteTimesheet(timesheet) {
                 <td>${ts.ore}h</td>
                 <td>${ts.tipoIntervento}</td>
                 <td>${ts.modEsecuzione}</td>
+                <td>${ts.chiamata || '-'}</td>
+                <td style="text-align: right;">${parseFloat(ts.costo).toFixed(2)}</td>
                 <td class="actions-column">
-                    <button class="timesheet-edit-btn" onclick="editTimesheet('${ts.id}')">
-                        ✏️ Modifica
+                    <button class="timesheet-edit-btn" onclick="editTimesheet(${ts.rowIndex}, '${ts.idIntervento}')">
+                        ✏️
                     </button>
                 </td>
             </tr>
@@ -555,6 +566,15 @@ function displayClienteTimesheet(timesheet) {
     
     html += `
             </tbody>
+            <tfoot>
+                <tr style="font-weight: bold; background: #f8f9fa;">
+                    <td colspan="2" style="text-align: right;">TOTALE:</td>
+                    <td>${totalOre.toFixed(2)}h</td>
+                    <td colspan="3"></td>
+                    <td style="text-align: right;">${totalCosto.toFixed(2)} €</td>
+                    <td></td>
+                </tr>
+            </tfoot>
         </table>
     `;
     
@@ -564,9 +584,15 @@ function displayClienteTimesheet(timesheet) {
 /**
  * Modifica un timesheet (da implementare con modal)
  */
-function editTimesheet(timesheetId) {
-    // TODO: Implementare modal di modifica timesheet
-    alert('Funzione di modifica timesheet in arrivo!');
+function editTimesheet(rowIndex, idIntervento) {
+    // Redirect alla tab Timesheet
+    window.switchTab('timesheet');
+    
+    // TODO: Dopo il redirect, evidenziare/selezionare la riga del timesheet
+    // Per ora mostra un alert
+    setTimeout(() => {
+        alert(`Cerca l'intervento ID: ${idIntervento} nella tab Timesheet per modificarlo`);
+    }, 500);
 }
 
 /**
