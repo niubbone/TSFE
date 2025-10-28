@@ -908,5 +908,70 @@ function toggleOptionalFields() {
 }
 </script>
 
+
+    <!-- Modal Modifica Timesheet -->
+    <div id="edit-timesheet-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>✏️ Modifica Timesheet</h2>
+            
+            <form id="edit-timesheet-form">
+                <input type="hidden" id="ts-row-index">
+                <input type="hidden" id="ts-id-intervento">
+                
+                <div class="form-group">
+                    <label>ID Intervento</label>
+                    <input type="text" id="ts-id-display" class="form-control" disabled>
+                </div>
+                
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="ts-data">Data *</label>
+                        <input type="date" id="ts-data" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ts-ore">Ore *</label>
+                        <input type="number" id="ts-ore" class="form-control" step="0.25" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ts-descrizione">Descrizione *</label>
+                    <textarea id="ts-descrizione" class="form-control" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="ts-tipo">Tipo Intervento</label>
+                        <input type="text" id="ts-tipo" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="ts-modalita">Modalità</label>
+                        <input type="text" id="ts-modalita" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="ts-chiamata">Chiamata</label>
+                        <input type="text" id="ts-chiamata" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="ts-costo">Costo €</label>
+                        <input type="number" id="ts-costo" class="form-control" step="0.01" min="0">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        💾 Salva Modifiche
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditTimesheetModal()">
+                        Annulla
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
 </body>
 </html>
