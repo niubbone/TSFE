@@ -13,35 +13,65 @@ import {
   proceedToStep3,
   generateProformaFinal
 } from './proforma.js';
-import { initUtilities } from './utilities.js';  // ← IMPORTA SUBITO
+import { initUtilities } from './utilities.js';
 
 /**
  * Cambia tab attivo - ESPOSTA GLOBALMENTE SUBITO
+ * VERSIONE CORRETTA con protezione undefined e controlli null
  */
 window.switchTab = function(tabName) {
+  // 🛡️ PROTEZIONE: Previeni errori se chiamata senza parametro valido
+  if (!tabName || tabName === 'undefined') {
+    console.warn('⚠️ switchTab chiamata senza parametro valido - operazione ignorata');
+    return;
+  }
+  
+  // Nascondi tutte le tab - CON CONTROLLO NULL
   document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.classList.remove('active');
+    if (tab && tab.classList) {
+      tab.classList.remove('active');
+    }
   });
   
-  document.getElementById(tabName + '-tab').classList.add('active');
+  // Disattiva tutti i pulsanti - CON CONTROLLO NULL
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    if (btn && btn.classList) {
+      btn.classList.remove('active');
+    }
+  });
+  
+  // Attiva la tab selezionata - CON CONTROLLO NULL
+  const targetTab = document.getElementById(tabName + '-tab');
+  if (targetTab && targetTab.classList) {
+    targetTab.classList.add('active');
+  } else {
+    console.error('❌ Tab non trovata:', tabName + '-tab');
+    return;
+  }
+  
+  // Attiva il pulsante corrispondente
   const activeBtn = Array.from(document.querySelectorAll('.tab-button'))
-    .find(btn => btn.textContent.toLowerCase().includes(tabName));
-  if (activeBtn) activeBtn.classList.add('active');
+    .find(btn => btn && btn.textContent && btn.textContent.toLowerCase().includes(tabName));
+  
+  if (activeBtn && activeBtn.classList) {
+    activeBtn.classList.add('active');
+  }
   
   // Inizializza il contenuto specifico della tab
   switch(tabName) {
     case 'proforma':
-      showProformaStep(1);
+      if (typeof showProformaStep === 'function') {
+        showProformaStep(1);
+      }
       break;
     case 'utilities':
-      initUtilities();  // ← CHIAMA INIT
+      if (typeof initUtilities === 'function') {
+        initUtilities();
+      }
       break;
     case 'vendite':
       if (typeof initVenditeTab === 'function') {
-        initVenditeTab();  // u2190 INIZIALIZZA TAB VENDITE
+        initVenditeTab();
       }
       break;
   }
@@ -71,21 +101,31 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 /**
  * Setup navigazione tab
+ * VERSIONE CORRETTA con caso Clienti aggiunto
  */
 function setupTabs() {
   document.querySelectorAll('.tab-button').forEach(btn => {
     btn.addEventListener('click', () => {
       let tabName;
+      
       if (btn.textContent.includes('Timesheet')) {
         tabName = 'timesheet';
       } else if (btn.textContent.includes('Proforma')) {
         tabName = 'proforma';
-      } else if (btn.textContent.includes('Utilities')) {
-        tabName = 'utilities';
       } else if (btn.textContent.includes('Vendite')) {
         tabName = 'vendite';
+      } else if (btn.textContent.includes('Clienti')) {  // ✅ FIX: AGGIUNTO CASO CLIENTI
+        tabName = 'clienti';
+      } else if (btn.textContent.includes('Utilities')) {
+        tabName = 'utilities';
       }
-      window.switchTab(tabName);
+      
+      // ✅ FIX: Chiama switchTab solo se tabName è definito
+      if (tabName) {
+        window.switchTab(tabName);
+      } else {
+        console.warn('⚠️ Pulsante tab non riconosciuto:', btn.textContent);
+      }
     });
   });
 }
