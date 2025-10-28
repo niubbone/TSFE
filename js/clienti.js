@@ -550,7 +550,7 @@ function displayClienteTimesheet(timesheet) {
             <tr>
                 <td>${ts.data}</td>
                 <td>${ts.descrizione}</td>
-                <td>${ts.ore}h</td>
+                <td>${ts.ore} h</td>
                 <td>${ts.tipoIntervento}</td>
                 <td>${ts.modEsecuzione}</td>
                 <td>${ts.chiamata || '-'}</td>
@@ -569,9 +569,9 @@ function displayClienteTimesheet(timesheet) {
             <tfoot>
                 <tr style="font-weight: bold; background: #f8f9fa;">
                     <td colspan="2" style="text-align: right;">TOTALE:</td>
-                    <td>${totalOre.toFixed(2)}h</td>
+                    <td>${totalOre.toFixed(2)} h</td>
                     <td colspan="3"></td>
-                    <td style="text-align: right;">€ ${totalCosto.toFixed(2)}</td>
+                    <td style="text-align: right;">€&nbsp;${totalCosto.toFixed(2)}</td>
                     <td></td>
                 </tr>
             </tfoot>
