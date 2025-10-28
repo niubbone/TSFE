@@ -228,6 +228,16 @@ document.addEventListener('DOMContentLoaded', function() {
 async function saveClienteChanges(event) {
     event.preventDefault();
     
+    // Previeni doppio submit
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    if (submitBtn && submitBtn.disabled) {
+        return; // Già in elaborazione
+    }
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Salvataggio...';
+    }
+    
     const isNew = currentCliente && currentCliente.isNew;
     const actionType = isNew ? 'create_cliente' : 'update_cliente';
     
@@ -299,6 +309,13 @@ async function saveClienteChanges(event) {
         console.error('Errore salvataggio cliente:', error);
         const messagePrefix = isNew ? 'creazione' : 'salvataggio';
         showNotification('clienti-info', `❌ Errore durante ${messagePrefix}`, 'error');
+    } finally {
+        // Riabilita il pulsante
+        const submitBtn = document.querySelector('#cliente-form button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💾 Salva Modifiche';
+        }
     }
 }
 
