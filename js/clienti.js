@@ -571,7 +571,7 @@ function displayClienteTimesheet(timesheet) {
                     <td colspan="2" style="text-align: right;">TOTALE:</td>
                     <td>${totalOre.toFixed(2)}h</td>
                     <td colspan="3"></td>
-                    <td style="text-align: right;">${totalCosto.toFixed(2)} €</td>
+                    <td style="text-align: right;">€ ${totalCosto.toFixed(2)}</td>
                     <td></td>
                 </tr>
             </tfoot>
@@ -604,3 +604,123 @@ function renewProduct(productId, productType) {
 }
 
 console.log('✅ Clienti module caricato');
+
+// =======================================================================
+// === MODAL MODIFICA TIMESHEET ===
+// =======================================================================
+
+let currentTimesheetData = null;
+
+/**
+ * Apre il modal per modificare un timesheet
+ */
+async function editTimesheet(rowIndex, idIntervento) {
+    try {
+        // Carica i dati completi del timesheet
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=get_timesheet_detail&row=${rowIndex}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (!data.success) {
+            alert('Errore nel caricamento del timesheet');
+            return;
+        }
+        
+        currentTimesheetData = data.timesheet;
+        
+        // Popola il modal
+        document.getElementById('ts-row-index').value = rowIndex;
+        document.getElementById('ts-id-intervento').value = idIntervento;
+        document.getElementById('ts-id-display').value = idIntervento;
+        document.getElementById('ts-data').value = currentTimesheetData.data;
+        document.getElementById('ts-ore').value = currentTimesheetData.ore;
+        document.getElementById('ts-descrizione').value = currentTimesheetData.descrizione;
+        document.getElementById('ts-tipo').value = currentTimesheetData.tipoIntervento;
+        document.getElementById('ts-modalita').value = currentTimesheetData.modEsecuzione;
+        document.getElementById('ts-chiamata').value = currentTimesheetData.chiamata || '';
+        document.getElementById('ts-costo').value = currentTimesheetData.costo;
+        
+        // Mostra il modal
+        document.getElementById('edit-timesheet-modal').style.display = 'flex';
+        
+    } catch (error) {
+        console.error('Errore apertura modal:', error);
+        alert('Errore nel caricamento del timesheet');
+    }
+}
+
+/**
+ * Chiude il modal
+ */
+function closeEditTimesheetModal() {
+    document.getElementById('edit-timesheet-modal').style.display = 'none';
+    currentTimesheetData = null;
+}
+
+/**
+ * Salva le modifiche al timesheet
+ */
+async function saveTimesheetChanges(event) {
+    event.preventDefault();
+    
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    if (submitBtn && submitBtn.disabled) return;
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Salvataggio...';
+    }
+    
+    try {
+        const timesheetData = {
+            rowIndex: document.getElementById('ts-row-index').value,
+            data: document.getElementById('ts-data').value,
+            ore: document.getElementById('ts-ore').value,
+            descrizione: document.getElementById('ts-descrizione').value,
+            tipoIntervento: document.getElementById('ts-tipo').value,
+            modEsecuzione: document.getElementById('ts-modalita').value,
+            chiamata: document.getElementById('ts-chiamata').value,
+            costo: document.getElementById('ts-costo').value
+        };
+        
+        const url = `${CONFIG.APPS_SCRIPT_URL}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'update_timesheet',
+                ...timesheetData
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('clienti-info', '✅ Timesheet aggiornato con successo', 'success');
+            closeEditTimesheetModal();
+            
+            // Ricarica i timesheet del cliente
+            if (currentCliente && currentCliente.id) {
+                loadClienteTimesheet(currentCliente.id);
+            }
+        } else {
+            throw new Error(data.error || 'Errore salvataggio');
+        }
+        
+    } catch (error) {
+        console.error('Errore salvataggio timesheet:', error);
+        showNotification('clienti-info', '❌ Errore durante il salvataggio', 'error');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💾 Salva Modifiche';
+        }
+    }
+}
+
+// Event listener per il form
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('edit-timesheet-form');
+    if (form) {
+        form.addEventListener('submit', saveTimesheetChanges);
+    }
+});
