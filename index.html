@@ -706,23 +706,18 @@
                     >
                 </div>
                 
-                <!-- Titolo -->
-                <div class="form-group">
-                    <label for="edit-titolo">Titolo</label>
-                    <select id="edit-titolo" class="form-control">
-                        <option value="Spett.le">Spett.le</option>
-                        <option value="Egregio">Egregio</option>
-                        <option value="Gentile">Gentile</option>
-                        <option value="Dott.">Dott.</option>
-                        <option value="Dott.ssa">Dott.ssa</option>
-                        <option value="Ing.">Ing.</option>
-                        <option value="Avv.">Avv.</option>
-                    </select>
-                </div>
-                
-                <!-- Indirizzo, CAP, Città -->
+                <!-- Titolo e Indirizzo -->
                 <div class="form-row two-cols">
-                    <div class="form-group">
+                    <div class="form-group" style="flex: 0 0 25%;">
+                        <label for="edit-titolo">Titolo</label>
+                        <input 
+                            type="text" 
+                            id="edit-titolo" 
+                            class="form-control" 
+                            placeholder="Es: Spett.le, Egregio..."
+                        >
+                    </div>
+                    <div class="form-group" style="flex: 1;">
                         <label for="edit-indirizzo">Indirizzo</label>
                         <input 
                             type="text" 
@@ -731,6 +726,10 @@
                             placeholder="Via, Numero"
                         >
                     </div>
+                </div>
+                
+                <!-- CAP e Città -->
+                <div class="form-row two-cols">
                     <div class="form-group">
                         <label for="edit-cap">CAP</label>
                         <input 
@@ -741,16 +740,15 @@
                             maxlength="5"
                         >
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-citta">Città</label>
-                    <input 
-                        type="text" 
-                        id="edit-citta" 
-                        class="form-control" 
-                        placeholder="Città"
-                    >
+                    <div class="form-group">
+                        <label for="edit-citta">Città</label>
+                        <input 
+                            type="text" 
+                            id="edit-citta" 
+                            class="form-control" 
+                            placeholder="Città"
+                        >
+                    </div>
                 </div>
                 
                 <!-- P.IVA, CF -->
