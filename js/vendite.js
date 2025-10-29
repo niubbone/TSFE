@@ -294,7 +294,8 @@ async function submitVendita(e) {
         } else if (tipo === 'firma') {
             action = 'insert_firma';
             const tipoFirma = document.getElementById('venditaTipoFirma').value;
-            params += `&tipo=${tipoFirma}&durata_anni=${durataAnni}`;
+            const note = document.getElementById('venditaNote')?.value || '';
+            params += `&tipo=${tipoFirma}&durata_anni=${durataAnni}&note=${encodeURIComponent(note)}`;
         }
         
         const response = await fetch(`${API_URL}?action=${action}&${params}`);
@@ -419,8 +420,10 @@ async function submitRinnovo(e) {
         } else {
             action = 'rinnova_firma';
             const tipoFirma = document.getElementById('rinnovoTipoFirma').value;
+            const note = document.getElementById('rinnovoNote')?.value || '';
             params = `firma_id=${encodeURIComponent(id)}&tipo=${tipoFirma}`;
             if (importo) params += `&importo=${importo}`;
+            if (note) params += `&note=${encodeURIComponent(note)}`;
         }
         
         const response = await fetch(`${API_URL}?action=${action}&${params}`);
