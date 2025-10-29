@@ -201,6 +201,7 @@ function openVenditaModal(tipo) {
     const durataGroup = document.getElementById('venditaDurataGroup');
     const durataLabel = document.getElementById('venditaDurataLabel');
     const durataInput = document.getElementById('venditaDurataAnni');
+    const descrizioneGroup = document.getElementById('venditaDescrizioneGroup');
     const descrizioneLabel = document.getElementById('venditaDescrizioneLabel');
     const noteGroup = document.getElementById('venditaNoteGroup');
     
@@ -213,6 +214,7 @@ function openVenditaModal(tipo) {
             oreInput.value = '';
         }
         if (durataGroup) durataGroup.style.display = 'none';
+        if (descrizioneGroup) descrizioneGroup.style.display = 'block';
         if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione';
         if (noteGroup) noteGroup.style.display = 'none';
     } else if (tipo === 'canone') {
@@ -223,6 +225,7 @@ function openVenditaModal(tipo) {
         if (durataGroup) durataGroup.style.display = 'block';
         if (durataLabel) durataLabel.textContent = 'Durata (anni)';
         if (durataInput) durataInput.value = 1;
+        if (descrizioneGroup) descrizioneGroup.style.display = 'block';
         if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione';
         if (noteGroup) noteGroup.style.display = 'none';
     } else if (tipo === 'firma') {
@@ -233,7 +236,7 @@ function openVenditaModal(tipo) {
         if (durataGroup) durataGroup.style.display = 'block';
         if (durataLabel) durataLabel.textContent = 'Durata (anni)';
         if (durataInput) durataInput.value = 3;
-        if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione (opzionale)';
+        if (descrizioneGroup) descrizioneGroup.style.display = 'none';
         if (noteGroup) noteGroup.style.display = 'block';
     }
     
