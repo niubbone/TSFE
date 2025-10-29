@@ -202,6 +202,7 @@ function openVenditaModal(tipo) {
     const durataLabel = document.getElementById('venditaDurataLabel');
     const durataInput = document.getElementById('venditaDurataAnni');
     const descrizioneLabel = document.getElementById('venditaDescrizioneLabel');
+    const noteGroup = document.getElementById('venditaNoteGroup');
     
     if (tipo === 'pacchetto') {
         if (modalTitle) modalTitle.textContent = '📦 Nuovo Pacchetto Ore';
@@ -213,6 +214,7 @@ function openVenditaModal(tipo) {
         }
         if (durataGroup) durataGroup.style.display = 'none';
         if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione';
+        if (noteGroup) noteGroup.style.display = 'none';
     } else if (tipo === 'canone') {
         if (modalTitle) modalTitle.textContent = '📅 Nuovo Canone';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'none';
@@ -222,6 +224,7 @@ function openVenditaModal(tipo) {
         if (durataLabel) durataLabel.textContent = 'Durata (anni)';
         if (durataInput) durataInput.value = 1;
         if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione';
+        if (noteGroup) noteGroup.style.display = 'none';
     } else if (tipo === 'firma') {
         if (modalTitle) modalTitle.textContent = '✍️ Nuova Firma Digitale';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'block';
@@ -230,7 +233,8 @@ function openVenditaModal(tipo) {
         if (durataGroup) durataGroup.style.display = 'block';
         if (durataLabel) durataLabel.textContent = 'Durata (anni)';
         if (durataInput) durataInput.value = 3;
-        if (descrizioneLabel) descrizioneLabel.textContent = 'Note (opzionali)';
+        if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione (opzionale)';
+        if (noteGroup) noteGroup.style.display = 'block';
     }
     
     modal.classList.add('active');
@@ -360,6 +364,7 @@ function openRinnovoModal(id, tipo) {
     const descrizione = document.getElementById('rinnovoDescrizione');
     const tipoFirma = document.getElementById('rinnovoTipoFirma');
     const importo = document.getElementById('rinnovoImporto');
+    const noteGroup = document.getElementById('rinnovoNoteGroup');
     
     if (clienteNome) clienteNome.textContent = prodotto.nomeCliente;
     
@@ -369,10 +374,12 @@ function openRinnovoModal(id, tipo) {
     if (tipo === 'CANONE') {
         if (descrizione) descrizione.value = prodotto.descrizione || '';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'none';
+        if (noteGroup) noteGroup.style.display = 'none';
         if (prodotto.descrizione) dettagliText += ` • ${prodotto.descrizione}`;
     } else {
         if (tipoFirma) tipoFirma.value = prodotto.tipo || 'Token';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'block';
+        if (noteGroup) noteGroup.style.display = 'block';
         dettagliText += ` • ${prodotto.tipo}`;
     }
     
