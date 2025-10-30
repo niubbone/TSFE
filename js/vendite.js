@@ -115,7 +115,59 @@ function renderScadenze(data) {
     const container = document.getElementById('scadenzeContainer');
     if (!container) return;
     
-    if (!data.tutti || data.tutti.length === 0) {
+    // Separa canoni scaduti da altre scadenze
+    const canoniScaduti = data.tutti.filter(p => 
+        p.tipoProdotto === 'CANONE' && 
+        p.giorniMancanti < 0 && 
+        (p.stato === 'ATTIVO' || p.stato === 'Attivo')
+    );
+    
+    const altreScadenze = data.tutti.filter(p => 
+        !(p.tipoProdotto === 'CANONE' && p.giorniMancanti < 0)
+    );
+    
+    container.innerHTML = '';
+    container.className = 'scadenze-list';
+    
+    // Sezione CANONI DA RINNOVARE (persistente)
+    if (canoniScaduti.length > 0) {
+        const sezioneCanoni = document.createElement('div');
+        sezioneCanoni.style.marginBottom = '30px';
+        
+        const titleCanoni = document.createElement('h3');
+        titleCanoni.textContent = '🔴 Canoni da Rinnovare';
+        titleCanoni.style.color = '#dc3545';
+        titleCanoni.style.marginBottom = '15px';
+        sezioneCanoni.appendChild(titleCanoni);
+        
+        canoniScaduti.forEach(canone => {
+            const card = createScadenzaCard(canone, true); // true = canone scaduto
+            sezioneCanoni.appendChild(card);
+        });
+        
+        container.appendChild(sezioneCanoni);
+    }
+    
+    // Sezione PROSSIME SCADENZE
+    if (altreScadenze.length > 0) {
+        const sezioneScadenze = document.createElement('div');
+        
+        const titleScadenze = document.createElement('h3');
+        titleScadenze.textContent = '📅 Prossime Scadenze (90 giorni)';
+        titleScadenze.style.color = '#007bff';
+        titleScadenze.style.marginBottom = '15px';
+        sezioneScadenze.appendChild(titleScadenze);
+        
+        altreScadenze.forEach(prodotto => {
+            const card = createScadenzaCard(prodotto, false);
+            sezioneScadenze.appendChild(card);
+        });
+        
+        container.appendChild(sezioneScadenze);
+    }
+    
+    // Nessun prodotto
+    if (canoniScaduti.length === 0 && altreScadenze.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">✅</div>
@@ -123,25 +175,24 @@ function renderScadenze(data) {
                 <div style="font-size: 12px; margin-top: 8px; color: #999;">Prossimi 90 giorni</div>
             </div>
         `;
-        return;
     }
-    
-    container.innerHTML = '';
-    container.className = 'scadenze-list';
-    
-    data.tutti.forEach(prodotto => {
-        const card = createScadenzaCard(prodotto);
-        container.appendChild(card);
-    });
 }
 
 /**
  * Crea una card per una singola scadenza
+ * @param {object} prodotto - Dati prodotto
+ * @param {boolean} isCanoneScaduto - Se true, è un canone già scaduto
  */
-function createScadenzaCard(prodotto) {
+function createScadenzaCard(prodotto, isCanoneScaduto = false) {
     const card = document.createElement('div');
-    const urgenzaClass = prodotto.urgenza === 'ALTA' ? 'urgente' : 
-                         prodotto.urgenza === 'MEDIA' ? 'media' : 'bassa';
+    
+    let urgenzaClass = 'bassa';
+    if (isCanoneScaduto) {
+        urgenzaClass = 'scaduto';
+    } else {
+        urgenzaClass = prodotto.urgenza === 'ALTA' ? 'urgente' : 
+                       prodotto.urgenza === 'MEDIA' ? 'media' : 'bassa';
+    }
     
     card.className = `scadenza-card ${urgenzaClass}`;
     
@@ -156,12 +207,21 @@ function createScadenzaCard(prodotto) {
         dettagli = ` • ${prodotto.tipo}`;
     }
     
+    // Testo giorni mancanti
+    let giorniText = '';
+    if (isCanoneScaduto) {
+        const giorniPassati = Math.abs(prodotto.giorniMancanti);
+        giorniText = `Scaduto da ${giorniPassati} giorni`;
+    } else {
+        giorniText = `${prodotto.giorniMancanti} giorni`;
+    }
+    
     card.innerHTML = `
         <div class="scadenza-info">
             <div class="scadenza-id">
                 ${tipo}: ${id}
-                <span class="scadenza-urgenza urgenza-${prodotto.urgenza.toLowerCase()}">
-                    ${prodotto.giorniMancanti} giorni
+                <span class="scadenza-urgenza urgenza-${isCanoneScaduto ? 'scaduto' : prodotto.urgenza.toLowerCase()}">
+                    ${giorniText}
                 </span>
             </div>
             <div class="scadenza-cliente">${prodotto.nomeCliente}</div>
