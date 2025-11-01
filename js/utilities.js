@@ -91,8 +91,8 @@ Versione: ${CONFIG.VERSION}
 CONTENUTO:
 ├── index.html
 ├── manifest.json
-├── css/ (6 files)
-├── js/ (7 files)
+├── css/ (9 files)
+├── js/ (9 files)
 └── assets/ (icone)
 
 RIPRISTINO:
