@@ -197,8 +197,34 @@
    PRODOTTI E TIMESHEET
 ========================= */
 
-/* Stile uniforme per i bottoni blu principali */
-.btn-modifica-cliente,
+/* Stile per il bottone Modifica Dati Cliente */
+.btn-modifica-cliente {
+    padding: 12px 24px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0 20px 0;
+}
+
+.btn-modifica-cliente:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-modifica-cliente:active {
+    transform: translateY(0);
+}
+
+/* Stile uniforme per bottoni secondari: Nuovo Cliente, Chiudi, Annulla */
 #nuovo-cliente-btn,
 #close-cliente-detail,
 #cancel-cliente-edit {
@@ -216,11 +242,6 @@
     gap: 8px;
 }
 
-.btn-modifica-cliente {
-    margin: 15px 0 20px 0;
-}
-
-.btn-modifica-cliente:hover,
 #nuovo-cliente-btn:hover,
 #close-cliente-detail:hover,
 #cancel-cliente-edit:hover {
@@ -229,7 +250,6 @@
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.btn-modifica-cliente:active,
 #nuovo-cliente-btn:active,
 #close-cliente-detail:active,
 #cancel-cliente-edit:active {
