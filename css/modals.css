@@ -68,12 +68,13 @@
 }
 
 .btn-cancel {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     color: white;
+    font-weight: 600;
 }
 
 .btn-cancel:hover {
-    background-color: var(--secondary-dark);
+    background-color: var(--primary-dark);
 }
 
 .btn-save {
