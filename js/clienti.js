@@ -161,6 +161,9 @@ async function loadClienteDetail(clienteId) {
             document.getElementById('cliente-prodotti-section').style.display = 'block';
             document.getElementById('cliente-timesheet-section').style.display = 'block';
             
+            // Aggiungi bottone Modifica Cliente prima dei prodotti
+            addModificaClienteButton();
+            
             loadClienteProdotti(clienteId);
             loadClienteTimesheet(clienteId);
             
@@ -175,6 +178,33 @@ async function loadClienteDetail(clienteId) {
     } catch (error) {
         console.error('Errore caricamento cliente:', error);
         showNotification('clienti-info', '❌ Errore caricamento cliente', 'error');
+    }
+}
+
+/**
+ * Aggiunge il bottone Modifica Cliente nella sezione prodotti
+ */
+function addModificaClienteButton() {
+    const prodottiSection = document.getElementById('cliente-prodotti-section');
+    
+    // Rimuovi bottone esistente se presente
+    const existingBtn = prodottiSection.querySelector('.btn-modifica-cliente');
+    if (existingBtn) {
+        existingBtn.remove();
+    }
+    
+    // Crea il bottone
+    const button = document.createElement('button');
+    button.className = 'btn-modifica-cliente';
+    button.onclick = openClienteEdit;
+    button.innerHTML = '✏️ Modifica Dati Cliente';
+    
+    // Inserisci il bottone come primo elemento dopo l'h3
+    const h3 = prodottiSection.querySelector('h3');
+    if (h3) {
+        h3.insertAdjacentElement('afterend', button);
+    } else {
+        prodottiSection.insertBefore(button, prodottiSection.firstChild);
     }
 }
 
@@ -432,24 +462,11 @@ function displayClienteProdotti(prodotti) {
     const contentDiv = document.getElementById('cliente-prodotti-content');
     
     if (!prodotti || prodotti.length === 0) {
-        contentDiv.innerHTML = `
-            <div style="margin-bottom: 20px;">
-                <button class="btn-modifica-cliente" onclick="openClienteEdit()">
-                    ✏️ Modifica Dati Cliente
-                </button>
-            </div>
-            <p class="empty-state">Nessun prodotto attivo per questo cliente</p>
-        `;
+        contentDiv.innerHTML = '<p class="empty-state">Nessun prodotto attivo per questo cliente</p>';
         return;
     }
     
-    let html = `
-        <div style="margin-bottom: 20px;">
-            <button class="btn-modifica-cliente" onclick="openClienteEdit()">
-                ✏️ Modifica Dati Cliente
-            </button>
-        </div>
-    `;
+    let html = '';
     
     prodotti.forEach(prodotto => {
         const tipoClass = prodotto.tipo.toLowerCase();
