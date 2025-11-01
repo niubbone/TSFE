@@ -149,75 +149,6 @@
    FORM CLIENTE
 ========================= */
 
-/* Stili uniformi per tutti i bottoni nella tab clienti */
-#clienti-tab button,
-#clienti-tab .btn {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Bottoni primari (blu) */
-#clienti-tab button[type="submit"],
-#clienti-tab .btn-primary,
-#clienti-tab button.btn-primary {
-    padding: 12px 24px;
-    background: var(--primary-color);
-    color: white;
-}
-
-#clienti-tab button[type="submit"]:hover,
-#clienti-tab .btn-primary:hover,
-#clienti-tab button.btn-primary:hover {
-    background: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-#clienti-tab button[type="submit"]:active,
-#clienti-tab .btn-primary:active,
-#clienti-tab button.btn-primary:active {
-    transform: translateY(0);
-}
-
-/* Bottoni secondari (grigi) */
-#clienti-tab button[type="button"]:not(.btn-primary):not(.btn-modifica-cliente):not(.timesheet-edit-btn),
-#clienti-tab .btn-secondary {
-    padding: 12px 24px;
-    background: #6c757d;
-    color: white;
-}
-
-#clienti-tab button[type="button"]:not(.btn-primary):not(.btn-modifica-cliente):not(.timesheet-edit-btn):hover,
-#clienti-tab .btn-secondary:hover {
-    background: #545b62;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-}
-
-#clienti-tab button[type="button"]:not(.btn-primary):not(.btn-modifica-cliente):not(.timesheet-edit-btn):active,
-#clienti-tab .btn-secondary:active {
-    transform: translateY(0);
-}
-
-/* Bottone Ricerca - stile particolare */
-#clienti-tab button:not([type]):not(.btn-primary):not(.btn-secondary):not(.btn-modifica-cliente):not(.timesheet-edit-btn) {
-    padding: 10px 20px;
-    background: var(--primary-color);
-    color: white;
-}
-
-#clienti-tab button:not([type]):not(.btn-primary):not(.btn-secondary):not(.btn-modifica-cliente):not(.timesheet-edit-btn):hover {
-    background: #0056b3;
-}
-
 .cliente-form {
     margin-top: 20px;
 }
@@ -266,7 +197,11 @@
    PRODOTTI E TIMESHEET
 ========================= */
 
-.btn-modifica-cliente {
+/* Stile uniforme per i bottoni blu principali */
+.btn-modifica-cliente,
+#nuovo-cliente-btn,
+#close-cliente-detail,
+#cancel-cliente-edit {
     padding: 12px 24px;
     background: var(--primary-color);
     color: white;
@@ -279,16 +214,25 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+}
+
+.btn-modifica-cliente {
     margin: 15px 0 20px 0;
 }
 
-.btn-modifica-cliente:hover {
+.btn-modifica-cliente:hover,
+#nuovo-cliente-btn:hover,
+#close-cliente-detail:hover,
+#cancel-cliente-edit:hover {
     background: #0056b3;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.btn-modifica-cliente:active {
+.btn-modifica-cliente:active,
+#nuovo-cliente-btn:active,
+#close-cliente-detail:active,
+#cancel-cliente-edit:active {
     transform: translateY(0);
 }
 
