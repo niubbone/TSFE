@@ -156,9 +156,17 @@ async function loadClienteDetail(clienteId) {
         
         if (data.success && data.cliente) {
             currentCliente = data.cliente;
-            showClienteDetail(data.cliente);
+            // Mostra solo prodotti e timesheet, NON il form di modifica
+            document.getElementById('cliente-detail-section').style.display = 'none';
+            document.getElementById('cliente-prodotti-section').style.display = 'block';
+            document.getElementById('cliente-timesheet-section').style.display = 'block';
+            
             loadClienteProdotti(clienteId);
             loadClienteTimesheet(clienteId);
+            
+            // Scroll alla sezione prodotti
+            document.getElementById('cliente-prodotti-section').scrollIntoView({ behavior: 'smooth' });
+            
             showNotification('clienti-info', '✅ Cliente caricato', 'success');
         } else {
             throw new Error(data.error || 'Errore caricamento');
@@ -206,6 +214,17 @@ function closeClienteDetail() {
     document.getElementById('cliente-prodotti-section').style.display = 'none';
     document.getElementById('cliente-timesheet-section').style.display = 'none';
     document.getElementById('cliente-form').reset();
+}
+
+/**
+ * Apre il form di modifica del cliente corrente
+ */
+function openClienteEdit() {
+    if (!currentCliente) {
+        alert('Nessun cliente selezionato');
+        return;
+    }
+    showClienteDetail(currentCliente);
 }
 
 // =======================================================================
@@ -413,11 +432,24 @@ function displayClienteProdotti(prodotti) {
     const contentDiv = document.getElementById('cliente-prodotti-content');
     
     if (!prodotti || prodotti.length === 0) {
-        contentDiv.innerHTML = '<p class="empty-state">Nessun prodotto attivo per questo cliente</p>';
+        contentDiv.innerHTML = `
+            <div style="margin-bottom: 20px;">
+                <button class="btn-modifica-cliente" onclick="openClienteEdit()">
+                    ✏️ Modifica Dati Cliente
+                </button>
+            </div>
+            <p class="empty-state">Nessun prodotto attivo per questo cliente</p>
+        `;
         return;
     }
     
-    let html = '';
+    let html = `
+        <div style="margin-bottom: 20px;">
+            <button class="btn-modifica-cliente" onclick="openClienteEdit()">
+                ✏️ Modifica Dati Cliente
+            </button>
+        </div>
+    `;
     
     prodotti.forEach(prodotto => {
         const tipoClass = prodotto.tipo.toLowerCase();
