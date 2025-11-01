@@ -197,6 +197,31 @@
    PRODOTTI E TIMESHEET
 ========================= */
 
+.btn-modifica-cliente {
+    padding: 12px 24px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-modifica-cliente:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-modifica-cliente:active {
+    transform: translateY(0);
+}
+
 .prodotto-item {
     background: white;
     border: 1px solid var(--border-color);
