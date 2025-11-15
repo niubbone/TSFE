@@ -745,25 +745,57 @@ async function copyClientData() {
     }
     
     const dataText = formatClientData(currentCliente);
+    const btn = event.target;
+    const originalText = btn.innerHTML;
     
+    // Prova prima con Clipboard API moderna
     try {
         await navigator.clipboard.writeText(dataText);
-        showNotification('clienti-info', '✅ Dati copiati negli appunti', 'success');
-        
-        // Cambia temporaneamente il testo del pulsante
-        const btn = event.target;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✅ Copiato!';
-        btn.disabled = true;
-        
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }, 2000);
+        showCopySuccess(btn, originalText);
+        return;
+    } catch (err) {
+        // Fallback per browser/dispositivi che non supportano Clipboard API
+        console.log('Clipboard API fallita, uso execCommand');
+    }
+    
+    // Fallback con execCommand (più compatibile con smartphone)
+    const textArea = document.createElement('textarea');
+    textArea.value = dataText;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess(btn, originalText);
+        } else {
+            throw new Error('execCommand fallito');
+        }
     } catch (err) {
         console.error('Errore copia:', err);
         alert('Errore durante la copia. Seleziona manualmente il testo.');
+    } finally {
+        document.body.removeChild(textArea);
     }
+}
+
+/**
+ * Helper per mostrare feedback successo copia
+ */
+function showCopySuccess(btn, originalText) {
+    showNotification('clienti-info', '✅ Dati copiati negli appunti', 'success');
+    
+    btn.innerHTML = '✅ Copiato!';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }, 2000);
 }
 
 // =======================================================================
