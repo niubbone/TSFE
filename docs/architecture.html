@@ -578,8 +578,8 @@ Calendar API / Email API
                             </tr>
                             <tr>
                                 <td><code>clienti.js</code></td>
-                                <td>726</td>
-                                <td>UI gestione clienti, tab clienti, form CRUD</td>
+                                <td>990</td>
+                                <td>UI gestione clienti completa: ricerca, dettaglio, esportazione dati (vCard, copia appunti), modifica timesheet</td>
                             </tr>
                             <tr>
                                 <td><code>vendite.js</code></td>
@@ -647,6 +647,180 @@ Calendar API / Email API
                 </div>
             </div>
 
+            <!-- BACKEND DETTAGLIATO -->
+            <div class="section" id="backend-detail">
+                <h2 class="section-title">⚙️ 3.5. Struttura Backend Dettagliata</h2>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">File Backend (15 file .gs - ~6500 righe)</h3>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Funzioni</th>
+                                <th>Funzionalità Principali</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Clienti.gs</code></td>
+                                <td>17</td>
+                                <td>
+                                    • searchClienti(), getClienteById()<br>
+                                    • getClienteProdotti(), getClienteTimesheet()<br>
+                                    • insertClient(), updateClient(), deleteClient()<br>
+                                    • validateClient(), assignMissingClientIDs()<br>
+                                    • getTimesheetDetail(), updateTimesheetRow()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Timesheet.gs</code></td>
+                                <td>3</td>
+                                <td>
+                                    • getTimesheetDaFatturare()<br>
+                                    • getTimesheetByIds()<br>
+                                    • updateTimesheetProforma()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Pacchetti.gs</code></td>
+                                <td>5</td>
+                                <td>
+                                    • getActivePacchetto(), updatePacchetto()<br>
+                                    • insertPacchetto(), initializePacchetto()<br>
+                                    • getPacchettiScaduti()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Canoni.gs</code></td>
+                                <td>5</td>
+                                <td>
+                                    • generateCanoneID(), insertCanone()<br>
+                                    • getCanoniInScadenza(), getCanoneByID()<br>
+                                    • updateStatoCanone()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Firme.gs</code></td>
+                                <td>6</td>
+                                <td>
+                                    • generateFirmaID(), insertFirma()<br>
+                                    • getFirmeInScadenza(), getFirmaByID()<br>
+                                    • isValidTipoFirma(), updateStatoFirma()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Proforma.gs</code></td>
+                                <td>6</td>
+                                <td>
+                                    • generateProforma(), createProformaPDF()<br>
+                                    • generateProformaNumber()<br>
+                                    • getProformaFolder(), getTemplateFile()<br>
+                                    • getProformaDetails()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Rinnovi.gs</code></td>
+                                <td>5</td>
+                                <td>
+                                    • rinnovaCanone(), rinnovaFirma()<br>
+                                    • getStoricoRinnovi()<br>
+                                    • getTuttiProdottiInScadenza()<br>
+                                    • canRinnovaProdotto()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Calendar.gs</code></td>
+                                <td>3</td>
+                                <td>
+                                    • createScadenzaEvent()<br>
+                                    • deleteCalendarEvent()<br>
+                                    • updateCalendarEvent()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Email.gs</code></td>
+                                <td>3</td>
+                                <td>
+                                    • sendProformaEmail()<br>
+                                    • getClientData()<br>
+                                    • createEmailBody()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>EmailScadenze.gs</code></td>
+                                <td>4</td>
+                                <td>
+                                    • sendFirmaReminderCliente30gg()<br>
+                                    • sendFirmaReminderCliente10gg()<br>
+                                    • sendFirmaReminderGiuseppe10gg()<br>
+                                    • sendPacchettoScadutoAlert()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Trigger.gs</code></td>
+                                <td>6</td>
+                                <td>
+                                    • checkScadenzeGiornaliero() [MAIN]<br>
+                                    • checkFirmeScadenze(), checkPacchettiScaduti()<br>
+                                    • install/disinstallTriggerScadenzeGiornaliero()<br>
+                                    • testCheckScadenze()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Helpers.gs</code></td>
+                                <td>3</td>
+                                <td>
+                                    • getSpreadsheet()<br>
+                                    • getConfigOptions()<br>
+                                    • convertDurationToHours()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Utilities.gs</code></td>
+                                <td>7</td>
+                                <td>
+                                    • doGet(), doPost() [API ENTRY POINTS]<br>
+                                    • writeLog()<br>
+                                    • convertDateToSheetFormat()<br>
+                                    • formatDateItalian(), checkIntegrity()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Codice.gs</code></td>
+                                <td>6</td>
+                                <td>
+                                    • validateClient(), getNextClientID()<br>
+                                    • insertTimesheet(), calculateCost()<br>
+                                    • sendAlert()
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>Config.gs</code></td>
+                                <td>0</td>
+                                <td>
+                                    • Costanti di configurazione<br>
+                                    • URL Spreadsheet, Calendar ID<br>
+                                    • Email, Template proforma
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <h4>📌 Note Architettura Backend</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Entry Points:</strong> doGet() e doPost() in Utilities.gs gestiscono tutte le richieste</li>
+                        <li><strong>Modularità:</strong> Ogni entità (Clienti, Canoni, Firme, etc.) ha il proprio file</li>
+                        <li><strong>Logging:</strong> writeLog() centralizzato traccia tutte le operazioni</li>
+                        <li><strong>Validazione:</strong> validateClient() usato da tutte le funzioni che richiedono un cliente</li>
+                        <li><strong>Trigger:</strong> Sistema automatico giornaliero (ore 8:00) per scadenze</li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- DATABASE -->
             <div class="section" id="database">
                 <h2 class="section-title">🗄️ 5. Struttura Database (Google Sheet)</h2>
@@ -665,8 +839,8 @@ Calendar API / Email API
                         <tbody>
                             <tr>
                                 <td><strong>Clienti</strong></td>
-                                <td>A: ID_Cliente<br>B: Nome_Cliente<br>I: Email</td>
-                                <td>Anagrafica clienti completa</td>
+                                <td>A: ID_Cliente<br>B: Nome_Cliente<br>I: Email<br>M: Cellulare<br>N: Tel.</td>
+                                <td>Anagrafica clienti completa con contatti separati</td>
                             </tr>
                             <tr>
                                 <td><strong>Timesheet</strong></td>
@@ -875,6 +1049,36 @@ Funzione: checkScadenzeGiornaliero()
                                 <td>id_cliente</td>
                             </tr>
                             <tr>
+                                <td>search_clienti</td>
+                                <td>GET</td>
+                                <td>search (termine ricerca: nome, P.IVA, CF, email)</td>
+                            </tr>
+                            <tr>
+                                <td>get_cliente</td>
+                                <td>GET</td>
+                                <td>id (ID_Cliente completo)</td>
+                            </tr>
+                            <tr>
+                                <td>get_cliente_prodotti</td>
+                                <td>GET</td>
+                                <td>id (ritorna pacchetti, canoni, firme attivi)</td>
+                            </tr>
+                            <tr>
+                                <td>get_cliente_timesheet</td>
+                                <td>GET</td>
+                                <td>id (ritorna timesheet "Da fatturare")</td>
+                            </tr>
+                            <tr>
+                                <td>get_timesheet_detail</td>
+                                <td>GET</td>
+                                <td>row (row index del timesheet)</td>
+                            </tr>
+                            <tr>
+                                <td>update_timesheet</td>
+                                <td>POST</td>
+                                <td>rowIndex, data, ore, descrizione, tipoIntervento, modEsecuzione, chiamata, costo</td>
+                            </tr>
+                            <tr>
                                 <td rowspan="2"><strong>Timesheet</strong></td>
                                 <td>insert_timesheet</td>
                                 <td>POST</td>
@@ -985,7 +1189,7 @@ Funzione: checkScadenzeGiornaliero()
                 <h2 class="section-title">📝 8. Changelog v3.0 → v3.7</h2>
                 
                 <div class="subsection">
-                    <h3 class="subsection-title">🆕 Novità Versione 3.7 (Ottobre 2025)</h3>
+                    <h3 class="subsection-title">🆕 Novità Versione 3.7 (Ottobre-Novembre 2025)</h3>
                     
                     <div class="success-box">
                         <h4>✅ Sistema Vendite Completo</h4>
@@ -1028,6 +1232,24 @@ Funzione: checkScadenzeGiornaliero()
                         </ul>
                     </div>
 
+                    <div class="success-box">
+                        <h4>✅ Tab Clienti Avanzata</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>✅ Ricerca clienti multi-campo (nome, P.IVA, CF, email)</li>
+                            <li>✅ Vista dettaglio con prodotti attivi e timesheet non fatturati</li>
+                            <li>✅ Modal "Esporta Dati Cliente" con 3 funzioni:
+                                <ul style="margin-left: 20px; margin-top: 5px;">
+                                    <li>• Visualizzazione dati formattati per copia/incolla</li>
+                                    <li>• Copia negli appunti con un click (compatibile smartphone)</li>
+                                    <li>• Esportazione vCard (.vcf) completa</li>
+                                </ul>
+                            </li>
+                            <li>✅ Modifica timesheet diretta dalla tab Clienti</li>
+                            <li>✅ Campi Cellulare e Tel. separati nel database (colonne M e N)</li>
+                            <li>✅ API complete: search_clienti, get_cliente, get_cliente_prodotti, get_cliente_timesheet</li>
+                        </ul>
+                    </div>
+
                     <div class="warning-box">
                         <h4>🔧 Miglioramenti Tecnici</h4>
                         <ul style="margin-left: 20px;">
@@ -1036,6 +1258,7 @@ Funzione: checkScadenzeGiornaliero()
                             <li>• Error handling robusto su tutte le API</li>
                             <li>• Frontend refactoring modulare</li>
                             <li>• CSS separati per componente</li>
+                            <li>• Fallback execCommand per copia appunti su smartphone</li>
                         </ul>
                     </div>
 
@@ -1043,20 +1266,36 @@ Funzione: checkScadenzeGiornaliero()
                         <h4>📊 Metriche Sistema v3.7</h4>
                         <div class="grid">
                             <div class="stats-box">
-                                <div class="stats-number">15</div>
+                                <div class="stats-number">7</div>
                                 <div class="stats-label">TAB Database</div>
                             </div>
                             <div class="stats-box">
-                                <div class="stats-number">50+</div>
+                                <div class="stats-number">15</div>
+                                <div class="stats-label">File Backend (.gs)</div>
+                            </div>
+                            <div class="stats-box">
+                                <div class="stats-number">~79</div>
+                                <div class="stats-label">Funzioni Backend</div>
+                            </div>
+                            <div class="stats-box">
+                                <div class="stats-number">~6500</div>
+                                <div class="stats-label">Righe Codice Backend</div>
+                            </div>
+                            <div class="stats-box">
+                                <div class="stats-number">55+</div>
                                 <div class="stats-label">API Endpoints</div>
                             </div>
                             <div class="stats-box">
-                                <div class="stats-number">~400</div>
-                                <div class="stats-label">Funzioni Backend</div>
+                                <div class="stats-number">9</div>
+                                <div class="stats-label">File Frontend (.js)</div>
                             </div>
                             <div class="stats-box">
                                 <div class="stats-number">100%</div>
                                 <div class="stats-label">Mobile Ready</div>
+                            </div>
+                            <div class="stats-box">
+                                <div class="stats-number">PWA</div>
+                                <div class="stats-label">Installabile</div>
                             </div>
                         </div>
                     </div>
@@ -1186,7 +1425,7 @@ Giornaliero ore 8:00 → checkScadenzeGiornaliero()
                         <div class="card">
                             <div class="card-title">📧 Email Config</div>
                             <div class="card-content">
-                                <strong>From:</strong> info@studio-smart.it<br>
+                                <strong>From:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2c45424a436c5f5859484543015f414d5e58024558">[email&#160;protected]</a><br>
                                 <strong>Quota:</strong> 100/day (free)<br>
                                 <strong>Trigger:</strong> 8:00 giornaliero
                             </div>
@@ -1237,11 +1476,4 @@ Giornaliero ore 8:00 → checkScadenzeGiornaliero()
                 <div style="margin-top: 20px;">
                     <span class="badge badge-success">✅ OPERATIVO</span>
                     <span class="badge badge-info">📱 MOBILE-READY</span>
-                    <span class="badge badge-primary">🔄 AGGIORNATO</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</body>
-</html>
+                    <span class="badge
