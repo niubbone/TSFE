@@ -182,29 +182,46 @@ async function loadClienteDetail(clienteId) {
 }
 
 /**
- * Aggiunge il bottone Modifica Cliente nella sezione prodotti
+ * Aggiunge i bottoni Modifica e Esporta vCard nella sezione prodotti
  */
 function addModificaClienteButton() {
     const prodottiSection = document.getElementById('cliente-prodotti-section');
     
-    // Rimuovi bottone esistente se presente
-    const existingBtn = prodottiSection.querySelector('.btn-modifica-cliente');
-    if (existingBtn) {
-        existingBtn.remove();
+    // Rimuovi container bottoni se presente
+    const existingContainer = prodottiSection.querySelector('.cliente-action-buttons');
+    if (existingContainer) {
+        existingContainer.remove();
     }
     
-    // Crea il bottone
-    const button = document.createElement('button');
-    button.className = 'btn-modifica-cliente';
-    button.onclick = openClienteEdit;
-    button.innerHTML = '✏️ Modifica Dati Cliente';
+    // Crea il container per i bottoni
+    const container = document.createElement('div');
+    container.className = 'cliente-action-buttons';
+    container.style.display = 'flex';
+    container.style.gap = '10px';
+    container.style.marginBottom = '15px';
     
-    // Inserisci il bottone come primo elemento dopo l'h3
+    // Crea il bottone Modifica
+    const btnModifica = document.createElement('button');
+    btnModifica.className = 'btn-modifica-cliente';
+    btnModifica.onclick = openClienteEdit;
+    btnModifica.innerHTML = '✏️ Modifica Dati Cliente';
+    
+    // Crea il bottone Esporta Dati Cliente
+    const btnExport = document.createElement('button');
+    btnExport.className = 'btn-modifica-cliente';
+    btnExport.onclick = showExportDataModal;
+    btnExport.innerHTML = '📇 Esporta Dati Cliente';
+    
+    // Aggiungi i bottoni al container
+    container.appendChild(btnModifica);
+    container.appendChild(btnExport);
+    
+    // Inserisci il container come primo elemento dopo l'h3
     const h3 = prodottiSection.querySelector('h3');
     if (h3) {
-        h3.insertAdjacentElement('afterend', button);
+        h3.insertAdjacentElement('afterend', container);
     } else {
-        prodottiSection.insertBefore(button, prodottiSection.firstChild);
+        prodottiSection.insertBefore(container, prodottiSection.firstChild);
     }
 }
 
@@ -650,6 +667,198 @@ function editTimesheet(rowIndex, idIntervento) {
 function renewProduct(productId, productType) {
     // TODO: Integrare con la funzione di rinnovo esistente
     alert('Funzione di rinnovo prodotto in arrivo!');
+}
+
+// =======================================================================
+// === ESPORTA DATI CLIENTE ===
+// =======================================================================
+
+/**
+ * Formatta i dati del cliente per la visualizzazione
+ */
+function formatClientData(cliente) {
+    let data = [];
+    
+    // Titolo e Nome
+    if (cliente.titolo) data.push(cliente.titolo);
+    if (cliente.nome) data.push(cliente.nome);
+    
+    // Indirizzo
+    if (cliente.indirizzo) data.push(cliente.indirizzo);
+    let citta = [];
+    if (cliente.cap) citta.push(cliente.cap);
+    if (cliente.citta) citta.push(cliente.citta);
+    if (cliente.provincia) citta.push(`(${cliente.provincia})`);
+    if (citta.length > 0) data.push(citta.join(' '));
+    
+    data.push(''); // Riga vuota
+    
+    // Dati fiscali
+    if (cliente.piva) data.push(`P.IVA: ${cliente.piva}`);
+    if (cliente.cf) data.push(`CF: ${cliente.cf}`);
+    if (cliente.sdi) data.push(`SDI: ${cliente.sdi}`);
+    
+    data.push(''); // Riga vuota
+    
+    // Contatti
+    if (cliente.email) data.push(`📧 ${cliente.email}`);
+    if (cliente.telefono) data.push(`📞 ${cliente.telefono}`);
+    if (cliente.pec) data.push(`PEC: ${cliente.pec}`);
+    
+    return data.join('\n');
+}
+
+/**
+ * Mostra il modal con i dati del cliente
+ */
+function showExportDataModal() {
+    if (!currentCliente) {
+        alert('Nessun cliente selezionato');
+        return;
+    }
+    
+    const modal = document.getElementById('export-data-modal');
+    const content = document.getElementById('export-data-content');
+    
+    // Formatta e inserisci i dati
+    content.textContent = formatClientData(currentCliente);
+    
+    // Mostra il modal
+    modal.style.display = 'flex';
+}
+
+/**
+ * Chiude il modal
+ */
+function closeExportDataModal() {
+    document.getElementById('export-data-modal').style.display = 'none';
+}
+
+/**
+ * Copia i dati del cliente negli appunti
+ */
+async function copyClientData() {
+    if (!currentCliente) {
+        alert('Nessun cliente selezionato');
+        return;
+    }
+    
+    const dataText = formatClientData(currentCliente);
+    
+    try {
+        await navigator.clipboard.writeText(dataText);
+        showNotification('clienti-info', '✅ Dati copiati negli appunti', 'success');
+        
+        // Cambia temporaneamente il testo del pulsante
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✅ Copiato!';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Errore copia:', err);
+        alert('Errore durante la copia. Seleziona manualmente il testo.');
+    }
+}
+
+// =======================================================================
+// === ESPORTA VCARD ===
+// =======================================================================
+
+/**
+ * Genera e scarica il file vCard per il cliente corrente
+ */
+function exportVCard() {
+    if (!currentCliente) {
+        alert('Nessun cliente selezionato');
+        return;
+    }
+    
+    // Genera il contenuto vCard versione 3.0
+    let vcard = 'BEGIN:VCARD\n';
+    vcard += 'VERSION:3.0\n';
+    
+    // Nome (obbligatorio in vCard)
+    const nome = currentCliente.nome || 'Sconosciuto';
+    vcard += `FN:${nome}\n`;
+    vcard += `N:${nome};;;;\n`;
+    
+    // Titolo/Qualifica
+    if (currentCliente.titolo) {
+        vcard += `TITLE:${currentCliente.titolo}\n`;
+    }
+    
+    // Organizzazione
+    if (currentCliente.nome) {
+        vcard += `ORG:${currentCliente.nome}\n`;
+    }
+    
+    // Email
+    if (currentCliente.email) {
+        vcard += `EMAIL;TYPE=INTERNET:${currentCliente.email}\n`;
+    }
+    
+    // Telefono
+    if (currentCliente.telefono) {
+        vcard += `TEL;TYPE=WORK,VOICE:${currentCliente.telefono}\n`;
+    }
+    
+    // Indirizzo
+    if (currentCliente.indirizzo || currentCliente.cap || currentCliente.citta || currentCliente.provincia) {
+        const via = currentCliente.indirizzo || '';
+        const cap = currentCliente.cap || '';
+        const citta = currentCliente.citta || '';
+        const provincia = currentCliente.provincia || '';
+        
+        // Formato ADR: casella postale; indirizzo esteso; via; città; regione; CAP; paese
+        vcard += `ADR;TYPE=WORK:;;${via};${citta};${provincia};${cap};Italia\n`;
+    }
+    
+    // Note aggiuntive con dati fiscali
+    let note = [];
+    if (currentCliente.piva) {
+        note.push(`P.IVA: ${currentCliente.piva}`);
+    }
+    if (currentCliente.cf) {
+        note.push(`CF: ${currentCliente.cf}`);
+    }
+    if (currentCliente.id) {
+        note.push(`ID Cliente: ${currentCliente.id}`);
+    }
+    if (currentCliente.sdi) {
+        note.push(`Codice SDI: ${currentCliente.sdi}`);
+    }
+    if (currentCliente.pec) {
+        note.push(`PEC: ${currentCliente.pec}`);
+    }
+    
+    if (note.length > 0) {
+        vcard += `NOTE:${note.join(' - ')}\n`;
+    }
+    
+    vcard += 'END:VCARD';
+    
+    // Crea il blob e scarica il file
+    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // Nome file: usa ID cliente o nome sanitizzato
+    const fileName = currentCliente.id || currentCliente.nome.replace(/[^a-z0-9]/gi, '_');
+    link.href = url;
+    link.download = `${fileName}.vcf`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    showNotification('clienti-info', '✅ vCard esportata con successo', 'success');
+    closeExportDataModal(); // Chiudi il modal dopo l'esportazione
 }
 
 console.log('✅ Clienti module caricato');
