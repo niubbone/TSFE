@@ -982,6 +982,29 @@ function toggleOptionalFields() {
             </form>
         </div>
     </div>
+
+    <!-- Modal Esporta Dati Cliente -->
+    <div id="export-data-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>📇 Dati Cliente</h2>
+            
+            <div id="export-data-content" style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-family: monospace; white-space: pre-line; line-height: 1.6; font-size: 14px;">
+                <!-- I dati verranno inseriti dinamicamente -->
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-primary" onclick="copyClientData()" style="width: 100%;">
+                    📋 Copia negli Appunti
+                </button>
+                <button class="btn btn-secondary" onclick="exportVCard()" style="width: 100%;">
+                    📇 Esporta vCard
+                </button>
+                <button class="btn btn-secondary" onclick="closeExportDataModal()" style="width: 100%;">
+                    Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
     
 </body>
 </html>
