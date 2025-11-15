@@ -754,8 +754,7 @@ async function copyClientData() {
         showCopySuccess(btn, originalText);
         return;
     } catch (err) {
-        // Fallback per browser/dispositivi che non supportano Clipboard API
-        console.log('Clipboard API fallita, uso execCommand');
+        // Ignora l'errore, prova con execCommand
     }
     
     // Fallback con execCommand (più compatibile con smartphone)
@@ -770,16 +769,15 @@ async function copyClientData() {
     
     try {
         const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
         if (successful) {
             showCopySuccess(btn, originalText);
-        } else {
-            throw new Error('execCommand fallito');
         }
+        // Se fallisce, non mostra niente - la copia potrebbe comunque essere avvenuta
     } catch (err) {
-        console.error('Errore copia:', err);
-        alert('Errore durante la copia. Seleziona manualmente il testo.');
-    } finally {
         document.body.removeChild(textArea);
+        // Ignora l'errore - se la copia è avvenuta, l'utente lo vedrà
     }
 }
 
