@@ -209,7 +209,7 @@ function addModificaClienteButton() {
     // Crea il bottone Esporta Dati Cliente
     const btnExport = document.createElement('button');
     btnExport.className = 'btn-modifica-cliente';
-    btnExport.onclick = showExportDataModal;
+    btnExport.setAttribute('onclick', 'showExportDataModal()');
     btnExport.innerHTML = '📇 Esporta Dati Cliente';
     
     // Aggiungi i bottoni al container
@@ -862,6 +862,12 @@ function exportVCard() {
 }
 
 console.log('✅ Clienti module caricato');
+
+// Esponi funzioni globalmente per onclick
+window.showExportDataModal = showExportDataModal;
+window.closeExportDataModal = closeExportDataModal;
+window.copyClientData = copyClientData;
+window.exportVCard = exportVCard;
 
 // =======================================================================
 // === MODAL MODIFICA TIMESHEET ===
