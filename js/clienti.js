@@ -702,6 +702,7 @@ function formatClientData(cliente) {
     
     // Contatti
     if (cliente.email) data.push(`📧 ${cliente.email}`);
+    if (cliente.cellulare) data.push(`📱 ${cliente.cellulare}`);
     if (cliente.telefono) data.push(`📞 ${cliente.telefono}`);
     if (cliente.pec) data.push(`PEC: ${cliente.pec}`);
     
@@ -802,7 +803,12 @@ function exportVCard() {
         vcard += `EMAIL;TYPE=INTERNET:${currentCliente.email}\n`;
     }
     
-    // Telefono
+    // Cellulare
+    if (currentCliente.cellulare) {
+        vcard += `TEL;TYPE=CELL:${currentCliente.cellulare}\n`;
+    }
+    
+    // Telefono fisso
     if (currentCliente.telefono) {
         vcard += `TEL;TYPE=WORK,VOICE:${currentCliente.telefono}\n`;
     }
