@@ -192,7 +192,12 @@
 <!-- TAB PROFORMA -->
 <div id="proforma-tab" class="tab-content">
     <div class="form-container">
-        <h1>Genera Proforma</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="margin: 0;">Genera Proforma</h1>
+            <button class="btn-secondary" onclick="showProformaStep(4)" style="font-size: 0.9em;">
+                📋 Gestione Proforma e Fatture
+            </button>
+        </div>
         
         <div id="proforma-info-box" class="info-box">
             <p>📄 Seleziona un cliente per iniziare</p>
@@ -291,11 +296,6 @@
     <button class="proforma-tab-btn" onclick="switchProformaView('fattura-diretta')">
       🧾 Fattura Diretta
     </button>
-      <div style="margin-top: 20px; text-align: center; padding-top: 20px; border-top: 1px solid #e9ecef;">
-  <button class="btn-secondary" onclick="showProformaStep(4)">
-    📋 Vai a Gestione Proforma e Fatture
-  </button>
-</div>
   </div>
   
   <!-- Vista Lista Proforma -->
