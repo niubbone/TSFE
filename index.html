@@ -192,12 +192,7 @@
 <!-- TAB PROFORMA -->
 <div id="proforma-tab" class="tab-content">
     <div class="form-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1 style="margin: 0;">Genera Proforma</h1>
-            <button class="btn-secondary" onclick="showProformaStep(4)" style="font-size: 0.9em;">
-                📋 Gestione Proforma e Fatture
-            </button>
-        </div>
+        <h1>Genera Proforma</h1>
         
         <div id="proforma-info-box" class="info-box">
             <p>📄 Seleziona un cliente per iniziare</p>
@@ -296,6 +291,11 @@
     <button class="proforma-tab-btn" onclick="switchProformaView('fattura-diretta')">
       🧾 Fattura Diretta
     </button>
+      <div style="margin-top: 20px; text-align: center; padding-top: 20px; border-top: 1px solid #e9ecef;">
+  <button class="btn-secondary" onclick="showProformaStep(4)">
+    📋 Vai a Gestione Proforma e Fatture
+  </button>
+</div>
   </div>
   
   <!-- Vista Lista Proforma -->
@@ -1187,5 +1187,58 @@ function toggleOptionalFields() {
     </div>
   </div>
 </div>
+
+<script>
+// Fix per mostrare step 4 - Espone funzione globalmente
+window.showProformaStep = function(stepNumber) {
+  console.log('📍 Switching to step:', stepNumber);
+  
+  // Rimuovi active da tutti gli step della tab proforma
+  document.querySelectorAll('#proforma-tab .step').forEach(step => {
+    step.classList.remove('active');
+  });
+  
+  // Aggiungi active allo step richiesto
+  const stepElement = document.getElementById('step-' + stepNumber);
+  
+  if (stepElement) {
+    stepElement.classList.add('active');
+    console.log('✅ Step', stepNumber, 'activated');
+    
+    // Se è step 4, inizializza vista proforma
+    if (stepNumber === 4) {
+      console.log('🔄 Initializing step 4...');
+      
+      // Attendi che le funzioni siano disponibili
+      setTimeout(() => {
+        // Popola filtro clienti se la funzione esiste
+        if (typeof populateProformaClientFilter === 'function') {
+          console.log('Populating client filter...');
+          populateProformaClientFilter();
+        } else {
+          console.warn('populateProformaClientFilter not available');
+        }
+        
+        // Carica lista proforma se la funzione esiste
+        if (typeof loadProformaList === 'function') {
+          console.log('Loading proforma list...');
+          loadProformaList();
+        } else {
+          console.warn('loadProformaList not available');
+        }
+      }, 100);
+    }
+  } else {
+    console.error('❌ Step', stepNumber, 'not found!');
+    console.log('Available steps:');
+    document.querySelectorAll('.step').forEach(s => {
+      console.log('  -', s.id);
+    });
+  }
+};
+
+console.log('✅ showProformaStep function registered globally');
+</script>
+
 </body>
 </html>
