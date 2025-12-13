@@ -278,6 +278,56 @@
                     <input type="checkbox" id="applica_quota"> 
                     <label for="applica_quota">Applica Contributo Integrativo 4%</label>
                 </div>
+
+                <!-- STEP 4: Lista Proforma + Fattura Diretta -->
+<div id="step-4" class="step">
+  <h3>📋 Gestione Proforma e Fatture</h3>
+  
+  <!-- Nav tabs interna -->
+  <div class="proforma-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e9ecef;">
+    <button class="proforma-tab-btn active" onclick="switchProformaView('lista')">
+      📄 Proforma Emesse
+    </button>
+    <button class="proforma-tab-btn" onclick="switchProformaView('fattura-diretta')">
+      🧾 Fattura Diretta
+    </button>
+  </div>
+  
+  <!-- Vista Lista Proforma -->
+  <div id="proforma-lista-view" class="proforma-view active">
+    <div class="filters-row">
+      <select id="filter-cliente-proforma" onchange="filterProformaList()">
+        <option value="">Tutti i clienti</option>
+      </select>
+      <button class="btn-secondary" onclick="loadProformaList()">🔄 Aggiorna</button>
+    </div>
+    
+    <div id="proforma-list-container">
+      <div class="loading">⏳ Caricamento proforma...</div>
+    </div>
+  </div>
+  
+  <!-- Vista Fattura Diretta -->
+  <div id="fattura-diretta-view" class="proforma-view" style="display: none;">
+    <div class="info-banner" style="margin-bottom: 20px;">
+      <strong>💡 Fattura Diretta:</strong> Genera fattura senza emettere proforma. 
+      I timesheet verranno marcati come "Fatturato" e la fattura sarà sincronizzata con "Fatture Smart".
+    </div>
+    
+    <div id="fattura-diretta-form">
+      <!-- Il form viene popolato dinamicamente quando si selezionano timesheet -->
+      <p style="text-align: center; color: #6c757d; padding: 40px;">
+        Seleziona i timesheet nello Step 2, poi scegli "Fattura Diretta" qui per procedere.
+      </p>
+    </div>
+  </div>
+  
+  <div style="margin-top: 20px; text-align: center;">
+    <button class="btn-secondary" onclick="showProformaStep(1)">
+      ← Torna a Selezione Cliente
+    </button>
+  </div>
+</div>
                 
                 <div class="totale-box">
                     <h3 style="margin-bottom: 15px !important;">Riepilogo Importi</h3>
@@ -314,6 +364,9 @@
                 <div class="btn-row">
                     <button onclick="showProformaStep(2)" class="btn-secondary">← Indietro</button>
                     <button id="generate-proforma-final-btn" onclick="generateProformaFinal()" class="btn-primary">📄 Genera e Invia Proforma</button>
+                    <button class="btn-secondary" onclick="openFatturaDirettaModal()" style="margin-left: 10px;">
+  🧾 Fattura Diretta (senza proforma)
+</button>
                 </div>
             </div>
             
@@ -1007,6 +1060,127 @@ function toggleOptionalFields() {
             </div>
         </div>
     </div>
+
+    <!-- Modal Emissione Fattura -->
+<div id="fatturaModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📄 Emetti Fattura</h3>
+      <button class="modal-close" onclick="closeFatturaModal()">&times;</button>
+    </div>
     
+    <div class="modal-body">
+      <p>Proforma: <strong id="fattura-proforma-number"></strong></p>
+      
+      <form id="fatturaForm" onsubmit="saveNumeroFattura(event)">
+        <input type="hidden" id="fattura-n-proforma-hidden">
+        
+        <div class="form-group">
+          <label>Numero Fattura *</label>
+          <input 
+            type="text" 
+            id="fattura-numero-input" 
+            required 
+            placeholder="es. 2024/123"
+            autocomplete="off"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="fattura-pagato-checkbox">
+            Fattura già pagata
+          </label>
+        </div>
+        
+        <button type="submit" class="btn-primary" id="fattura-submit-btn">
+          💾 Salva Fattura
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Fattura Diretta -->
+<div id="fatturaDirettaModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🧾 Genera Fattura Diretta</h3>
+      <button class="modal-close" onclick="closeFatturaDirettaModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="info-banner" style="margin-bottom: 20px;">
+        <p><strong>Cliente:</strong> <span id="fattura-diretta-cliente"></span></p>
+        <p><strong>Timesheet selezionati:</strong> <span id="fattura-diretta-count"></span></p>
+        <p><strong>Subtotale:</strong> <span id="fattura-diretta-subtotale"></span></p>
+      </div>
+      
+      <form id="fatturaDirettaForm" onsubmit="generateFatturaDirettaFinal(event)">
+        <div class="form-group">
+          <label>Numero Fattura *</label>
+          <input 
+            type="text" 
+            id="fattura-diretta-numero" 
+            required 
+            placeholder="es. 2024/123"
+            autocomplete="off"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label>Causale *</label>
+          <textarea 
+            id="fattura-diretta-causale" 
+            rows="3" 
+            required
+            placeholder="Descrizione servizi fatturati..."
+          ></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="fattura-diretta-quota">
+            Applica quota integrativa 4%
+          </label>
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="fattura-diretta-pagato">
+            Fattura già pagata
+          </label>
+        </div>
+        
+        <div class="totali-preview" style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Subtotale:</span>
+            <strong id="fd-preview-subtotale">€ 0,00</strong>
+          </div>
+          <div id="fd-quota-row" style="display: none; justify-content: space-between; margin-bottom: 8px;">
+            <span>Quota integrativa 4%:</span>
+            <span id="fd-preview-quota">€ 0,00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Imponibile:</span>
+            <span id="fd-preview-imponibile">€ 0,00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>IVA 22%:</span>
+            <span id="fd-preview-iva">€ 0,00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 2px solid #dee2e6;">
+            <strong>TOTALE:</strong>
+            <strong style="color: #28a745; font-size: 1.2em;" id="fd-preview-totale">€ 0,00</strong>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-primary" id="fattura-diretta-submit-btn">
+          🧾 Genera Fattura
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
 </body>
 </html>
