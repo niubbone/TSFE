@@ -194,7 +194,19 @@
     <div class="form-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 style="margin: 0;">Genera Proforma</h1>
-            <button class="btn-secondary" onclick="showProformaStep(4)" style="font-size: 0.9em;">
+            <button class="btn-secondary" onclick="
+                document.querySelectorAll('#proforma-tab .step').forEach(function(s) { s.classList.remove('active'); });
+                var step4 = document.getElementById('step-4');
+                if (step4) {
+                    step4.classList.add('active');
+                    setTimeout(function() {
+                        if (typeof loadProformaList === 'function') loadProformaList();
+                        if (typeof populateProformaClientFilter === 'function') populateProformaClientFilter();
+                    }, 100);
+                } else {
+                    alert('Errore: Step 4 non trovato!');
+                }
+            " style="font-size: 0.9em;">
                 📋 Gestione Proforma e Fatture
             </button>
         </div>
