@@ -255,3 +255,109 @@
     width: 100%;
   }
 }
+/* =======================================================================
+   STILI AGGIUNTIVI PER FATTURA DIRETTA E TAB PROFORMA
+   Da aggiungere a proforma-list.css OPPURE in <style> in index.html
+   ======================================================================= */
+
+/* Tab buttons in step 4 */
+.proforma-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.proforma-tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.proforma-tab-btn:hover {
+  color: #495057;
+  background: #f8f9fa;
+}
+
+.proforma-tab-btn.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+}
+
+/* Viste proforma */
+.proforma-view {
+  display: none;
+}
+
+.proforma-view.active {
+  display: block;
+}
+
+/* Totali preview fattura diretta */
+.totali-preview {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+.totali-preview > div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+
+.totali-preview > div:last-child {
+  padding-top: 8px;
+  border-top: 2px solid #dee2e6;
+  margin-top: 8px;
+}
+
+/* Modal fattura diretta specifico */
+#fatturaDirettaModal .modal-content {
+  max-width: 600px;
+}
+
+#fatturaDirettaModal .info-banner p {
+  margin: 5px 0;
+  font-size: 0.95em;
+}
+
+#fatturaDirettaModal .info-banner strong {
+  color: #495057;
+}
+
+#fatturaDirettaModal .info-banner span {
+  color: #007bff;
+  font-weight: 600;
+}
+
+/* Checkbox in form */
+.form-group label input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .proforma-tabs {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .proforma-tab-btn {
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .proforma-tab-btn.active {
+    border-left: 3px solid #007bff;
+    border-bottom: 1px solid #dee2e6;
+  }
+}
