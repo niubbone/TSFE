@@ -197,18 +197,18 @@
             <button class="btn-secondary" onclick="
                 document.querySelectorAll('#proforma-tab .step').forEach(function(s) { 
                     s.classList.remove('active'); 
-                    s.style.display = 'none';
+                    s.style.cssText = 'display: none !important';
                 });
                 var step4 = document.getElementById('step-4');
                 if (step4) {
                     step4.classList.add('active');
-                    step4.style.display = 'block';
+                    step4.style.cssText = 'display: block !important';
                     setTimeout(function() {
                         if (typeof loadProformaList === 'function') loadProformaList();
                         if (typeof populateProformaClientFilter === 'function') populateProformaClientFilter();
                     }, 100);
                 } else {
-                    alert('Errore: Step 4 non trovato!');
+                    alert('Step 4 non trovato!');
                 }
             " style="font-size: 0.9em;">
                 📋 Gestione Proforma e Fatture
