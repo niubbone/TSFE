@@ -983,6 +983,28 @@
 <script src="js/clienti.js"></script>
 <script src="js/proforma-list.js"></script>
 
+<!-- Inizializza Gestione Proforma al caricamento pagina -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Aspetta che tutte le funzioni siano caricate
+    setTimeout(function() {
+        console.log('🔄 Inizializzazione Gestione Proforma...');
+        
+        // Popola filtro clienti
+        if (typeof populateProformaClientFilter === 'function') {
+            populateProformaClientFilter();
+            console.log('✅ Filtro clienti popolato');
+        }
+        
+        // Carica lista proforma
+        if (typeof loadProformaList === 'function') {
+            loadProformaList();
+            console.log('✅ Lista proforma caricata');
+        }
+    }, 500);
+});
+</script>
+
 <!-- SCRIPT PER TOGGLE CAMPI OPZIONALI -->
 <script>
 function toggleOptionalFields() {
