@@ -301,6 +301,49 @@
                 </div>
 
                 <!-- STEP 4: Lista Proforma + Fattura Diretta -->
+                
+                <div class="totale-box">
+                    <h3 style="margin-bottom: 15px !important;">Riepilogo Importi</h3>
+                    <div class="totale-row">
+                        <span>Totale compensi e spese:</span>
+                        <span id="totale-subtotale">€ 0.00</span>
+                    </div>
+                    <div class="totale-row" id="totale-quota-row" style="display: none;">
+                        <span>Contributo integrativo (4%):</span>
+                        <span id="totale-quota">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Totale imponibile IVA:</span>
+                        <span id="totale-imponibile">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Ritenuta d'acconto (20%):</span>
+                        <span id="totale-ritenuta">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>IVA (22%):</span>
+                        <span id="totale-iva">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Totale lordo:</span>
+                        <span id="totale-lordo">€ 0.00</span>
+                    </div>
+                    <div class="totale-row final">
+                        <span>NETTO DA LIQUIDARE:</span>
+                        <span id="totale-netto">€ 0.00</span>
+                    </div>
+                </div>
+                
+                <div class="btn-row">
+                    <button onclick="showProformaStep(2)" class="btn-secondary">← Indietro</button>
+                    <button id="generate-proforma-final-btn" onclick="generateProformaFinal()" class="btn-primary">📄 Genera e Invia Proforma</button>
+                    <button class="btn-secondary" onclick="openFatturaDirettaModal()" style="margin-left: 10px;">
+  🧾 Fattura Diretta (senza proforma)
+</button>
+                </div>
+            </div>
+            
+        </div>
 <div id="gestione-proforma-section" class="proforma-management-section">
   <h3>📋 Gestione Proforma e Fatture</h3>
   
@@ -349,49 +392,6 @@
     </button>
   </div>
 </div>
-                
-                <div class="totale-box">
-                    <h3 style="margin-bottom: 15px !important;">Riepilogo Importi</h3>
-                    <div class="totale-row">
-                        <span>Totale compensi e spese:</span>
-                        <span id="totale-subtotale">€ 0.00</span>
-                    </div>
-                    <div class="totale-row" id="totale-quota-row" style="display: none;">
-                        <span>Contributo integrativo (4%):</span>
-                        <span id="totale-quota">€ 0.00</span>
-                    </div>
-                    <div class="totale-row">
-                        <span>Totale imponibile IVA:</span>
-                        <span id="totale-imponibile">€ 0.00</span>
-                    </div>
-                    <div class="totale-row">
-                        <span>Ritenuta d'acconto (20%):</span>
-                        <span id="totale-ritenuta">€ 0.00</span>
-                    </div>
-                    <div class="totale-row">
-                        <span>IVA (22%):</span>
-                        <span id="totale-iva">€ 0.00</span>
-                    </div>
-                    <div class="totale-row">
-                        <span>Totale lordo:</span>
-                        <span id="totale-lordo">€ 0.00</span>
-                    </div>
-                    <div class="totale-row final">
-                        <span>NETTO DA LIQUIDARE:</span>
-                        <span id="totale-netto">€ 0.00</span>
-                    </div>
-                </div>
-                
-                <div class="btn-row">
-                    <button onclick="showProformaStep(2)" class="btn-secondary">← Indietro</button>
-                    <button id="generate-proforma-final-btn" onclick="generateProformaFinal()" class="btn-primary">📄 Genera e Invia Proforma</button>
-                    <button class="btn-secondary" onclick="openFatturaDirettaModal()" style="margin-left: 10px;">
-  🧾 Fattura Diretta (senza proforma)
-</button>
-                </div>
-            </div>
-            
-        </div>
     </div>
 </div>
 
