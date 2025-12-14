@@ -436,3 +436,8 @@ document.addEventListener('DOMContentLoaded', function() {
     quotaCheckbox.addEventListener('change', updateFatturaDirettaTotals);
   }
 });
+// Esponi funzioni globalmente per onclick
+window.switchProformaView = switchProformaView;
+window.openFatturaDirettaModal = openFatturaDirettaModal;
+window.closeFatturaDirettaModal = closeFatturaDirettaModal;
+window.generateFatturaDirettaFinal = generateFatturaDirettaFinal;
