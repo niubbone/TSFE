@@ -557,3 +557,136 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// =======================================================================
+// === 🆕 GENERA PROFORMA DA PACCHETTO - FRONTEND ===
+// =======================================================================
+// AGGIUNGI queste funzioni in vendite.js
+
+/**
+ * Mostra modal per generare proforma da pacchetto appena creato
+ * @param {object} pacchettoData - Dati del pacchetto creato
+ */
+function showProformaFromPacchettoModal(pacchettoData) {
+    const modalHTML = `
+        <div id="proformaFromPacchettoModal" class="modal active">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2>📄 Genera Proforma</h2>
+                    <button class="close-btn" onclick="closeProformaFromPacchettoModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-banner" style="margin-bottom: 20px;">
+                        ✅ Pacchetto <strong>${pacchettoData.id_pacchetto}</strong> creato con successo!
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <div><strong>Cliente:</strong> ${pacchettoData.cliente}</div>
+                        <div><strong>Ore:</strong> ${pacchettoData.ore_totali}h</div>
+                        <div><strong>Importo:</strong> € ${pacchettoData.importo}</div>
+                        <div><strong>Descrizione:</strong> ${pacchettoData.descrizione || '-'}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="applicaQuotaPacchetto" style="margin-right: 10px;">
+                            <span>Applica quota integrativa 4%</span>
+                        </label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="btn-secondary" onclick="closeProformaFromPacchettoModal()">
+                            Salta
+                        </button>
+                        <button class="btn-primary" onclick="generateProformaFromPacchetto('${pacchettoData.id_pacchetto}')">
+                            📄 Genera Proforma
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Rimuovi modal esistente se presente
+    const existingModal = document.getElementById('proformaFromPacchettoModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Aggiungi nuovo modal
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+/**
+ * Chiude modal proforma pacchetto
+ */
+function closeProformaFromPacchettoModal() {
+    const modal = document.getElementById('proformaFromPacchettoModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+/**
+ * Genera proforma da pacchetto
+ * @param {string} idPacchetto - ID del pacchetto
+ */
+async function generateProformaFromPacchetto(idPacchetto) {
+    const applicaQuota = document.getElementById('applicaQuotaPacchetto')?.checked || false;
+    const btn = event.target;
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = 'Generazione in corso...';
+    
+    try {
+        const response = await fetch(`${API_URL}?action=generate_proforma_pacchetto&id_pacchetto=${encodeURIComponent(idPacchetto)}&applica_quota=${applicaQuota}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`✅ Proforma ${result.proforma_number} generata con successo!\n\nTotale: € ${result.totale}`);
+            closeProformaFromPacchettoModal();
+            
+            // Opzionale: Apri PDF in nuova tab
+            if (result.pdf_url) {
+                const openPDF = confirm('Vuoi aprire la proforma generata?');
+                if (openPDF) {
+                    window.open(result.pdf_url, '_blank');
+                }
+            }
+        } else {
+            throw new Error(result.error || 'Errore sconosciuto');
+        }
+        
+    } catch (error) {
+        console.error('Errore generazione proforma:', error);
+        alert('❌ Errore: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
+}
+
+// =======================================================================
+// === MODIFICA FUNZIONE submitVendita ESISTENTE ===
+// =======================================================================
+// SOSTITUISCI il blocco "if (result.success)" con questo:
+
+if (result.success) {
+    // Se è un pacchetto, mostra modal per generare proforma
+    if (tipo === 'pacchetto') {
+        closeVenditaModal();
+        document.getElementById('venditaForm').reset();
+        
+        // Mostra modal proforma
+        showProformaFromPacchettoModal(result);
+        
+        loadScadenze(); // Refresh lista scadenze
+    } else {
+        // Per canoni e firme, comportamento normale
+        alert('✅ Vendita creata con successo!');
+        closeVenditaModal();
+        document.getElementById('venditaForm').reset();
+        loadScadenze();
+    }
+}
