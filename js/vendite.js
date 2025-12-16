@@ -62,26 +62,22 @@ async function loadVenditaClienti() {
         select.innerHTML = '<option value="">Seleziona cliente...</option>';
         
         if (clientsList.length > 0) {
-            // Ordina alfabeticamente
+            // ✅ FIX: Ordina alfabeticamente gestendo oggetti {name: "..."}
             clientsList.sort((a, b) => {
-                const nameA = (typeof a === 'string' ? a : a.name || '').toLowerCase();
-                const nameB = (typeof b === 'string' ? b : b.name || '').toLowerCase();
+                // Estrai il nome da stringa o oggetto
+                const nameA = (typeof a === 'string' ? a : (a.name || '')).toLowerCase();
+                const nameB = (typeof b === 'string' ? b : (b.name || '')).toLowerCase();
                 return nameA.localeCompare(nameB);
             });
             
             clientsList.forEach(cliente => {
                 const option = document.createElement('option');
-                // Gestisci sia stringhe che oggetti
-                if (typeof cliente === 'string') {
-                    option.value = cliente;
-                    option.textContent = cliente;
-                } else if (cliente && cliente.name) {
-                    option.value = cliente.name;
-                    option.textContent = cliente.name;
-                } else {
-                    option.value = JSON.stringify(cliente);
-                    option.textContent = cliente.toString();
-                }
+                
+                // ✅ FIX: Gestisci correttamente oggetto {name: "..."}
+                const clienteName = typeof cliente === 'string' ? cliente : (cliente.name || '');
+                
+                option.value = clienteName;
+                option.textContent = clienteName;
                 select.appendChild(option);
             });
         } else {
