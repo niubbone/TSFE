@@ -1,35 +1,23 @@
 // ========================================
-// VENDITE TAB - JavaScript
+// VENDITE TAB - JavaScript  
 // ========================================
 
-// Importa configurazione (se disponibile come modulo)
-// In alternativa, accede direttamente a window.CONFIG se esportato
 const getAPIUrl = () => {
-    // Prova a usare CONFIG se disponibile
     if (typeof CONFIG !== 'undefined' && CONFIG.APPS_SCRIPT_URL) {
         return CONFIG.APPS_SCRIPT_URL;
     }
-    // Fallback: URL hardcoded
     return 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec';
 };
 
 const API_URL = getAPIUrl();
-
 let scadenzeData = null;
 
-/**
- * Inizializza la tab Vendite
- * Chiamata quando l'utente clicca sulla tab
- */
 function initVenditeTab() {
     loadVenditaClienti();
     loadScadenze();
     setVenditaDefaultDate();
 }
 
-/**
- * Imposta la data di default (oggi) nel form vendita
- */
 function setVenditaDefaultDate() {
     const today = new Date().toISOString().split('T')[0];
     const dateInput = document.getElementById('venditaDataInizio');
@@ -38,10 +26,6 @@ function setVenditaDefaultDate() {
     }
 }
 
-/**
- * Carica la lista clienti nel dropdown vendita
- * SEMPRE fresca dal backend (non usa cache window.clients)
- */
 async function loadVenditaClienti() {
     try {
         const select = document.getElementById('venditaCliente');
@@ -49,7 +33,6 @@ async function loadVenditaClienti() {
         
         select.innerHTML = '<option value="">Caricamento...</option>';
         
-        // ✅ RICARICA SEMPRE dal backend invece di usare window.clients
         const response = await fetch(`${API_URL}?action=get_data`);
         const result = await response.json();
         
@@ -62,9 +45,7 @@ async function loadVenditaClienti() {
         select.innerHTML = '<option value="">Seleziona cliente...</option>';
         
         if (clientsList.length > 0) {
-            // ✅ FIX: Ordina alfabeticamente gestendo oggetti {name: "..."}
             clientsList.sort((a, b) => {
-                // Estrai il nome da stringa o oggetto
                 const nameA = (typeof a === 'string' ? a : (a.name || '')).toLowerCase();
                 const nameB = (typeof b === 'string' ? b : (b.name || '')).toLowerCase();
                 return nameA.localeCompare(nameB);
@@ -72,10 +53,7 @@ async function loadVenditaClienti() {
             
             clientsList.forEach(cliente => {
                 const option = document.createElement('option');
-                
-                // ✅ FIX: Gestisci correttamente oggetto {name: "..."}
                 const clienteName = typeof cliente === 'string' ? cliente : (cliente.name || '');
-                
                 option.value = clienteName;
                 option.textContent = clienteName;
                 select.appendChild(option);
@@ -92,9 +70,6 @@ async function loadVenditaClienti() {
     }
 }
 
-/**
- * Carica le scadenze dal backend
- */
 async function loadScadenze() {
     const container = document.getElementById('scadenzeContainer');
     if (!container) return;
@@ -102,7 +77,6 @@ async function loadScadenze() {
     container.innerHTML = '<div class="loading-scadenze">Caricamento scadenze...</div>';
     
     try {
-        // Usa l'API_URL globale già definito in index.html
         const response = await fetch(`${API_URL}?action=get_scadenze&giorni=90`);
         const result = await response.json();
         
@@ -125,14 +99,10 @@ async function loadScadenze() {
     }
 }
 
-/**
- * Renderizza la lista scadenze
- */
 function renderScadenze(data) {
     const container = document.getElementById('scadenzeContainer');
     if (!container) return;
     
-    // Separa canoni scaduti da altre scadenze
     const canoniScaduti = data.tutti.filter(p => 
         p.tipoProdotto === 'CANONE' && 
         p.giorniMancanti < 0 && 
@@ -146,7 +116,6 @@ function renderScadenze(data) {
     container.innerHTML = '';
     container.className = 'scadenze-list';
     
-    // Sezione CANONI DA RINNOVARE (persistente)
     if (canoniScaduti.length > 0) {
         const sezioneCanoni = document.createElement('div');
         sezioneCanoni.style.marginBottom = '30px';
@@ -158,14 +127,13 @@ function renderScadenze(data) {
         sezioneCanoni.appendChild(titleCanoni);
         
         canoniScaduti.forEach(canone => {
-            const card = createScadenzaCard(canone, true); // true = canone scaduto
+            const card = createScadenzaCard(canone, true);
             sezioneCanoni.appendChild(card);
         });
         
         container.appendChild(sezioneCanoni);
     }
     
-    // Sezione PROSSIME SCADENZE
     if (altreScadenze.length > 0) {
         const sezioneScadenze = document.createElement('div');
         
@@ -183,7 +151,6 @@ function renderScadenze(data) {
         container.appendChild(sezioneScadenze);
     }
     
-    // Nessun prodotto
     if (canoniScaduti.length === 0 && altreScadenze.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -195,11 +162,6 @@ function renderScadenze(data) {
     }
 }
 
-/**
- * Crea una card per una singola scadenza
- * @param {object} prodotto - Dati prodotto
- * @param {boolean} isCanoneScaduto - Se true, è un canone già scaduto
- */
 function createScadenzaCard(prodotto, isCanoneScaduto = false) {
     const card = document.createElement('div');
     
@@ -224,7 +186,6 @@ function createScadenzaCard(prodotto, isCanoneScaduto = false) {
         dettagli = ` • ${prodotto.tipo}`;
     }
     
-    // Testo giorni mancanti
     let giorniText = '';
     if (isCanoneScaduto) {
         const giorniPassati = Math.abs(prodotto.giorniMancanti);
@@ -252,25 +213,18 @@ function createScadenzaCard(prodotto, isCanoneScaduto = false) {
     return card;
 }
 
-/**
- * Apre il modal per nuova vendita
- * @param {string} tipo - 'pacchetto', 'canone' o 'firma'
- */
 function openVenditaModal(tipo) {
     const modal = document.getElementById('venditaModal');
     const form = document.getElementById('venditaForm');
     
     if (!modal || !form) return;
     
-    // Reset form
     form.reset();
     setVenditaDefaultDate();
     
-    // Imposta tipo
     const tipoInput = document.getElementById('tipoVendita');
     if (tipoInput) tipoInput.value = tipo;
     
-    // Configura modal in base al tipo
     const modalTitle = document.getElementById('modalVenditaTitle');
     const tipoFirmaGroup = document.getElementById('venditaTipoFirmaGroup');
     const oreGroup = document.getElementById('venditaOreGroup');
@@ -320,9 +274,6 @@ function openVenditaModal(tipo) {
     modal.classList.add('active');
 }
 
-/**
- * Chiude il modal vendita
- */
 function closeVenditaModal() {
     const modal = document.getElementById('venditaModal');
     if (modal) {
@@ -330,9 +281,6 @@ function closeVenditaModal() {
     }
 }
 
-/**
- * Submit form vendita
- */
 async function submitVendita(e) {
     e.preventDefault();
     
@@ -354,7 +302,6 @@ async function submitVendita(e) {
         return;
     }
     
-    // Validazione ore per pacchetto
     if (tipo === 'pacchetto' && (!oreTotali || oreTotali <= 0)) {
         alert('⚠️ Inserisci il numero di ore del pacchetto');
         return;
@@ -386,10 +333,18 @@ async function submitVendita(e) {
         const result = await response.json();
         
         if (result.success) {
-            alert('✅ Vendita creata con successo!');
-            closeVenditaModal();
-            document.getElementById('venditaForm').reset();
-            loadScadenze(); // Refresh lista scadenze
+            // ✅ FIX: Gestisci pacchetto con modal proforma
+            if (tipo === 'pacchetto') {
+                closeVenditaModal();
+                document.getElementById('venditaForm').reset();
+                showProformaFromPacchettoModal(result);
+                loadScadenze();
+            } else {
+                alert('✅ Vendita creata con successo!');
+                closeVenditaModal();
+                document.getElementById('venditaForm').reset();
+                loadScadenze();
+            }
         } else {
             throw new Error(result.error || 'Errore sconosciuto');
         }
@@ -403,22 +358,15 @@ async function submitVendita(e) {
     }
 }
 
-/**
- * Apre il modal per rinnovo prodotto
- * @param {string} id - ID prodotto
- * @param {string} tipo - 'CANONE' o 'FIRMA'
- */
 function openRinnovoModal(id, tipo) {
     const modal = document.getElementById('rinnovoModal');
     if (!modal) return;
     
-    // Imposta valori hidden
     const rinnovoIdInput = document.getElementById('rinnovoId');
     const rinnovoTipoInput = document.getElementById('rinnovoTipo');
     if (rinnovoIdInput) rinnovoIdInput.value = id;
     if (rinnovoTipoInput) rinnovoTipoInput.value = tipo;
     
-    // Trova il prodotto nei dati
     if (!scadenzeData || !scadenzeData.tutti) {
         alert('⚠️ Dati scadenze non disponibili');
         return;
@@ -437,7 +385,6 @@ function openRinnovoModal(id, tipo) {
         return;
     }
     
-    // Popola dati
     const clienteNome = document.getElementById('rinnovoClienteNome');
     const dettagli = document.getElementById('rinnovoDettagli');
     const tipoFirmaGroup = document.getElementById('rinnovoTipoFirmaGroup');
@@ -469,9 +416,6 @@ function openRinnovoModal(id, tipo) {
     modal.classList.add('active');
 }
 
-/**
- * Chiude il modal rinnovo
- */
 function closeRinnovoModal() {
     const modal = document.getElementById('rinnovoModal');
     if (modal) {
@@ -479,9 +423,6 @@ function closeRinnovoModal() {
     }
 }
 
-/**
- * Submit form rinnovo
- */
 async function submitRinnovo(e) {
     e.preventDefault();
     
@@ -519,7 +460,7 @@ async function submitRinnovo(e) {
         if (result.success) {
             alert('✅ Rinnovo completato con successo!');
             closeRinnovoModal();
-            loadScadenze(); // Refresh lista scadenze
+            loadScadenze();
         } else {
             throw new Error(result.error || 'Errore sconosciuto');
         }
@@ -533,40 +474,10 @@ async function submitRinnovo(e) {
     }
 }
 
-/**
- * Event listeners per chiudere modal cliccando fuori
- */
-document.addEventListener('DOMContentLoaded', function() {
-    // Chiudi modal vendita
-    const venditaModal = document.getElementById('venditaModal');
-    if (venditaModal) {
-        venditaModal.addEventListener('click', function(e) {
-            if (e.target === venditaModal) {
-                closeVenditaModal();
-            }
-        });
-    }
-    
-    // Chiudi modal rinnovo
-    const rinnovoModal = document.getElementById('rinnovoModal');
-    if (rinnovoModal) {
-        rinnovoModal.addEventListener('click', function(e) {
-            if (e.target === rinnovoModal) {
-                closeRinnovoModal();
-            }
-        });
-    }
-});
-
 // =======================================================================
-// === 🆕 GENERA PROFORMA DA PACCHETTO - FRONTEND ===
+// === 🆕 GENERA PROFORMA DA PACCHETTO ===
 // =======================================================================
-// AGGIUNGI queste funzioni in vendite.js
 
-/**
- * Mostra modal per generare proforma da pacchetto appena creato
- * @param {object} pacchettoData - Dati del pacchetto creato
- */
 function showProformaFromPacchettoModal(pacchettoData) {
     const modalHTML = `
         <div id="proformaFromPacchettoModal" class="modal active">
@@ -607,19 +518,14 @@ function showProformaFromPacchettoModal(pacchettoData) {
         </div>
     `;
     
-    // Rimuovi modal esistente se presente
     const existingModal = document.getElementById('proformaFromPacchettoModal');
     if (existingModal) {
         existingModal.remove();
     }
     
-    // Aggiungi nuovo modal
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-/**
- * Chiude modal proforma pacchetto
- */
 function closeProformaFromPacchettoModal() {
     const modal = document.getElementById('proformaFromPacchettoModal');
     if (modal) {
@@ -627,10 +533,6 @@ function closeProformaFromPacchettoModal() {
     }
 }
 
-/**
- * Genera proforma da pacchetto
- * @param {string} idPacchetto - ID del pacchetto
- */
 async function generateProformaFromPacchetto(idPacchetto) {
     const applicaQuota = document.getElementById('applicaQuotaPacchetto')?.checked || false;
     const btn = event.target;
@@ -647,7 +549,6 @@ async function generateProformaFromPacchetto(idPacchetto) {
             alert(`✅ Proforma ${result.proforma_number} generata con successo!\n\nTotale: € ${result.totale}`);
             closeProformaFromPacchettoModal();
             
-            // Opzionale: Apri PDF in nuova tab
             if (result.pdf_url) {
                 const openPDF = confirm('Vuoi aprire la proforma generata?');
                 if (openPDF) {
@@ -667,26 +568,22 @@ async function generateProformaFromPacchetto(idPacchetto) {
     }
 }
 
-// =======================================================================
-// === MODIFICA FUNZIONE submitVendita ESISTENTE ===
-// =======================================================================
-// SOSTITUISCI il blocco "if (result.success)" con questo:
-
-if (result.success) {
-    // Se è un pacchetto, mostra modal per generare proforma
-    if (tipo === 'pacchetto') {
-        closeVenditaModal();
-        document.getElementById('venditaForm').reset();
-        
-        // Mostra modal proforma
-        showProformaFromPacchettoModal(result);
-        
-        loadScadenze(); // Refresh lista scadenze
-    } else {
-        // Per canoni e firme, comportamento normale
-        alert('✅ Vendita creata con successo!');
-        closeVenditaModal();
-        document.getElementById('venditaForm').reset();
-        loadScadenze();
+document.addEventListener('DOMContentLoaded', function() {
+    const venditaModal = document.getElementById('venditaModal');
+    if (venditaModal) {
+        venditaModal.addEventListener('click', function(e) {
+            if (e.target === venditaModal) {
+                closeVenditaModal();
+            }
+        });
     }
-}
+    
+    const rinnovoModal = document.getElementById('rinnovoModal');
+    if (rinnovoModal) {
+        rinnovoModal.addEventListener('click', function(e) {
+            if (e.target === rinnovoModal) {
+                closeRinnovoModal();
+            }
+        });
+    }
+});
