@@ -40,18 +40,35 @@ function setVenditaDefaultDate() {
 
 /**
  * Carica la lista clienti nel dropdown vendita
+ * SEMPRE fresca dal backend (non usa cache window.clients)
  */
 async function loadVenditaClienti() {
     try {
         const select = document.getElementById('venditaCliente');
         if (!select) return;
         
+        select.innerHTML = '<option value="">Caricamento...</option>';
+        
+        // ✅ RICARICA SEMPRE dal backend invece di usare window.clients
+        const response = await fetch(`${API_URL}?action=get_data`);
+        const result = await response.json();
+        
+        if (!result || !result.clients) {
+            throw new Error('Nessun dato clienti disponibile');
+        }
+        
+        const clientsList = result.clients;
+        
         select.innerHTML = '<option value="">Seleziona cliente...</option>';
         
-        // Usa la lista clienti già caricata globalmente (window.clients da config.js)
-        const clientsList = window.clients || [];
-        
         if (clientsList.length > 0) {
+            // Ordina alfabeticamente
+            clientsList.sort((a, b) => {
+                const nameA = (typeof a === 'string' ? a : a.name || '').toLowerCase();
+                const nameB = (typeof b === 'string' ? b : b.name || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+            
             clientsList.forEach(cliente => {
                 const option = document.createElement('option');
                 // Gestisci sia stringhe che oggetti
@@ -72,6 +89,10 @@ async function loadVenditaClienti() {
         }
     } catch (error) {
         console.error('Errore caricamento clienti vendite:', error);
+        const select = document.getElementById('venditaCliente');
+        if (select) {
+            select.innerHTML = '<option value="">Errore caricamento</option>';
+        }
     }
 }
 
