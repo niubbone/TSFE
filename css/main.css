@@ -166,3 +166,205 @@ button:disabled {
     font-size: 48px;
     margin-bottom: 15px !important;
 }
+/* =======================================================================
+   CSS PER LISTA PROFORMA - DA AGGIUNGERE A main.css o proforma.css
+   ======================================================================= */
+
+/* Container lista proforma */
+#proforma-lista-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+/* Card singola proforma */
+.proforma-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
+}
+
+.proforma-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Header card */
+.proforma-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.proforma-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.2em;
+  color: #1a73e8;
+}
+
+.proforma-cliente {
+  margin: 0;
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Badge stato */
+.badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-info {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-warning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.badge-success {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+/* Body card */
+.proforma-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.proforma-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.proforma-row span {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.proforma-row strong {
+  color: #333;
+  font-size: 0.95em;
+}
+
+/* Footer card */
+.proforma-footer {
+  display: flex;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.proforma-footer .btn-secondary,
+.proforma-footer .btn-primary {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.9em;
+}
+
+/* Loading e empty state */
+.loading, .error-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state-icon {
+  font-size: 4em;
+  margin-bottom: 15px;
+  opacity: 0.3;
+}
+
+.empty-state p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.empty-state strong {
+  color: #333;
+  font-size: 1.1em;
+}
+
+/* Filtri */
+.proforma-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.proforma-filters label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.proforma-filters select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+/* Modal emetti fattura */
+#emettiFatturaModal .modal-content {
+  max-width: 500px;
+}
+
+#emettiFatturaModal .form-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#emettiFatturaModal .form-row:last-child {
+  border-bottom: none;
+}
+
+#emettiFatturaModal .form-row span {
+  color: #666;
+}
+
+#emettiFatturaModal .form-row strong {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #proforma-lista-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .proforma-footer {
+    flex-direction: column;
+  }
+  
+  .proforma-filters {
+    flex-direction: column;
+  }
+}
