@@ -286,6 +286,237 @@ function switchProformaView(view) {
   }
 }
 
+
+/**
+ * Popola il filtro clienti nel tab lista proforma
+ */
+function populateProformaClientFilter() {
+  const select = document.getElementById('proforma-filtro-cliente');
+  if (!select) return;
+  
+  select.innerHTML = '<option value="">Tutti i clienti</option>';
+  
+  // Usa lista clienti globale
+  const clientsList = window.clients || [];
+  
+  clientsList.forEach(cliente => {
+    const option = document.createElement('option');
+    if (typeof cliente === 'string') {
+      option.value = cliente;
+      option.textContent = cliente;
+    } else if (cliente && cliente.name) {
+      option.value = cliente.name;
+      option.textContent = cliente.name;
+    }
+    select.appendChild(option);
+  });
+}
+
+/**
+ * Carica lista proforma da backend
+ */
+async function loadProformaList() {
+  const container = document.getElementById('proforma-lista-container');
+  const filtroCliente = document.getElementById('proforma-filtro-cliente')?.value || '';
+  
+  if (!container) return;
+  
+  container.innerHTML = '<div class="loading">Caricamento proforma...</div>';
+  
+  try {
+    // Costruisci URL con filtro cliente opzionale
+    let url = `${API_URL}?action=get_proforma_list`;
+    if (filtroCliente) {
+      url += `&cliente=${encodeURIComponent(filtroCliente)}`;
+    }
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Errore caricamento proforma');
+    }
+    
+    const proformaList = result.data || [];
+    
+    // Render lista
+    if (proformaList.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📄</div>
+          <p><strong>Nessuna proforma trovata</strong></p>
+          <p>Non ci sono proforma${filtroCliente ? ' per questo cliente' : ' nel sistema'}</p>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = proformaList.map(proforma => {
+      // Determina stato e badge
+      let statoBadge = '';
+      let statoClass = '';
+      
+      if (proforma.stato === 'Pagata') {
+        statoBadge = '✅ Pagata';
+        statoClass = 'badge-success';
+      } else if (proforma.stato === 'Fatturata') {
+        statoBadge = '📋 Fatturata';
+        statoClass = 'badge-warning';
+      } else {
+        statoBadge = '📄 Proforma';
+        statoClass = 'badge-info';
+      }
+      
+      // Pulsante azione
+      let actionBtn = '';
+      if (proforma.stato === 'Proforma') {
+        actionBtn = `
+          <button class="btn-primary" onclick="openEmettiFatturaModal('${proforma.nProforma}', '${proforma.cliente}', ${proforma.importo})">
+            Emetti Fattura
+          </button>
+        `;
+      }
+      
+      return `
+        <div class="proforma-card">
+          <div class="proforma-header">
+            <div>
+              <h3>Proforma ${proforma.nProforma}</h3>
+              <p class="proforma-cliente">${proforma.cliente}</p>
+            </div>
+            <span class="badge ${statoClass}">${statoBadge}</span>
+          </div>
+          <div class="proforma-body">
+            <div class="proforma-row">
+              <span>Data emissione:</span>
+              <strong>${proforma.data || 'N/D'}</strong>
+            </div>
+            <div class="proforma-row">
+              <span>Importo:</span>
+              <strong>${formatCurrency(proforma.importo)}</strong>
+            </div>
+            <div class="proforma-row">
+              <span>Causale:</span>
+              <strong>${proforma.causale || 'N/D'}</strong>
+            </div>
+            ${proforma.nFattura ? `
+              <div class="proforma-row">
+                <span>N. Fattura:</span>
+                <strong>${proforma.nFattura}</strong>
+              </div>
+            ` : ''}
+            ${proforma.pagato === 'SI' ? `
+              <div class="proforma-row">
+                <span>Pagamento:</span>
+                <strong style="color: var(--success-color);">✅ Incassato</strong>
+              </div>
+            ` : ''}
+          </div>
+          <div class="proforma-footer">
+            <a href="${proforma.pdfUrl}" target="_blank" class="btn-secondary">
+              📄 Visualizza PDF
+            </a>
+            ${actionBtn}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+  } catch (error) {
+    console.error('Errore loadProformaList:', error);
+    container.innerHTML = `
+      <div class="error-state">
+        <p style="color: var(--error-color);">❌ Errore: ${error.message}</p>
+        <button class="btn-secondary" onclick="loadProformaList()">Riprova</button>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Apre modal per emettere fattura da proforma
+ */
+function openEmettiFatturaModal(nProforma, cliente, importo) {
+  const modal = document.getElementById('emettiFatturaModal');
+  if (!modal) {
+    alert('⚠️ Modal non trovato nel DOM');
+    return;
+  }
+  
+  // Popola dati
+  document.getElementById('fattura-nproforma').textContent = nProforma;
+  document.getElementById('fattura-cliente').textContent = cliente;
+  document.getElementById('fattura-importo').textContent = formatCurrency(importo);
+  
+  // Reset form
+  document.getElementById('fattura-numero').value = '';
+  document.getElementById('fattura-pagato').checked = false;
+  
+  modal.classList.add('active');
+}
+
+/**
+ * Chiude modal emetti fattura
+ */
+function closeEmettiFatturaModal() {
+  const modal = document.getElementById('emettiFatturaModal');
+  if (modal) modal.classList.remove('active');
+}
+
+/**
+ * Submit emissione fattura
+ */
+async function submitEmettiFattura(e) {
+  e.preventDefault();
+  
+  const nProforma = document.getElementById('fattura-nproforma').textContent;
+  const numeroFattura = document.getElementById('fattura-numero').value;
+  const pagato = document.getElementById('fattura-pagato').checked ? 'SI' : 'NO';
+  
+  if (!numeroFattura) {
+    alert('⚠️ Inserisci il numero fattura');
+    return;
+  }
+  
+  const submitBtn = document.querySelector('#emettiFatturaForm button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Aggiornamento...';
+  
+  try {
+    const url = `${API_URL}?action=update_numero_fattura&n_proforma=${encodeURIComponent(nProforma)}&numero_fattura=${encodeURIComponent(numeroFattura)}&pagato=${pagato}`;
+    
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Errore aggiornamento fattura');
+    }
+    
+    alert('✅ Fattura emessa con successo!');
+    closeEmettiFatturaModal();
+    loadProformaList(); // Refresh lista
+    
+  } catch (error) {
+    console.error('Errore emissione fattura:', error);
+    alert('❌ Errore: ' + error.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+}
+
+// Esponi funzioni globalmente
+window.populateProformaClientFilter = populateProformaClientFilter;
+window.loadProformaList = loadProformaList;
+window.openEmettiFatturaModal = openEmettiFatturaModal;
+window.closeEmettiFatturaModal = closeEmettiFatturaModal;
+window.submitEmettiFattura = submitEmettiFattura;
 /**
  * Apre modal fattura diretta
  */
@@ -442,3 +673,4 @@ window.switchProformaView = switchProformaView;
 window.openFatturaDirettaModal = openFatturaDirettaModal;
 window.closeFatturaDirettaModal = closeFatturaDirettaModal;
 window.generateFatturaDirettaFinal = generateFatturaDirettaFinal;
+
