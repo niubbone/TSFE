@@ -674,3 +674,9 @@ window.openFatturaDirettaModal = openFatturaDirettaModal;
 window.closeFatturaDirettaModal = closeFatturaDirettaModal;
 window.generateFatturaDirettaFinal = generateFatturaDirettaFinal;
 
+// Esponi funzioni lista proforma globalmente per onclick HTML
+window.populateProformaClientFilter = populateProformaClientFilter;
+window.loadProformaList = loadProformaList;
+window.openEmettiFatturaModal = openEmettiFatturaModal;
+window.closeEmettiFatturaModal = closeEmettiFatturaModal;
+window.submitEmettiFattura = submitEmettiFattura;
