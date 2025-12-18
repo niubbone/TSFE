@@ -269,14 +269,60 @@ button:disabled {
   gap: 10px;
   padding-top: 15px;
   border-top: 1px solid #f0f0f0;
+  align-items: stretch; /* Forza stessa altezza */
 }
 
+.proforma-footer a,
+.proforma-footer button,
 .proforma-footer .btn-secondary,
 .proforma-footer .btn-primary {
   flex: 1;
   text-align: center;
-  padding: 10px;
+  padding: 12px 16px; /* Padding uniforme */
   font-size: 0.9em;
+  text-decoration: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; /* Altezza minima garantita */
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+/* Link come bottoni */
+.proforma-footer a.btn-secondary,
+.proforma-footer a.btn-primary {
+  text-decoration: none;
+}
+
+/* Bottone secondario (Visualizza PDF) */
+.proforma-footer .btn-secondary {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.proforma-footer .btn-secondary:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  text-decoration: none;
+}
+
+/* Bottone primario (Emetti Fattura) */
+.proforma-footer .btn-primary {
+  background: #1a73e8;
+  color: white;
+  border: 1px solid #1a73e8;
+}
+
+.proforma-footer .btn-primary:hover {
+  background: #1557b0;
+  border-color: #1557b0;
+  text-decoration: none;
 }
 
 /* Loading e empty state */
