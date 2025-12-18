@@ -535,37 +535,18 @@ function closeProformaFromPacchettoModal() {
 
 async function generateProformaFromPacchetto(idPacchetto) {
     const applicaQuota = document.getElementById('applicaQuotaPacchetto')?.checked || false;
-    const btn = event.target;
-    const originalText = btn.textContent;
     
-    btn.disabled = true;
-    btn.textContent = 'Generazione in corso...';
+    // Messaggio informativo all'utente
+    alert(`✅ Pacchetto ${idPacchetto} creato con successo!\n\n` +
+          `📋 Stato: ATTIVO\n` +
+          `💰 Quota 4%: ${applicaQuota ? 'Applicata' : 'Non applicata'}\n\n` +
+          `📄 Per generare la proforma:\n` +
+          `1. Vai al tab "Nuova Proforma"\n` +
+          `2. Seleziona il cliente\n` +
+          `3. Seleziona i timesheet del pacchetto\n` +
+          `4. Genera la proforma`);
     
-    try {
-        const response = await fetch(`${API_URL}?action=generate_proforma_pacchetto&id_pacchetto=${encodeURIComponent(idPacchetto)}&applica_quota=${applicaQuota}`);
-        const result = await response.json();
-        
-        if (result.success) {
-            alert(`✅ Proforma ${result.proforma_number} generata con successo!\n\nTotale: € ${result.totale}`);
-            closeProformaFromPacchettoModal();
-            
-            if (result.pdf_url) {
-                const openPDF = confirm('Vuoi aprire la proforma generata?');
-                if (openPDF) {
-                    window.open(result.pdf_url, '_blank');
-                }
-            }
-        } else {
-            throw new Error(result.error || 'Errore sconosciuto');
-        }
-        
-    } catch (error) {
-        console.error('Errore generazione proforma:', error);
-        alert('❌ Errore: ' + error.message);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-    }
+    closeProformaFromPacchettoModal();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
