@@ -5,6 +5,11 @@
 import { getTimesheetDaFatturare, generateProforma } from './api.js';
 import { formatDate, formatCurrency } from './utils.js';
 
+// Definisci API_URL globale
+const API_URL = (typeof CONFIG !== 'undefined' && CONFIG.APPS_SCRIPT_URL)
+  ? CONFIG.APPS_SCRIPT_URL
+  : 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec';
+
 /**
  * Inizializza il tab proforma
  */
