@@ -456,3 +456,50 @@ button:disabled {
     position: relative;
     z-index: 1;
 }
+
+/* =======================================================================
+   FIX BOTTONI MODAL PACCHETTO - Altezza uniforme
+   ======================================================================= */
+
+#proformaFromPacchettoModal .modal-body > div:last-child {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+#proformaFromPacchettoModal button {
+    min-height: 44px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+#proformaFromPacchettoModal .btn-secondary {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+#proformaFromPacchettoModal .btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+#proformaFromPacchettoModal .btn-primary {
+    background: #1a73e8;
+    color: white;
+    border: 1px solid #1a73e8;
+}
+
+#proformaFromPacchettoModal .btn-primary:hover {
+    background: #1557b0;
+    border-color: #1557b0;
+}
