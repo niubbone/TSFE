@@ -1,29 +1,97 @@
 {
-  "name": "Studio Smart Timesheet",
-  "short_name": "Timesheet",
-  "description": "Sistema di gestione timesheet e attività per Studio Smart",
-  "start_url": "./index.html",
+  "name": "CRM Studio Smart",
+  "short_name": "CRM Studio",
+  "description": "Sistema CRM per Studio Smart - Gestione clienti, timesheet, vendite e proforma",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "web-app-manifest-192x192.png",
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "web-app-manifest-512x512.png",
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": [
     {
-      "src": "apple-touch-icon.png",
-      "sizes": "180x180",
+      "src": "/screenshots/screenshot1.png",
+      "sizes": "1280x720",
       "type": "image/png"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Timesheet",
+      "short_name": "Timesheet",
+      "description": "Aggiungi intervento timesheet",
+      "url": "/?tab=timesheet",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Clienti",
+      "short_name": "Clienti",
+      "description": "Cerca clienti",
+      "url": "/?tab=clienti",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
