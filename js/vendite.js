@@ -299,7 +299,8 @@ async function submitVendita(e) {
     const durataAnni = document.getElementById('venditaDurataAnni').value;
     const oreTotali = document.getElementById('venditaOreTotali')?.value;
     
-    if (!cliente) {
+    // ✅ Validazione robusta
+    if (!cliente || cliente.trim() === '' || cliente === 'Seleziona cliente...') {
         alert('⚠️ Seleziona un cliente');
         return;
     }
@@ -321,7 +322,10 @@ async function submitVendita(e) {
     
     try {
         let action = '';
-        let params = `cliente_nome=${encodeURIComponent(cliente)}&importo=${importo}&data_inizio=${dataInizio}`;
+        const nomeCliente = cliente.trim();
+        console.log('🔍 DEBUG Invio vendita:', { tipo, nomeCliente, importo, dataInizio });
+        // ✅ Doppio parametro per compatibilità backend
+        let params = `cliente=${encodeURIComponent(nomeCliente)}&cliente_nome=${encodeURIComponent(nomeCliente)}&importo=${importo}&data_inizio=${dataInizio}`;
         
         if (tipo === 'pacchetto') {
             action = 'insert_pacchetto';
@@ -336,11 +340,12 @@ async function submitVendita(e) {
             params += `&tipo=${tipoFirma}&durata_anni=${durataAnni}&note=${encodeURIComponent(note)}`;
         }
         
+        console.log('🔍 DEBUG URL chiamata:', `${API_URL}?action=${action}&${params}`);
         const response = await fetch(`${API_URL}?action=${action}&${params}`);
         const result = await response.json();
+        console.log('🔍 DEBUG Risposta backend:', result);
         
         if (result.success) {
-            // ✅ FIX: Gestisci pacchetto con modal proforma
             if (tipo === 'pacchetto') {
                 closeVenditaModal();
                 document.getElementById('venditaForm').reset();
