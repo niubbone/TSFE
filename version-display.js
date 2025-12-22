@@ -5,8 +5,6 @@
 import { VERSION, VERSION_INFO, CHANGELOG, getVersionString, getFullVersionString, logVersion } from './version.js';
 
 console.log('🔍 version-display.js caricato');
-console.log('🔍 VERSION:', VERSION);
-console.log('🔍 CHANGELOG:', CHANGELOG);
 
 /**
  * Inizializza display versione
@@ -35,19 +33,10 @@ function updateUtilitiesVersionBox() {
 
   console.log('✅ Utilities tab trovato');
 
-  // Rimuovi vecchi box
-  const oldBoxes = [
-    utilitiesTab.querySelector('.version-box'),
-    utilitiesTab.querySelector('#version-info'),
-    utilitiesTab.querySelector('#version-info-box'),
-    document.querySelector('.app-version')
-  ];
-  
-  oldBoxes.forEach((box, i) => {
-    if (box) {
-      console.log(`🗑️ Rimosso vecchio box ${i}`);
-      box.remove();
-    }
+  // Rimuovi vecchi box ovunque siano
+  document.querySelectorAll('.version-box, #version-info, #version-info-box, .app-version').forEach((box, i) => {
+    console.log(`🗑️ Rimosso vecchio box ${i}`);
+    box.remove();
   });
 
   // Crea nuovo box LIGHT
@@ -94,31 +83,27 @@ function updateUtilitiesVersionBox() {
     </div>
   `;
 
-  // Inserisci PRIMA della prima utility-section
-  const firstSection = utilitiesTab.querySelector('.utility-section');
-  if (firstSection) {
-    console.log('✅ Inserisco prima della prima section');
-    utilitiesTab.insertBefore(versionBox, firstSection);
-  } else {
-    console.log('⚠️ Nessuna utility-section trovata, cerco form-container');
-    const container = utilitiesTab.querySelector('.form-container');
-    if (container) {
-      const h1 = container.querySelector('h1');
-      const infoBox = container.querySelector('#info-box');
-      if (infoBox && infoBox.nextSibling) {
-        console.log('✅ Inserisco dopo info-box');
-        container.insertBefore(versionBox, infoBox.nextSibling);
-      } else if (h1) {
-        console.log('✅ Inserisco dopo h1');
-        h1.after(versionBox);
-      } else {
-        console.log('✅ Inserisco in fondo a container');
-        container.appendChild(versionBox);
-      }
+  // ✅ FIX: Inserisci nel posto giusto
+  const formContainer = utilitiesTab.querySelector('.form-container');
+  if (formContainer) {
+    const infoBox = formContainer.querySelector('#info-box');
+    if (infoBox) {
+      // Inserisci subito DOPO info-box
+      infoBox.insertAdjacentElement('afterend', versionBox);
+      console.log('✅ Box inserito dopo info-box');
     } else {
-      console.log('⚠️ Form-container non trovato, inserisco in utilities-tab');
-      utilitiesTab.appendChild(versionBox);
+      const h1 = formContainer.querySelector('h1');
+      if (h1) {
+        h1.insertAdjacentElement('afterend', versionBox);
+        console.log('✅ Box inserito dopo h1');
+      } else {
+        formContainer.prepend(versionBox);
+        console.log('✅ Box inserito all\'inizio di form-container');
+      }
     }
+  } else {
+    utilitiesTab.prepend(versionBox);
+    console.log('✅ Box inserito all\'inizio di utilities-tab');
   }
   
   console.log(`✅ Version display inizializzato: ${VERSION}`);
@@ -184,11 +169,8 @@ function updatePageTitle() {
 }
 
 // Auto-init
-console.log('🔍 Stato DOM:', document.readyState);
 if (document.readyState === 'loading') {
-  console.log('⏳ Aspetto DOMContentLoaded');
   document.addEventListener('DOMContentLoaded', initVersionDisplay);
 } else {
-  console.log('✅ DOM già pronto, eseguo subito');
   initVersionDisplay();
 }
