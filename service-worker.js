@@ -20,35 +20,38 @@ const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
+// Auto-detect base path (per GitHub Pages: /REPO/ o localhost: /)
+const BASE_PATH = self.location.pathname.split('/').filter(p => p)[0] ? `/${self.location.pathname.split('/').filter(p => p)[0]}/` : '/';
+
 // Files da cachare all'installazione
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}manifest.json`,
   
   // CSS
-  '/css/main.css',
-  '/css/clienti.css',
-  '/css/forms.css',
-  '/css/modals.css',
-  '/css/proforma-list.css',
-  '/css/tables.css',
-  '/css/tabs.css',
-  '/css/utilities.css',
-  '/css/vendite.css',
-  '/css/vendite-scaduti.css',
+  `${BASE_PATH}css/main.css`,
+  `${BASE_PATH}css/clienti.css`,
+  `${BASE_PATH}css/forms.css`,
+  `${BASE_PATH}css/modals.css`,
+  `${BASE_PATH}css/proforma-list.css`,
+  `${BASE_PATH}css/tables.css`,
+  `${BASE_PATH}css/tabs.css`,
+  `${BASE_PATH}css/utilities.css`,
+  `${BASE_PATH}css/vendite.css`,
+  `${BASE_PATH}css/vendite-scaduti.css`,
   
   // JavaScript
-  '/js/api.js',
-  '/js/clienti.js',
-  '/js/config.js',
-  '/js/main.js',
-  '/js/proforma-list.js',
-  '/js/proforma.js',
-  '/js/timesheet.js',
-  '/js/utilities.js',
-  '/js/utils.js',
-  '/js/vendite.js'
+  `${BASE_PATH}js/api.js`,
+  `${BASE_PATH}js/clienti.js`,
+  `${BASE_PATH}js/config.js`,
+  `${BASE_PATH}js/main.js`,
+  `${BASE_PATH}js/proforma-list.js`,
+  `${BASE_PATH}js/proforma.js`,
+  `${BASE_PATH}js/timesheet.js`,
+  `${BASE_PATH}js/utilities.js`,
+  `${BASE_PATH}js/utils.js`,
+  `${BASE_PATH}js/vendite.js`
 ];
 
 // API endpoint da cachare (per offline fallback)

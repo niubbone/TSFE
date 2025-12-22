@@ -17,8 +17,12 @@
    */
   async function registerServiceWorker() {
     try {
-      const registration = await navigator.serviceWorker.register('/service-worker.js', {
-        scope: '/'
+      // Auto-detect base path for GitHub Pages
+      const basePath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}/` : '/';
+      const swPath = basePath === '/' ? '/service-worker.js' : `${basePath}service-worker.js`;
+      
+      const registration = await navigator.serviceWorker.register(swPath, {
+        scope: basePath
       });
 
       console.log('✅ Service Worker registered:', registration.scope);
