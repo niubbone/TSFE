@@ -33,9 +33,10 @@ async function loadVenditaClienti() {
         
         if (!input || !datalist) return;
         
+        // Clear completo
         input.value = '';
         input.placeholder = 'Caricamento...';
-        datalist.innerHTML = '';
+        datalist.innerHTML = '';  // Rimuove tutte le option precedenti
         
         const response = await fetch(`${API_URL}?action=get_data`);
         const result = await response.json();
@@ -52,6 +53,9 @@ async function loadVenditaClienti() {
                 const nameB = (typeof b === 'string' ? b : (b.name || '')).toLowerCase();
                 return nameA.localeCompare(nameB);
             });
+            
+            // Clear di nuovo prima di aggiungere (paranoia)
+            datalist.innerHTML = '';
             
             clientsList.forEach(cliente => {
                 const option = document.createElement('option');
