@@ -5,8 +5,9 @@
  * 
  * Quando rilasci una nuova versione:
  * 1. Cambia VERSION qui sotto
- * 2. Copia lo stesso numero in service-worker.js (riga 11)
- * 3. Tutto il resto si aggiorna automaticamente:
+ * 2. Aggiungi entry in CHANGELOG (riga 59)
+ * 3. Copia lo stesso numero in service-worker.js (riga 11)
+ * 4. Tutto il resto si aggiorna automaticamente:
  *    - UI (box utilities)
  *    - Console logs
  *    - Page title
@@ -29,7 +30,7 @@ export const VERSION = '4.0.4';
 export const VERSION_INFO = {
   number: VERSION,
   name: 'PWA Edition',
-  date: '21 Dicembre 2024',
+  date: '22 Dicembre 2025',
   codename: 'Natale',
   
   // Changelog corrente versione
@@ -57,6 +58,44 @@ export const BUILD_INFO = {
   buildDate: new Date().toISOString(),
   commit: 'manual' // se usi Git: processo automatico
 };
+
+// ============================================
+// 📋 CHANGELOG COMPLETO - Aggiungi nuove versioni QUI IN CIMA
+// ============================================
+export const CHANGELOG = [
+  {
+    version: "4.0.4",
+    date: "22/12/2025",
+    type: "fix",
+    changes: [
+      "Fix campo cliente vendite: input con ricerca",
+      "Fix backend Firme.gs e Canoni.gs: parametri GET",
+      "Fix Service Worker: auto-detect base path",
+      "Version display: styling light e centrato"
+    ]
+  },
+  {
+    version: "4.0.1",
+    date: "21/12/2025",
+    type: "feature",
+    changes: [
+      "Service Worker implementato",
+      "PWA manifest con shortcuts",
+      "Cache strategica performance",
+      "Version display in Utilities"
+    ]
+  },
+  {
+    version: "4.0.0",
+    date: "18/12/2025",
+    type: "update",
+    changes: [
+      "Backend refactoring: 16 → 11 file",
+      "Eliminati 1500+ righe duplicate",
+      "Micro-cache +70% performance"
+    ]
+  }
+];
 
 /**
  * Format versione per display
@@ -122,7 +161,8 @@ export function getVersionObject() {
   return {
     version: VERSION,
     versionInfo: VERSION_INFO,
-    buildInfo: BUILD_INFO
+    buildInfo: BUILD_INFO,
+    changelog: CHANGELOG
   };
 }
 
