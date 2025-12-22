@@ -28,10 +28,14 @@ function setVenditaDefaultDate() {
 
 async function loadVenditaClienti() {
     try {
-        const select = document.getElementById('venditaCliente');
-        if (!select) return;
+        const input = document.getElementById('venditaCliente');
+        const datalist = document.getElementById('vendita_client_list');
         
-        select.innerHTML = '<option value="">Caricamento...</option>';
+        if (!input || !datalist) return;
+        
+        input.value = '';
+        input.placeholder = 'Caricamento...';
+        datalist.innerHTML = '';
         
         const response = await fetch(`${API_URL}?action=get_data`);
         const result = await response.json();
@@ -41,8 +45,6 @@ async function loadVenditaClienti() {
         }
         
         const clientsList = result.clients;
-        
-        select.innerHTML = '<option value="">Seleziona cliente...</option>';
         
         if (clientsList.length > 0) {
             clientsList.sort((a, b) => {
@@ -55,17 +57,18 @@ async function loadVenditaClienti() {
                 const option = document.createElement('option');
                 const clienteName = typeof cliente === 'string' ? cliente : (cliente.name || '');
                 option.value = clienteName;
-                option.textContent = clienteName;
-                select.appendChild(option);
+                datalist.appendChild(option);
             });
+            
+            input.placeholder = 'Cerca o seleziona cliente...';
         } else {
-            select.innerHTML = '<option value="">Nessun cliente disponibile</option>';
+            input.placeholder = 'Nessun cliente disponibile';
         }
     } catch (error) {
         console.error('Errore caricamento clienti vendite:', error);
-        const select = document.getElementById('venditaCliente');
-        if (select) {
-            select.innerHTML = '<option value="">Errore caricamento</option>';
+        const input = document.getElementById('venditaCliente');
+        if (input) {
+            input.placeholder = 'Errore caricamento';
         }
     }
 }
@@ -292,9 +295,7 @@ async function submitVendita(e) {
     const durataAnni = document.getElementById('venditaDurataAnni').value;
     const oreTotali = document.getElementById('venditaOreTotali')?.value;
     
-    
-    // ✅ FIX: Validazione più robusta del cliente
-    if (!cliente || cliente.trim() === '' || cliente === 'Seleziona cliente...') {
+    if (!cliente) {
         alert('⚠️ Seleziona un cliente');
         return;
     }
@@ -316,10 +317,7 @@ async function submitVendita(e) {
     
     try {
         let action = '';
-        // ✅ FIX: Trim del nome cliente per rimuovere spazi
-        const nomeCliente = cliente.trim();
-        console.log('🔍 DEBUG Invio vendita:', { tipo, nomeCliente, importo, dataInizio });
-        let params = `cliente_nome=${encodeURIComponent(nomeCliente)}&importo=${importo}&data_inizio=${dataInizio}`;
+        let params = `cliente_nome=${encodeURIComponent(cliente)}&importo=${importo}&data_inizio=${dataInizio}`;
         
         if (tipo === 'pacchetto') {
             action = 'insert_pacchetto';
@@ -334,10 +332,8 @@ async function submitVendita(e) {
             params += `&tipo=${tipoFirma}&durata_anni=${durataAnni}&note=${encodeURIComponent(note)}`;
         }
         
-        console.log('🔍 DEBUG URL chiamata:', `${API_URL}?action=${action}&${params}`);
         const response = await fetch(`${API_URL}?action=${action}&${params}`);
         const result = await response.json();
-        console.log('🔍 DEBUG Risposta backend:', result);
         
         if (result.success) {
             // ✅ FIX: Gestisci pacchetto con modal proforma
