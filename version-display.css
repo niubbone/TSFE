@@ -1,15 +1,16 @@
 /* =======================================================================
-   VERSION DISPLAY STYLES - Light & Centered
+   VERSION DISPLAY STYLES - Uniformato con progetto
    ======================================================================= */
 
 .version-card {
   max-width: 600px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 1px solid #dee2e6;
-  border-radius: 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .version-header {
@@ -18,13 +19,13 @@
   align-items: center;
   padding-bottom: 16px;
   margin-bottom: 16px;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .version-label {
   font-size: 14px;
   font-weight: 600;
-  color: #6c757d;
+  color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -32,18 +33,18 @@
 .version-number {
   font-size: 24px;
   font-weight: 700;
-  color: #495057;
+  color: #667eea;
   font-family: 'Courier New', monospace;
-  background: #fff;
-  padding: 4px 12px;
+  background: #f8f9fa;
+  padding: 6px 14px;
   border-radius: 6px;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e0e0e0;
 }
 
 .version-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
@@ -51,8 +52,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  background: #fff;
+  padding: 10px 14px;
+  background: #f8f9fa;
   border-radius: 6px;
   border: 1px solid #e9ecef;
 }
@@ -65,19 +66,21 @@
 
 .detail-label {
   font-weight: 600;
-  color: #6c757d;
-  min-width: 90px;
+  color: #666;
+  min-width: 100px;
+  font-size: 14px;
 }
 
 .detail-value {
-  color: #495057;
-  font-family: 'Courier New', monospace;
+  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
 }
 
-/* Bottone Changelog */
+/* Bottone Changelog - BLU uniforme progetto */
 .btn-changelog {
   width: 100%;
-  padding: 10px 16px;
+  padding: 12px 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
@@ -86,22 +89,47 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .btn-changelog:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
 }
 
 .btn-changelog:active {
   transform: translateY(0);
 }
 
+/* Link Documentazione */
+.doc-link {
+  display: block;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #667eea;
+  color: #667eea;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.doc-link:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 /* Changelog Content */
 .changelog-content {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 2px solid #dee2e6;
+  border-top: 2px solid #e0e0e0;
   animation: slideDown 0.3s ease;
 }
 
@@ -119,31 +147,32 @@
 .changelog-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .changelog-entry {
-  background: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 14px;
   transition: box-shadow 0.2s ease;
 }
 
 .changelog-entry:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #667eea;
 }
 
 .changelog-version {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .version-badge {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 12px;
   font-size: 13px;
   font-weight: 700;
@@ -167,7 +196,7 @@
 
 .version-date {
   font-size: 12px;
-  color: #6c757d;
+  color: #666;
   font-family: 'Courier New', monospace;
 }
 
@@ -177,15 +206,16 @@
 }
 
 .changelog-changes li {
-  color: #495057;
+  color: #333;
   font-size: 14px;
   line-height: 1.6;
   margin-bottom: 6px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .changelog-empty {
   text-align: center;
-  color: #6c757d;
+  color: #999;
   font-style: italic;
   padding: 20px;
 }
