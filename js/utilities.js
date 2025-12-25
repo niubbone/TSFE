@@ -575,31 +575,91 @@ window.exportIntegrityReport = function() {
  * Visualizza log sistema
  */
 window.viewLogs = async function() {
+    console.log('🔍 viewLogs() chiamata');
+    
     try {
+        // Verifica elementi DOM
         const logDisplay = document.getElementById('log-display');
         const logControls = document.getElementById('log-controls');
         
+        if (!logDisplay) {
+            console.error('❌ Elemento #log-display non trovato');
+            alert('Errore: elemento #log-display non trovato nel DOM');
+            return;
+        }
+        
         logDisplay.innerHTML = '<p class="loading">⏳ Caricamento log...</p>';
-        logControls.style.display = 'none';
+        if (logControls) {
+            logControls.style.display = 'none';
+        }
         
+        // Verifica CONFIG
+        if (!CONFIG || !CONFIG.APPS_SCRIPT_URL) {
+            throw new Error('CONFIG.APPS_SCRIPT_URL non definito in config.js');
+        }
+        
+        // Fetch log
         const url = `${CONFIG.APPS_SCRIPT_URL}?action=get_logs&limit=100`;
-        const response = await fetch(url);
-        const data = await response.json();
+        console.log('📡 Fetching logs da:', url);
         
-        if (data.success && data.logs && data.logs.length > 0) {
-            displayLogs(data.logs);
-            logControls.style.display = 'flex';
-            showNotification('log-info', `✅ Caricati ${data.logs.length} log`, 'success');
-        } else if (data.success && data.logs && data.logs.length === 0) {
-            logDisplay.innerHTML = '<p class="text-muted">Nessun log presente nel sistema</p>';
-            showNotification('log-info', 'ℹ️ Nessun log disponibile', 'info');
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('📥 Response ricevuta:', data);
+        
+        // Gestisci response (supporta data.logs O data.data)
+        let logs = null;
+        
+        if (data.success) {
+            logs = data.logs || data.data || [];
+            console.log(`✅ Trovati ${logs.length} log`);
         } else {
-            throw new Error(data.error || 'Errore sconosciuto');
+            throw new Error(data.error || 'Backend ha ritornato success: false');
+        }
+        
+        // Mostra log
+        if (logs && logs.length > 0) {
+            displayLogs(logs);
+            if (logControls) {
+                logControls.style.display = 'flex';
+            }
+            showNotification('log-info', `✅ Caricati ${logs.length} log`, 'success');
+        } else {
+            logDisplay.innerHTML = '<p class="text-muted">📝 Nessun log presente nel sistema</p>';
+            showNotification('log-info', 'ℹ️ Nessun log disponibile', 'info');
         }
         
     } catch (error) {
-        console.error('Errore visualizzazione log:', error);
-        document.getElementById('log-display').innerHTML = '<p style="color: #dc3545;">Errore: ' + error.message + '</p>';
+        console.error('❌ Errore visualizzazione log:', error);
+        
+        const logDisplay = document.getElementById('log-display');
+        if (logDisplay) {
+            logDisplay.innerHTML = `
+                <div style="padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                    <h4 style="margin: 0 0 10px 0; color: #856404;">⚠️ Errore Caricamento Log</h4>
+                    <p style="margin: 0 0 10px 0; color: #856404;"><strong>Errore:</strong> ${error.message}</p>
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; color: #856404; user-select: none;">🔍 Dettagli Debug (clicca per espandere)</summary>
+                        <pre style="margin-top: 10px; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; white-space: pre-wrap;">${error.stack || 'Stack trace non disponibile'}</pre>
+                    </details>
+                    <div style="margin-top: 15px; padding: 12px; background: white; border-radius: 4px; font-size: 0.9rem; color: #856404;">
+                        <strong>Possibili cause:</strong>
+                        <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
+                            <li>Backend Apps Script non raggiungibile</li>
+                            <li>API endpoint errato in <code>config.js</code></li>
+                            <li>Errore nel backend (controllare Apps Script logs)</li>
+                            <li>Problema CORS o network</li>
+                            <li>Backend ritorna formato dati diverso</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
         showNotification('log-info', '❌ Errore caricamento log', 'error');
     }
 };
