@@ -522,7 +522,7 @@
                         </tr>
                         
                         <tr style="background: #f0f0f0; font-weight: 600;">
-                            <td colspan="3">client.js</td>
+                            <td colspan="3">clienti.js</td>
                         </tr>
                         <tr>
                             <td><code>loadClients()</code></td>
@@ -546,27 +546,17 @@
                         </tr>
                         
                         <tr style="background: #f0f0f0; font-weight: 600;">
-                            <td colspan="3">dom.js</td>
+                            <td colspan="3">api.js</td>
                         </tr>
                         <tr>
-                            <td><code>showModal(modalId)</code></td>
-                            <td>String</td>
-                            <td>void</td>
+                            <td><code>apiCall(action, params)</code></td>
+                            <td>String, Object</td>
+                            <td>Promise&lt;Result&gt;</td>
                         </tr>
                         <tr>
-                            <td><code>closeModal(modalId)</code></td>
-                            <td>String</td>
-                            <td>void</td>
-                        </tr>
-                        <tr>
-                            <td><code>showLoading(btnId)</code></td>
-                            <td>String</td>
-                            <td>void</td>
-                        </tr>
-                        <tr>
-                            <td><code>hideLoading(btnId, text)</code></td>
-                            <td>String, String</td>
-                            <td>void</td>
+                            <td><code>fetchWithRetry(url, retries)</code></td>
+                            <td>String, Number</td>
+                            <td>Promise&lt;Response&gt;</td>
                         </tr>
                         
                         <tr style="background: #f0f0f0; font-weight: 600;">
@@ -596,38 +586,38 @@
                 <h2 class="section-title">📋 Google Sheets Columns</h2>
                 
                 <div class="code-block">
-                    <strong>Clienti:</strong>
-                    <pre>A=ID_Cliente | B=Nome | C=Email | D=Telefono | E=Cellulare | F=Data_Creazione</pre>
+                    <strong>Clienti (16 col):</strong>
+                    <pre>A=ID_Cliente | B=Nome_Cliente | C=Indirizzo | D=CAP | E=Città | F=P.IVA | G=CF | H=SDI | I=Email | J=Referente | K=ATTIVO | L=Titolo | M=Cellulare | N=Tel. | O=NOTE | P=WKI</pre>
                 </div>
                 
                 <div class="code-block">
-                    <strong>Timesheet:</strong>
-                    <pre>A=ID | B=ID_Cliente | C=Nome_Cliente | D=Data | E=Ore | F=Descrizione | G=Modalita_Addebito | H=Fatturato</pre>
+                    <strong>Timesheet (19 col):</strong>
+                    <pre>A=ID_Intervento | B=ID_Cliente | C=Nome_Cliente | D=DATA | E=START | F=STOP | G=Tipo_Intervento | H=Mod_Esecuzione | I=Durata_Ore | J=Chiamata | K=Mod_Addebito | L=ID_Pacchetto | M=EXTRA | N=Descrizione | O=Costo | P=Variazioni | Q=Costo_Finale | R=N_Proforma | S=N_Fattura</pre>
                 </div>
                 
                 <div class="code-block">
-                    <strong>Pacchetti:</strong>
-                    <pre>A=ID_Pacchetto | B=ID_Cliente | C=Nome_Cliente | D=Ore_Totali | E=Ore_Residue | F=Importo | G=Data_Inizio | H=Scadenza | I=STATO</pre>
+                    <strong>Pacchetti (12 col):</strong>
+                    <pre>A=ID_Pacchetto | B=ID_Cliente | C=Nome_Cliente | D=Data_Acquisto | E=Data_Scadenza | F=Descrizione | G=Ore_Acquistate | H=Ore_Utilizzate | I=Ore_Residue | J=STATO | K=Importo | L=Costo_Orario</pre>
                 </div>
                 
                 <div class="code-block">
-                    <strong>Proforma:</strong>
-                    <pre>A=N_Proforma | B=ID_Cliente | C=Nome_Cliente | D=Mese | E=Anno | F=Totale_Ore | G=Importo | H=Data_Creazione | I=Doc_URL | J=N_Fattura | K=Pagato</pre>
+                    <strong>Proforma (12 col):</strong>
+                    <pre>A=N_Proforma | B=Data_Emissione | C=ID_Cliente | D=Nome_Cliente | E=Importo_Subtotale | F=Quota_4% | G=Importo_Totale | H=Causale | I=N_Fattura | J=Data_Fattura | K=Pagato | L=PDF_FileID</pre>
                 </div>
                 
                 <div class="code-block">
-                    <strong>Canoni:</strong>
+                    <strong>Canoni (12 col):</strong>
                     <pre>A=ID_Canone | B=ID_Precedente | C=ID_Cliente | D=Nome_Cliente | E=Descrizione | F=Data_Inizio | G=Data_Scadenza | H=Importo | I=STATO | J=Data_Fattura | K=N_Fattura | L=Event_ID</pre>
                 </div>
                 
                 <div class="code-block">
-                    <strong>Firme:</strong>
-                    <pre>A=ID_Firma | B=ID_Precedente | C=ID_Cliente | D=Nome_Cliente | E=Tipo | F=Data_Inizio | G=Data_Scadenza | H=Importo | I=STATO | J=Data_Fattura | K=N_Fattura | L=Event_ID | M=Note</pre>
+                    <strong>Firme (13 col):</strong>
+                    <pre>A=ID_Firma | B=ID_Precedente | C=ID_Cliente | D=Nome_Cliente | E=Tipo | F=Data_Inizio | G=Data_Scadenza | H=Importo | I=STATO | J=Acquisto | K=N_Fattura | L=Event_ID | M=Note</pre>
                 </div>
                 
                 <div class="code-block">
-                    <strong>Log:</strong>
-                    <pre>A=Timestamp | B=Level | C=Action | D=Message | E=Details | F=User</pre>
+                    <strong>System_Log (6 col):</strong>
+                    <pre>A=Timestamp | B=Level | C=Action | D=Message | E=User | F=Data</pre>
                 </div>
             </div>
             

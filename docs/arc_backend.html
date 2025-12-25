@@ -214,8 +214,9 @@
 Backend (Google Apps Script)
 │
 ├── 🔀 ROUTER & CORE
-│   ├── Router.gs                    → doGet(e), doPost(e), switch/case routing
-│   ├── crm_utils.gs                 → Utilities generali, helpers, validation
+│   ├── Codice.gs                    → doGet(e), doPost(e), switch/case routing
+│   ├── crm_utils.gs                 → Utilities unificate, validation, helpers
+│   ├── crm_email.gs                 → Template email, invio automatico
 │   └── Cache.gs                     → Micro-cache layer (+70% performance)
 │
 ├── 📊 GESTIONE DATI
@@ -225,27 +226,23 @@ Backend (Google Apps Script)
 │   └── Proforma.gs                  → Generazione proforma, template Docs
 │
 ├── 💼 VENDITE & PRODOTTI
-│   ├── Vendite.gs                   → Router vendite (firme/canoni/pacchetti)
-│   ├── Firme.gs                     → Gestione firme digitali
 │   ├── Canoni.gs                    → Gestione canoni periodici
+│   ├── Firme.gs                     → Gestione firme digitali
 │   └── Rinnovi.gs                   → Sistema rinnovi automatici
 │
 ├── 📅 SCADENZE & NOTIFICHE
-│   ├── Calendar.gs                  → Google Calendar integration
-│   ├── crm_email.gs                 → Template email, invio automatico
-│   └── Scadenze.gs                  → Monitoring scadenze, alert
+│   └── Calendar.gs                  → Google Calendar integration
 │
 └── 🛠️ UTILITIES
-    ├── Log.gs                       → Sistema log completo
-    └── Config.gs                    → Configurazione globale
+    └── trigger.gs                   → Trigger temporali, automazioni
 
-TOTALE: 14 file .gs
+TOTALE: 13 file .gs
 </pre>
                 </div>
                 
                 <div class="info-box">
-                    <strong>💡 Nota Refactoring v4.0:</strong> Ridotti da 16 → 14 file, eliminati ~1.500 righe duplicate.
-                    Consolidate utilities (crm_utils.gs), email (crm_email.gs), cache centralizzata.
+                    <strong>💡 Nota Refactoring v4.0:</strong> Consolidati utilities (crm_utils.gs + crm_email.gs), 
+                    router unificato in Codice.gs, cache centralizzata. Eliminati ~1.500 righe duplicate.
                 </div>
             </div>
             
@@ -601,7 +598,7 @@ function sendScadenzaEmail(destinatario, tipo, datiProdotto) {
                 <h2 class="section-title">📋 Google Sheets Structure</h2>
                 
                 <div class="subsection">
-                    <h3 class="subsection-title">Foglio: Clienti</h3>
+                    <h3 class="subsection-title">Foglio: Clienti (16 colonne)</h3>
                     <table>
                         <thead>
                             <tr>
@@ -613,17 +610,27 @@ function sendScadenzaEmail(destinatario, tipo, datiProdotto) {
                         </thead>
                         <tbody>
                             <tr><td>A</td><td>ID_Cliente</td><td>String</td><td>C_YYYY_###</td></tr>
-                            <tr><td>B</td><td>Nome</td><td>String</td><td>Nome cliente</td></tr>
-                            <tr><td>C</td><td>Email</td><td>String</td><td>Email (unique)</td></tr>
-                            <tr><td>D</td><td>Telefono</td><td>String</td><td>Fisso</td></tr>
-                            <tr><td>E</td><td>Cellulare</td><td>String</td><td>Mobile</td></tr>
-                            <tr><td>F</td><td>Data_Creazione</td><td>Date</td><td>Timestamp</td></tr>
+                            <tr><td>B</td><td>Nome_Cliente</td><td>String</td><td>Ragione sociale</td></tr>
+                            <tr><td>C</td><td>Indirizzo</td><td>String</td><td>Via, numero</td></tr>
+                            <tr><td>D</td><td>CAP</td><td>String</td><td>Codice postale</td></tr>
+                            <tr><td>E</td><td>Città</td><td>String</td><td>Comune</td></tr>
+                            <tr><td>F</td><td>P.IVA</td><td>String</td><td>Partita IVA</td></tr>
+                            <tr><td>G</td><td>CF</td><td>String</td><td>Codice Fiscale</td></tr>
+                            <tr><td>H</td><td>SDI</td><td>String</td><td>Codice SDI fattura elettronica</td></tr>
+                            <tr><td>I</td><td>Email</td><td>String</td><td>Email (unique)</td></tr>
+                            <tr><td>J</td><td>Referente</td><td>String</td><td>Nome contatto</td></tr>
+                            <tr><td>K</td><td>ATTIVO</td><td>Boolean</td><td>SI/NO</td></tr>
+                            <tr><td>L</td><td>Titolo</td><td>String</td><td>Dott., Avv., etc</td></tr>
+                            <tr><td>M</td><td>Cellulare</td><td>String</td><td>Mobile</td></tr>
+                            <tr><td>N</td><td>Tel.</td><td>String</td><td>Fisso</td></tr>
+                            <tr><td>O</td><td>NOTE</td><td>String</td><td>Note varie</td></tr>
+                            <tr><td>P</td><td>WKI</td><td>String</td><td>Wiki/reference</td></tr>
                         </tbody>
                     </table>
                 </div>
                 
                 <div class="subsection">
-                    <h3 class="subsection-title">Foglio: Timesheet</h3>
+                    <h3 class="subsection-title">Foglio: Timesheet (19 colonne)</h3>
                     <table>
                         <thead>
                             <tr>
@@ -634,14 +641,25 @@ function sendScadenzaEmail(destinatario, tipo, datiProdotto) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td>A</td><td>ID</td><td>String</td><td>Auto-increment</td></tr>
+                            <tr><td>A</td><td>ID_Intervento</td><td>String</td><td>Auto-increment</td></tr>
                             <tr><td>B</td><td>ID_Cliente</td><td>String</td><td>FK → Clienti</td></tr>
                             <tr><td>C</td><td>Nome_Cliente</td><td>String</td><td>Denormalized</td></tr>
-                            <tr><td>D</td><td>Data</td><td>Date</td><td>GG/MM/AAAA</td></tr>
-                            <tr><td>E</td><td>Ore</td><td>Number</td><td>Ore lavorate</td></tr>
-                            <tr><td>F</td><td>Descrizione</td><td>String</td><td>Attività</td></tr>
-                            <tr><td>G</td><td>Modalita_Addebito</td><td>String</td><td>orario/forfait</td></tr>
-                            <tr><td>H</td><td>Fatturato</td><td>Boolean</td><td>SI/NO</td></tr>
+                            <tr><td>D</td><td>DATA</td><td>Date</td><td>GG/MM/AAAA</td></tr>
+                            <tr><td>E</td><td>START</td><td>Time</td><td>Ora inizio</td></tr>
+                            <tr><td>F</td><td>STOP</td><td>Time</td><td>Ora fine</td></tr>
+                            <tr><td>G</td><td>Tipo_Intervento</td><td>String</td><td>Tipo attività</td></tr>
+                            <tr><td>H</td><td>Mod_Esecuzione</td><td>String</td><td>Remoto/Presenza</td></tr>
+                            <tr><td>I</td><td>Durata_Ore</td><td>Number</td><td>Ore lavorate</td></tr>
+                            <tr><td>J</td><td>Chiamata</td><td>Boolean</td><td>SI/NO</td></tr>
+                            <tr><td>K</td><td>Mod_Addebito</td><td>String</td><td>orario/forfait</td></tr>
+                            <tr><td>L</td><td>ID_Pacchetto</td><td>String</td><td>FK → Pacchetti</td></tr>
+                            <tr><td>M</td><td>EXTRA</td><td>String</td><td>Info aggiuntive</td></tr>
+                            <tr><td>N</td><td>Descrizione</td><td>String</td><td>Attività svolta</td></tr>
+                            <tr><td>O</td><td>Costo</td><td>Number</td><td>Costo base</td></tr>
+                            <tr><td>P</td><td>Variazioni</td><td>Number</td><td>+/- costo</td></tr>
+                            <tr><td>Q</td><td>Costo_Finale</td><td>Number</td><td>Costo totale</td></tr>
+                            <tr><td>R</td><td>N_Proforma</td><td>String</td><td>FK → Proforma</td></tr>
+                            <tr><td>S</td><td>N_Fattura</td><td>String</td><td>Numero fattura</td></tr>
                         </tbody>
                     </table>
                 </div>
