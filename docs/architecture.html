@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Studio Smart - Riepilogo Completo v3.7</title>
+    <title>CRM Studio Smart - Architettura v4.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -16,7 +16,7 @@
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -50,7 +50,7 @@
         }
         
         .section {
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
         
         .section-title {
@@ -61,22 +61,7 @@
             border-bottom: 3px solid #667eea;
         }
         
-        .subsection {
-            margin: 25px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .subsection-title {
-            font-size: 1.3rem;
-            color: #764ba2;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        
-        .grid {
+        .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
@@ -84,1396 +69,602 @@
         }
         
         .card {
+            background: #f8f9fa;
+            padding: 24px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #764ba2;
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .card-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .card-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
             background: white;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #28a745;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 2px solid #e0e0e0;
         }
         
-        .card-title {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-        
-        .card-content {
-            color: #666;
-            font-size: 0.95rem;
-        }
-        
-        .file-list {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-        
-        .file-item {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            padding: 5px 0;
-            color: #e74c3c;
-        }
-        
-        .stats-box {
-            display: inline-block;
-            background: #e3f2fd;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 10px 10px 10px 0;
-            border-left: 4px solid #2196f3;
-        }
-        
-        .stats-number {
+        .stat-number {
             font-size: 2rem;
             font-weight: bold;
-            color: #1976d2;
+            color: #667eea;
+            display: block;
         }
         
-        .stats-label {
-            font-size: 0.85rem;
+        .stat-label {
             color: #666;
-            margin-top: 5px;
+            font-size: 0.9rem;
+            margin-top: 8px;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
+        .architecture-diagram {
             background: white;
+            padding: 24px;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #e0e0e0;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
         }
         
-        th {
+        .tech-stack {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .tech-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .tech-row:last-child {
+            border-bottom: none;
+        }
+        
+        .tech-label {
+            font-weight: 600;
+            color: #764ba2;
+        }
+        
+        .tech-value {
+            color: #333;
+        }
+        
+        .feature-list {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
             background: #667eea;
             color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
         }
         
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin: 5px 5px 5px 0;
-        }
-        
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-info { background: #d1ecf1; color: #0c5460; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .badge-primary { background: #cfe2ff; color: #084298; }
-        
-        .info-box {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        .warning-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        .success-box {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        code {
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            color: #e74c3c;
-            font-size: 0.9em;
-        }
-        
-        .toc {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        
-        .toc ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        
-        .toc li {
-            padding: 8px 0;
-        }
-        
-        .toc a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .toc a:hover {
-            text-decoration: underline;
-        }
-        
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8rem; }
+            .content { padding: 20px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .tech-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
         <div class="header">
-            <h1>🚀 CRM STUDIO SMART</h1>
-            <p>Documentazione Tecnica Completa</p>
-            <div class="version-badge">Versione 3.7 - 31 Ottobre 2025</div>
+            <h1>🏗️ CRM Studio Smart</h1>
+            <p style="font-size: 1.1rem; margin-top: 10px;">Architettura & Documentazione Tecnica</p>
+            <div class="version-badge">Versione 4.0.4 - Dicembre 2025</div>
         </div>
-
+        
         <div class="content">
-            <!-- TOC -->
-            <div class="toc">
-                <h3 style="margin-bottom: 15px;">📑 Indice</h3>
-                <ul>
-                    <li><a href="#executive">1. Executive Summary</a></li>
-                    <li><a href="#architecture">2. Architettura Sistema</a></li>
-                    <li><a href="#backend">3. Backend (Apps Script)</a></li>
-                    <li><a href="#frontend">4. Frontend (JavaScript)</a></li>
-                    <li><a href="#database">5. Struttura Database (Google Sheet)</a></li>
-                    <li><a href="#flows">6. Flussi Operativi Principali</a></li>
-                    <li><a href="#api">7. API Endpoints</a></li>
-                    <li><a href="#changelog">8. Changelog v3.0 → v3.7</a></li>
-                    <li><a href="#quickref">9. Quick Reference</a></li>
-                </ul>
-            </div>
-
-            <!-- EXECUTIVE SUMMARY -->
-            <div class="section" id="executive">
-                <h2 class="section-title">📋 1. Executive Summary</h2>
-                
-                <div class="success-box">
-                    <h3 style="margin-bottom: 10px;">✅ Stato Attuale: v3.7 Operativa</h3>
-                    <p>Sistema CRM completo per gestione clienti, timesheet, vendite (Canoni, Firme, Pacchetti), proforma, rinnovi automatici e scadenzario integrato con Google Calendar.</p>
-                </div>
-
-                <div class="grid">
-                    <div class="stats-box">
-                        <div class="stats-number">~9.500</div>
-                        <div class="stats-label">Righe di Codice</div>
-                    </div>
-                    <div class="stats-box">
-                        <div class="stats-number">15</div>
-                        <div class="stats-label">File Backend (.gs)</div>
-                    </div>
-                    <div class="stats-box">
-                        <div class="stats-number">9</div>
-                        <div class="stats-label">File Frontend (.js)</div>
-                    </div>
-                    <div class="stats-box">
-                        <div class="stats-number">50+</div>
-                        <div class="stats-label">API Endpoints</div>
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">🎯 Funzionalità Principali</h3>
-                    <ul style="margin-left: 20px;">
-                        <li>✅ Gestione Clienti (CRUD completo)</li>
-                        <li>✅ Timesheet con tracciamento ore e modalità addebito</li>
-                        <li>✅ Pacchetti ore con gestione automatica residui</li>
-                        <li>✅ Proforma automatiche con template Google Docs</li>
-                        <li>✅ Vendite: Canoni, Firme Digitali, Pacchetti</li>
-                        <li>✅ Google Calendar integrato per scadenze</li>
-                        <li>✅ Sistema rinnovi automatici con storico</li>
-                        <li>✅ Email automatiche per scadenze (30gg, 10gg)</li>
-                        <li>✅ Sistema log completo</li>
-                        <li>✅ PWA mobile-first</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- ARCHITETTURA -->
-            <div class="section" id="architecture">
-                <h2 class="section-title">🏗️ 2. Architettura Sistema</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">Stack Tecnologico</h3>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Layer</th>
-                                <th>Tecnologia</th>
-                                <th>Descrizione</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Frontend</strong></td>
-                                <td>HTML5 + Vanilla JS + CSS3</td>
-                                <td>SPA mobile-first, PWA con manifest</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Backend</strong></td>
-                                <td>Google Apps Script</td>
-                                <td>Serverless, deployed come Web App</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Database</strong></td>
-                                <td>Google Sheets</td>
-                                <td>Multi-tab, formule automatiche</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Calendar</strong></td>
-                                <td>Google Calendar API</td>
-                                <td>Eventi scadenze con alert programmati</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Email</strong></td>
-                                <td>Gmail API (MailApp/GmailApp)</td>
-                                <td>Invio proforma e alert automatici</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Storage</strong></td>
-                                <td>Google Drive</td>
-                                <td>PDF proforma e template</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">Flusso Dati</h3>
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #667eea; font-family: monospace; white-space: pre; overflow-x: auto;">
-Browser (index.html)
-    ↓ AJAX
-Frontend JS (api.js)
-    ↓ POST/GET
-Apps Script Web App (doGet/doPost)
-    ↓ Router
-Backend Functions (.gs files)
-    ↓ Read/Write
-Google Sheets (Database)
-    ↓ Triggers
-Calendar API / Email API
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <h4 style="margin-bottom: 10px;">🔗 URL Principali</h4>
-                    <p><strong>Apps Script Deployment:</strong><br>
-                    <code>https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec</code></p>
-                    <p style="margin-top: 10px;"><strong>Google Sheet ID:</strong><br>
-                    <code>1aSNuc5fzkgUERsJ6pNPn-Rkte3SJMcksHNicCu8T2yQ</code></p>
-                    <p style="margin-top: 10px;"><strong>Calendar ID:</strong><br>
-                    <code>c_602ffac63141bc23636d5769b78bf0d34fdaf50fd74dc779abc5df0eac54f77f@group.calendar.google.com</code></p>
-                </div>
-            </div>
-
-            <!-- BACKEND -->
-            <div class="section" id="backend">
-                <h2 class="section-title">⚙️ 3. Backend (Apps Script)</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">Struttura File Backend (15 file .gs)</h3>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>File</th>
-                                <th>Righe</th>
-                                <th>Responsabilità</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Codice.gs</code></td>
-                                <td>1.363</td>
-                                <td><strong>ROUTER PRINCIPALE</strong> - doGet/doPost, validazione cliente, routing API</td>
-                            </tr>
-                            <tr>
-                                <td><code>Clienti.gs</code></td>
-                                <td>848</td>
-                                <td>CRUD clienti, getClientsList, ricerca, validazione</td>
-                            </tr>
-                            <tr>
-                                <td><code>Utilities.gs</code></td>
-                                <td>640</td>
-                                <td>Log system, check integrity, backup, clean logs</td>
-                            </tr>
-                            <tr>
-                                <td><code>EmailScadenze.gs</code></td>
-                                <td>578</td>
-                                <td>Template email scadenze (30gg, 10gg), pacchetti OVER/TERMINATO</td>
-                            </tr>
-                            <tr>
-                                <td><code>Email.gs</code></td>
-                                <td>574</td>
-                                <td>Invio email proforma, gestione allegati PDF</td>
-                            </tr>
-                            <tr>
-                                <td><code>Pacchetti.gs</code></td>
-                                <td>394</td>
-                                <td>CRUD pacchetti, getActivePacchetto, updatePacchetto, getPacchettiScaduti</td>
-                            </tr>
-                            <tr>
-                                <td><code>Firme.gs</code></td>
-                                <td>350</td>
-                                <td>CRUD firme digitali, getFirmeInScadenza, generateFirmaID</td>
-                            </tr>
-                            <tr>
-                                <td><code>Trigger.gs</code></td>
-                                <td>329</td>
-                                <td>Trigger giornaliero (8:00), checkScadenzeGiornaliero, checkFirmeScadenze</td>
-                            </tr>
-                            <tr>
-                                <td><code>Canoni.gs</code></td>
-                                <td>325</td>
-                                <td>CRUD canoni, getCanoniInScadenza, generateCanoneID</td>
-                            </tr>
-                            <tr>
-                                <td><code>Rinnovi.gs</code></td>
-                                <td>291</td>
-                                <td>rinnovaCanone, rinnovaFirma, getStoricoRinnovi, canRinnovaProdotto</td>
-                            </tr>
-                            <tr>
-                                <td><code>Proforma.gs</code></td>
-                                <td>265</td>
-                                <td>generateProforma, createProformaPDF, template processing</td>
-                            </tr>
-                            <tr>
-                                <td><code>Calendar.gs</code></td>
-                                <td>203</td>
-                                <td>createScadenzaEvent, deleteCalendarEvent, updateCalendarEvent</td>
-                            </tr>
-                            <tr>
-                                <td><code>Timesheet.gs</code></td>
-                                <td>160</td>
-                                <td>getTimesheetDaFatturare, updateTimesheetProforma</td>
-                            </tr>
-                            <tr>
-                                <td><code>Helpers.gs</code></td>
-                                <td>101</td>
-                                <td>getSpreadsheet, getConfigOptions, convertDurationToHours</td>
-                            </tr>
-                            <tr>
-                                <td><code>Config.gs</code></td>
-                                <td>19</td>
-                                <td>Costanti di configurazione (URL, IDs, nomi fogli)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">🔑 Funzioni Backend Chiave</h3>
-                    
-                    <div class="grid">
-                        <div class="card">
-                            <div class="card-title">📝 Timesheet & Pacchetti</div>
-                            <div class="card-content">
-                                • insertTimesheet()<br>
-                                • getActivePacchetto()<br>
-                                • updatePacchetto()<br>
-                                • getPacchettiScaduti()
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">💰 Vendite</div>
-                            <div class="card-content">
-                                • insertCanone()<br>
-                                • insertFirma()<br>
-                                • insertPacchetto()<br>
-                                • generateCanoneID()
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">🔄 Rinnovi</div>
-                            <div class="card-content">
-                                • rinnovaCanone()<br>
-                                • rinnovaFirma()<br>
-                                • getStoricoRinnovi()<br>
-                                • canRinnovaProdotto()
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">📅 Scadenze</div>
-                            <div class="card-content">
-                                • getCanoniInScadenza()<br>
-                                • getFirmeInScadenza()<br>
-                                • getTuttiProdottiInScadenza()<br>
-                                • createScadenzaEvent()
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">📧 Email</div>
-                            <div class="card-content">
-                                • sendProformaEmail()<br>
-                                • sendFirmaReminderCliente30gg()<br>
-                                • sendFirmaReminderGiuseppe10gg()<br>
-                                • sendPacchettoScadutoAlert()
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">👥 Clienti</div>
-                            <div class="card-content">
-                                • getClientsList()<br>
-                                • validateClient()<br>
-                                • insertClient()<br>
-                                • updateClient()
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- FRONTEND -->
-            <div class="section" id="frontend">
-                <h2 class="section-title">💻 4. Frontend (JavaScript)</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">Struttura File Frontend (9 file .js + 9 file .css)</h3>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>File JS</th>
-                                <th>Righe</th>
-                                <th>Responsabilità</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>utilities.js</code></td>
-                                <td>747</td>
-                                <td>Funzioni utility globali, helpers UI, date formatting</td>
-                            </tr>
-                            <tr>
-                                <td><code>clienti.js</code></td>
-                                <td>990</td>
-                                <td>UI gestione clienti completa: ricerca, dettaglio, esportazione dati (vCard, copia appunti), modifica timesheet</td>
-                            </tr>
-                            <tr>
-                                <td><code>vendite.js</code></td>
-                                <td>542</td>
-                                <td>Form vendite (Canoni, Firme, Pacchetti), validazione</td>
-                            </tr>
-                            <tr>
-                                <td><code>timesheet.js</code></td>
-                                <td>393</td>
-                                <td>Form timesheet, gestione pacchetti attivi</td>
-                            </tr>
-                            <tr>
-                                <td><code>proforma.js</code></td>
-                                <td>264</td>
-                                <td>Generazione proforma, selezione timesheet, email</td>
-                            </tr>
-                            <tr>
-                                <td><code>main.js</code></td>
-                                <td>153</td>
-                                <td>Init app, routing tab, load initial data</td>
-                            </tr>
-                            <tr>
-                                <td><code>api.js</code></td>
-                                <td>113</td>
-                                <td>Wrapper chiamate API backend, error handling</td>
-                            </tr>
-                            <tr>
-                                <td><code>utils.js</code></td>
-                                <td>82</td>
-                                <td>Funzioni utility aggiuntive</td>
-                            </tr>
-                            <tr>
-                                <td><code>config.js</code></td>
-                                <td>21</td>
-                                <td>Costanti frontend (Apps Script URL)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">🎨 File CSS (9 file modulari)</h3>
-                    <div class="file-list">
-                        <div class="file-item">• main.css - Layout principale, variabili</div>
-                        <div class="file-item">• clienti.css - Stili tab clienti</div>
-                        <div class="file-item">• forms.css - Form styling globale</div>
-                        <div class="file-item">• tables.css - Tabelle responsive</div>
-                        <div class="file-item">• tabs.css - Sistema tab navigation</div>
-                        <div class="file-item">• modals.css - Modale popup</div>
-                        <div class="file-item">• utilities.css - Utility classes</div>
-                        <div class="file-item">• vendite.css - UI vendite</div>
-                        <div class="file-item">• vendite-scaduti.css - Sezione scaduti</div>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <h4 style="margin-bottom: 10px;">📱 PWA Features</h4>
-                    <ul style="margin-left: 20px;">
-                        <li>✅ <code>manifest.json</code> configurato</li>
-                        <li>✅ Icone multiple risoluzioni (192x192, 512x512)</li>
-                        <li>✅ Mobile-first design</li>
-                        <li>✅ Installabile su home screen</li>
-                        <li>✅ Responsive layout</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- BACKEND DETTAGLIATO -->
-            <div class="section" id="backend-detail">
-                <h2 class="section-title">⚙️ 3.5. Struttura Backend Dettagliata</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">File Backend (15 file .gs - ~6500 righe)</h3>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>File</th>
-                                <th>Funzioni</th>
-                                <th>Funzionalità Principali</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Clienti.gs</code></td>
-                                <td>17</td>
-                                <td>
-                                    • searchClienti(), getClienteById()<br>
-                                    • getClienteProdotti(), getClienteTimesheet()<br>
-                                    • insertClient(), updateClient(), deleteClient()<br>
-                                    • validateClient(), assignMissingClientIDs()<br>
-                                    • getTimesheetDetail(), updateTimesheetRow()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Timesheet.gs</code></td>
-                                <td>3</td>
-                                <td>
-                                    • getTimesheetDaFatturare()<br>
-                                    • getTimesheetByIds()<br>
-                                    • updateTimesheetProforma()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Pacchetti.gs</code></td>
-                                <td>5</td>
-                                <td>
-                                    • getActivePacchetto(), updatePacchetto()<br>
-                                    • insertPacchetto(), initializePacchetto()<br>
-                                    • getPacchettiScaduti()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Canoni.gs</code></td>
-                                <td>5</td>
-                                <td>
-                                    • generateCanoneID(), insertCanone()<br>
-                                    • getCanoniInScadenza(), getCanoneByID()<br>
-                                    • updateStatoCanone()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Firme.gs</code></td>
-                                <td>6</td>
-                                <td>
-                                    • generateFirmaID(), insertFirma()<br>
-                                    • getFirmeInScadenza(), getFirmaByID()<br>
-                                    • isValidTipoFirma(), updateStatoFirma()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Proforma.gs</code></td>
-                                <td>6</td>
-                                <td>
-                                    • generateProforma(), createProformaPDF()<br>
-                                    • generateProformaNumber()<br>
-                                    • getProformaFolder(), getTemplateFile()<br>
-                                    • getProformaDetails()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Rinnovi.gs</code></td>
-                                <td>5</td>
-                                <td>
-                                    • rinnovaCanone(), rinnovaFirma()<br>
-                                    • getStoricoRinnovi()<br>
-                                    • getTuttiProdottiInScadenza()<br>
-                                    • canRinnovaProdotto()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Calendar.gs</code></td>
-                                <td>3</td>
-                                <td>
-                                    • createScadenzaEvent()<br>
-                                    • deleteCalendarEvent()<br>
-                                    • updateCalendarEvent()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Email.gs</code></td>
-                                <td>3</td>
-                                <td>
-                                    • sendProformaEmail()<br>
-                                    • getClientData()<br>
-                                    • createEmailBody()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>EmailScadenze.gs</code></td>
-                                <td>4</td>
-                                <td>
-                                    • sendFirmaReminderCliente30gg()<br>
-                                    • sendFirmaReminderCliente10gg()<br>
-                                    • sendFirmaReminderGiuseppe10gg()<br>
-                                    • sendPacchettoScadutoAlert()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Trigger.gs</code></td>
-                                <td>6</td>
-                                <td>
-                                    • checkScadenzeGiornaliero() [MAIN]<br>
-                                    • checkFirmeScadenze(), checkPacchettiScaduti()<br>
-                                    • install/disinstallTriggerScadenzeGiornaliero()<br>
-                                    • testCheckScadenze()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Helpers.gs</code></td>
-                                <td>3</td>
-                                <td>
-                                    • getSpreadsheet()<br>
-                                    • getConfigOptions()<br>
-                                    • convertDurationToHours()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Utilities.gs</code></td>
-                                <td>7</td>
-                                <td>
-                                    • doGet(), doPost() [API ENTRY POINTS]<br>
-                                    • writeLog()<br>
-                                    • convertDateToSheetFormat()<br>
-                                    • formatDateItalian(), checkIntegrity()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Codice.gs</code></td>
-                                <td>6</td>
-                                <td>
-                                    • validateClient(), getNextClientID()<br>
-                                    • insertTimesheet(), calculateCost()<br>
-                                    • sendAlert()
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>Config.gs</code></td>
-                                <td>0</td>
-                                <td>
-                                    • Costanti di configurazione<br>
-                                    • URL Spreadsheet, Calendar ID<br>
-                                    • Email, Template proforma
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="info-box">
-                    <h4>📌 Note Architettura Backend</h4>
-                    <ul style="margin-left: 20px;">
-                        <li><strong>Entry Points:</strong> doGet() e doPost() in Utilities.gs gestiscono tutte le richieste</li>
-                        <li><strong>Modularità:</strong> Ogni entità (Clienti, Canoni, Firme, etc.) ha il proprio file</li>
-                        <li><strong>Logging:</strong> writeLog() centralizzato traccia tutte le operazioni</li>
-                        <li><strong>Validazione:</strong> validateClient() usato da tutte le funzioni che richiedono un cliente</li>
-                        <li><strong>Trigger:</strong> Sistema automatico giornaliero (ore 8:00) per scadenze</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- DATABASE -->
-            <div class="section" id="database">
-                <h2 class="section-title">🗄️ 5. Struttura Database (Google Sheet)</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">TAB Principali</h3>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>TAB</th>
-                                <th>Colonne Chiave</th>
-                                <th>Descrizione</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Clienti</strong></td>
-                                <td>A: ID_Cliente<br>B: Nome_Cliente<br>I: Email<br>M: Cellulare<br>N: Tel.</td>
-                                <td>Anagrafica clienti completa con contatti separati</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Timesheet</strong></td>
-                                <td>A: ID_Intervento<br>B: ID_Cliente<br>C: Nome_Cliente<br>E: Data<br>K: Durata_Ore<br>M: Mod_Addebito<br>Q: Costo_Finale</td>
-                                <td>Log interventi con modalità addebito</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Pacchetti</strong></td>
-                                <td>A: ID_Pacchetto<br>B: ID_Cliente<br>E: Ore_Acquistate<br>F: Ore_Utilizzate<br>G: Ore_Residue (formula)<br>J: STATO (formula)</td>
-                                <td>Pacchetti ore con formule automatiche</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Canoni</strong></td>
-                                <td>A: ID_Canone (CA_YYYY_###)<br>B: ID_Precedente<br>C: ID_Cliente<br>D: Nome_Cliente<br>F: Data_Inizio<br>G: Data_Scadenza<br>I: STATO<br>L: Event_ID</td>
-                                <td>Canoni con tracking storico rinnovi</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Firme</strong></td>
-                                <td>A: ID_Firma (FD_YYYY_###)<br>B: ID_Precedente<br>E: Tipo (Token/Remota)<br>G: Data_Scadenza<br>I: STATO<br>L: Event_ID</td>
-                                <td>Firme digitali con durata 3 anni</td>
-                            </tr>
-                            <tr>
-                                <td><strong>RIF</strong></td>
-                                <td>Config_Sheet con opzioni Tipo_Intervento, Mod_Esecuzione, Mod_Addebito</td>
-                                <td>Configurazioni e riferimenti</td>
-                            </tr>
-                            <tr>
-                                <td><strong>System_Log</strong></td>
-                                <td>A: Timestamp<br>B: Level<br>C: Action<br>D: Message</td>
-                                <td>Log completo sistema</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="warning-box">
-                    <h4 style="margin-bottom: 10px;">⚠️ Colonne con Formule Automatiche</h4>
-                    <p><strong>Pacchetti - Colonna G (Ore_Residue):</strong><br>
-                    <code>=E2-F2</code> (Ore_Acquistate - Ore_Utilizzate)</p>
-                    <p style="margin-top: 10px;"><strong>Pacchetti - Colonna J (STATO):</strong><br>
-                    Formula complessa che determina: ATTIVO / TERMINATO / OVER / SCADUTO</p>
-                    <p style="margin-top: 10px;">⚠️ <strong>NON scrivere manualmente in queste colonne</strong> - sono gestite da formule!</p>
-                </div>
-            </div>
-
-            <!-- FLUSSI -->
-            <div class="section" id="flows">
-                <h2 class="section-title">🔄 6. Flussi Operativi Principali</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">📝 Flusso Inserimento Timesheet</h3>
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #28a745; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">
-1. User compila form timesheet (data, cliente, ore, modalità)
-2. Frontend valida dati
-3. POST → doPost(action=insert_timesheet)
-4. Backend valida cliente (validateClient)
-5. Backend cerca pacchetto ATTIVO (getActivePacchetto)
-   
-   SE Mod_Addebito = "Pacchetto Ore":
-      5a. Scala ore da pacchetto (updatePacchetto)
-      5b. Verifica stato → ATTIVO/TERMINATO/OVER
-      5c. Se OVER/TERMINATO → genera alert + email
-   
-6. Inserisce riga in Timesheet
-7. Scrive log
-8. Ritorna success + eventuali alert
-9. Frontend mostra conferma/alert
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">💰 Flusso Vendita Canone</h3>
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #667eea; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">
-1. User compila form vendita canone
-2. Frontend valida (cliente, importo, date)
-3. GET → doGet(action=insert_canone)
-4. Backend:
-   4a. Valida cliente
-   4b. Genera ID_Canone (CA_2025_001)
-   4c. Calcola Data_Scadenza (Data_Inizio + durata_anni)
-   4d. Crea evento Google Calendar con alert -30/-7gg
-   4e. Inserisce riga in TAB Canoni con Event_ID
-   4f. Scrive log
-5. Email conferma automatica
-6. Frontend mostra success
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">🔄 Flusso Rinnovo Canone</h3>
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #ffc107; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">
-1. Sistema identifica canoni in scadenza (< 90gg)
-2. User apre sezione Rinnovi
-3. Visualizza lista canoni rinnovabili
-4. Click "Rinnova" → modal con dati modificabili
-5. Conferma → GET action=rinnova_canone
-6. Backend:
-   6a. Recupera vecchio canone
-   6b. Crea nuovo canone con:
-       - ID_Precedente = CA_vecchio
-       - Data_Inizio = giorno dopo scadenza vecchia
-       - Nuovo Event_ID Calendar
-   6c. Aggiorna vecchio STATO → SCADUTO
-   6d. Elimina vecchio evento Calendar
-7. Ritorna nuovo ID_Canone
-8. Frontend mostra success con link nuovo canone
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">📧 Flusso Email Scadenze (Trigger Giornaliero)</h3>
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #dc3545; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">
-TRIGGER: Ogni giorno ore 8:00
-Funzione: checkScadenzeGiornaliero()
-
-1. Controlla FIRME:
-   Per ogni firma ATTIVA:
-   - Se mancano 30gg → Email SOLO al cliente
-   - Se mancano 10gg → Email al cliente + Giuseppe
-   
-2. Controlla PACCHETTI:
-   Per ogni pacchetto SCADUTO (flag email non inviata):
-   - Invia email alert a Giuseppe
-   - Segna flag "Email inviata" (colonna N)
-
-3. Log completo operazioni
-4. In caso errore → email a Giuseppe
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">📄 Flusso Generazione Proforma</h3>
-                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #17a2b8; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">
-1. User seleziona cliente
-2. Frontend recupera timesheet "Da fatturare"
-3. User seleziona interventi + causale + quota 4%
-4. Click "Genera" → POST action=generate_proforma
-5. Backend:
-   5a. Genera numero proforma (N/YYYY)
-   5b. Recupera dati cliente completi
-   5c. Copia template da Google Docs
-   5d. Compila celle (cliente, data, causale, importi)
-   5e. Calcola subtotale + quota integrativa
-   5f. Converte in PDF
-   5g. Salva in cartella "- PROFORMA"
-   5h. Aggiorna timesheet: Mod_Addebito → "Proformato"
-6. Ritorna URL PDF
-7. Frontend mostra preview + bottone "Invia Email"
-8. User invia email → allegato PDF automatico
-                    </div>
-                </div>
-            </div>
-
-            <!-- API ENDPOINTS -->
-            <div class="section" id="api">
-                <h2 class="section-title">🌐 7. API Endpoints</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">📍 Endpoints Disponibili (50+)</h3>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th>Action</th>
-                                <th>Metodo</th>
-                                <th>Parametri</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td rowspan="3"><strong>Utilities</strong></td>
-                                <td>test_connection</td>
-                                <td>GET</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>get_logs</td>
-                                <td>GET</td>
-                                <td>limit (default 100)</td>
-                            </tr>
-                            <tr>
-                                <td>check_integrity</td>
-                                <td>GET</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="4"><strong>Clienti</strong></td>
-                                <td>get_data</td>
-                                <td>GET</td>
-                                <td>- (ritorna clients + config)</td>
-                            </tr>
-                            <tr>
-                                <td>add_client</td>
-                                <td>GET</td>
-                                <td>client_name, client_email</td>
-                            </tr>
-                            <tr>
-                                <td>update_client</td>
-                                <td>GET</td>
-                                <td>id_cliente, campo, valore</td>
-                            </tr>
-                            <tr>
-                                <td>delete_client</td>
-                                <td>GET</td>
-                                <td>id_cliente</td>
-                            </tr>
-                            <tr>
-                                <td>search_clienti</td>
-                                <td>GET</td>
-                                <td>search (termine ricerca: nome, P.IVA, CF, email)</td>
-                            </tr>
-                            <tr>
-                                <td>get_cliente</td>
-                                <td>GET</td>
-                                <td>id (ID_Cliente completo)</td>
-                            </tr>
-                            <tr>
-                                <td>get_cliente_prodotti</td>
-                                <td>GET</td>
-                                <td>id (ritorna pacchetti, canoni, firme attivi)</td>
-                            </tr>
-                            <tr>
-                                <td>get_cliente_timesheet</td>
-                                <td>GET</td>
-                                <td>id (ritorna timesheet "Da fatturare")</td>
-                            </tr>
-                            <tr>
-                                <td>get_timesheet_detail</td>
-                                <td>GET</td>
-                                <td>row (row index del timesheet)</td>
-                            </tr>
-                            <tr>
-                                <td>update_timesheet</td>
-                                <td>POST</td>
-                                <td>rowIndex, data, ore, descrizione, tipoIntervento, modEsecuzione, chiamata, costo</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="2"><strong>Timesheet</strong></td>
-                                <td>insert_timesheet</td>
-                                <td>POST</td>
-                                <td>id_cliente, data, tipo, ore, mod_addebito...</td>
-                            </tr>
-                            <tr>
-                                <td>get_timesheet_da_fatturare</td>
-                                <td>GET</td>
-                                <td>client_name</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="3"><strong>Proforma</strong></td>
-                                <td>generate_proforma</td>
-                                <td>GET</td>
-                                <td>client_name, timesheet_ids, causale, applica_quota</td>
-                            </tr>
-                            <tr>
-                                <td>get_proforma_details</td>
-                                <td>GET</td>
-                                <td>n_proforma</td>
-                            </tr>
-                            <tr>
-                                <td>send_proforma_email</td>
-                                <td>GET</td>
-                                <td>n_proforma, client_email, subject, body</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="3"><strong>Pacchetti</strong></td>
-                                <td>insert_pacchetto</td>
-                                <td>GET</td>
-                                <td>cliente_nome, ore_totali, importo, data_inizio</td>
-                            </tr>
-                            <tr>
-                                <td>get_pacchetti_scaduti</td>
-                                <td>GET</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>get_active_pacchetto</td>
-                                <td>GET</td>
-                                <td>id_cliente</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="3"><strong>Canoni</strong></td>
-                                <td>insert_canone</td>
-                                <td>GET</td>
-                                <td>cliente_nome, importo, data_inizio, durata_anni</td>
-                            </tr>
-                            <tr>
-                                <td>get_canoni_in_scadenza</td>
-                                <td>GET</td>
-                                <td>giorni (default 90)</td>
-                            </tr>
-                            <tr>
-                                <td>update_stato_canone</td>
-                                <td>GET</td>
-                                <td>id_canone, nuovo_stato</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="3"><strong>Firme</strong></td>
-                                <td>insert_firma</td>
-                                <td>GET</td>
-                                <td>cliente_nome, tipo, importo, data_inizio</td>
-                            </tr>
-                            <tr>
-                                <td>get_firme_in_scadenza</td>
-                                <td>GET</td>
-                                <td>giorni (default 90)</td>
-                            </tr>
-                            <tr>
-                                <td>update_stato_firma</td>
-                                <td>GET</td>
-                                <td>id_firma, nuovo_stato</td>
-                            </tr>
-                            <tr>
-                                <td rowspan="4"><strong>Rinnovi</strong></td>
-                                <td>rinnova_canone</td>
-                                <td>GET</td>
-                                <td>id_canone_vecchio, nuovi_dati</td>
-                            </tr>
-                            <tr>
-                                <td>rinnova_firma</td>
-                                <td>GET</td>
-                                <td>id_firma_vecchia, nuovi_dati</td>
-                            </tr>
-                            <tr>
-                                <td>get_storico_rinnovi</td>
-                                <td>GET</td>
-                                <td>id_prodotto, tipo</td>
-                            </tr>
-                            <tr>
-                                <td>get_tutti_prodotti_in_scadenza</td>
-                                <td>GET</td>
-                                <td>giorni (default 90)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="info-box">
-                    <h4 style="margin-bottom: 10px;">🔒 Autenticazione</h4>
-                    <p>Il Web App è deployed con permessi <code>Anyone</code> per consentire accesso esterno. OAuth 2.0 configurato per Calendar e Drive API.</p>
-                </div>
-            </div>
-
-            <!-- CHANGELOG -->
-            <div class="section" id="changelog">
-                <h2 class="section-title">📝 8. Changelog v3.0 → v3.7</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">🆕 Novità Versione 3.7 (Ottobre-Novembre 2025)</h3>
-                    
-                    <div class="success-box">
-                        <h4>✅ Sistema Vendite Completo</h4>
-                        <ul style="margin-left: 20px;">
-                            <li>✅ Canoni con Calendar integration</li>
-                            <li>✅ Firme Digitali (Token/Remota) con durata 3 anni</li>
-                            <li>✅ Pacchetti ore con formule automatiche STATO</li>
-                            <li>✅ Generazione ID automatica (CA_YYYY_###, FD_YYYY_###)</li>
-                        </ul>
-                    </div>
-
-                    <div class="success-box">
-                        <h4>✅ Sistema Rinnovi Automatici</h4>
-                        <ul style="margin-left: 20px;">
-                            <li>✅ Tracking storico con ID_Precedente</li>
-                            <li>✅ Modifica importi durante rinnovo</li>
-                            <li>✅ Gestione automatica vecchi Eventi Calendar</li>
-                            <li>✅ Validazione: solo prodotti ATTIVI rinnovabili</li>
-                        </ul>
-                    </div>
-
-                    <div class="success-box">
-                        <h4>✅ Sistema Email Scadenze (Trigger)</h4>
-                        <ul style="margin-left: 20px;">
-                            <li>✅ Trigger giornaliero ore 8:00</li>
-                            <li>✅ Email firme: 30gg (cliente) + 10gg (cliente + Giuseppe)</li>
-                            <li>✅ Email pacchetti SCADUTI a Giuseppe</li>
-                            <li>✅ Template HTML professionali</li>
-                            <li>✅ Log completo invii</li>
-                        </ul>
-                    </div>
-
-                    <div class="success-box">
-                        <h4>✅ Google Calendar Integration</h4>
-                        <ul style="margin-left: 20px;">
-                            <li>✅ Eventi automatici per ogni vendita</li>
-                            <li>✅ Alert programmati multi-livello</li>
-                            <li>✅ Update/Delete eventi su modifica/cancellazione</li>
-                            <li>✅ Event_ID salvato in DB per tracking</li>
-                        </ul>
-                    </div>
-
-                    <div class="success-box">
-                        <h4>✅ Tab Clienti Avanzata</h4>
-                        <ul style="margin-left: 20px;">
-                            <li>✅ Ricerca clienti multi-campo (nome, P.IVA, CF, email)</li>
-                            <li>✅ Vista dettaglio con prodotti attivi e timesheet non fatturati</li>
-                            <li>✅ Modal "Esporta Dati Cliente" con 3 funzioni:
-                                <ul style="margin-left: 20px; margin-top: 5px;">
-                                    <li>• Visualizzazione dati formattati per copia/incolla</li>
-                                    <li>• Copia negli appunti con un click (compatibile smartphone)</li>
-                                    <li>• Esportazione vCard (.vcf) completa</li>
-                                </ul>
-                            </li>
-                            <li>✅ Modifica timesheet diretta dalla tab Clienti</li>
-                            <li>✅ Campi Cellulare e Tel. separati nel database (colonne M e N)</li>
-                            <li>✅ API complete: search_clienti, get_cliente, get_cliente_prodotti, get_cliente_timesheet</li>
-                        </ul>
-                    </div>
-
-                    <div class="warning-box">
-                        <h4>🔧 Miglioramenti Tecnici</h4>
-                        <ul style="margin-left: 20px;">
-                            <li>• Validazione cliente centralizzata (validateClient)</li>
-                            <li>• Sistema log migliorato (writeLog con metadata)</li>
-                            <li>• Error handling robusto su tutte le API</li>
-                            <li>• Frontend refactoring modulare</li>
-                            <li>• CSS separati per componente</li>
-                            <li>• Fallback execCommand per copia appunti su smartphone</li>
-                        </ul>
-                    </div>
-
-                    <div class="info-box">
-                        <h4>📊 Metriche Sistema v3.7</h4>
-                        <div class="grid">
-                            <div class="stats-box">
-                                <div class="stats-number">7</div>
-                                <div class="stats-label">TAB Database</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">15</div>
-                                <div class="stats-label">File Backend (.gs)</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">~79</div>
-                                <div class="stats-label">Funzioni Backend</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">~6500</div>
-                                <div class="stats-label">Righe Codice Backend</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">55+</div>
-                                <div class="stats-label">API Endpoints</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">9</div>
-                                <div class="stats-label">File Frontend (.js)</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">100%</div>
-                                <div class="stats-label">Mobile Ready</div>
-                            </div>
-                            <div class="stats-box">
-                                <div class="stats-number">PWA</div>
-                                <div class="stats-label">Installabile</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">📅 Timeline Sviluppo</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Versione</th>
-                                <th>Data</th>
-                                <th>Milestone</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>v1.0</strong></td>
-                                <td>-</td>
-                                <td>Sistema base Timesheet + Pacchetti + Proforma</td>
-                            </tr>
-                            <tr>
-                                <td><strong>v2.0</strong></td>
-                                <td>-</td>
-                                <td>Refactoring frontend, PWA, gestione clienti migliorata</td>
-                            </tr>
-                            <tr>
-                                <td><strong>v3.0</strong></td>
-                                <td>Gennaio 2025</td>
-                                <td>Piano sviluppo vendite + calendar (documentato)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>v3.1-3.6</strong></td>
-                                <td>Gen-Ott 2025</td>
-                                <td>Implementazione incrementale funzionalità v3.0</td>
-                            </tr>
-                            <tr>
-                                <td><strong>v3.7</strong></td>
-                                <td>31 Ottobre 2025</td>
-                                <td>Sistema completo vendite + rinnovi + email automatiche</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- QUICK REFERENCE -->
-            <div class="section" id="quickref">
-                <h2 class="section-title">⚡ 9. Quick Reference</h2>
-                
-                <div class="subsection">
-                    <h3 class="subsection-title">🎯 Per Iniziare Nuove Chat</h3>
-                    
-                    <div class="success-box">
-                        <h4>📋 Copia-Incolla questo per nuove conversazioni:</h4>
-                        <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 15px; border: 2px solid #28a745; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap;">
-🚀 <strong>CRM STUDIO SMART - v3.7</strong>
-
-<strong>SISTEMA:</strong> Google Apps Script + Google Sheets + PWA Frontend
-<strong>STACK:</strong> Vanilla JS, HTML5, CSS3 (mobile-first)
-<strong>DATABASE:</strong> Google Sheet (1aSNuc5fzkgUERsJ6pNPn-Rkte3SJMcksHNicCu8T2yQ)
-
-<strong>BACKEND (15 file .gs, ~6.440 righe):</strong>
-- Codice.gs (router principale, doGet/doPost)
-- Clienti.gs, Timesheet.gs, Pacchetti.gs
-- Canoni.gs, Firme.gs, Rinnovi.gs
-- Calendar.gs, Email.gs, EmailScadenze.gs
-- Proforma.gs, Trigger.gs, Utilities.gs
-- Helpers.gs, Config.gs
-
-<strong>FRONTEND (9 file .js, ~3.041 righe):</strong>
-- index.html (unico file HTML)
-- main.js, api.js, config.js
-- clienti.js, timesheet.js, vendite.js
-- proforma.js, utilities.js, utils.js
-+ 9 file CSS modulari
-
-<strong>FUNZIONALITÀ PRINCIPALI:</strong>
-✅ Gestione clienti (CRUD)
-✅ Timesheet con pacchetti ore
-✅ Vendite: Canoni, Firme, Pacchetti
-✅ Proforma automatiche (template + PDF)
-✅ Google Calendar integration (scadenze)
-✅ Rinnovi automatici con storico (ID_Precedente)
-✅ Email automatiche scadenze (trigger ore 8:00)
-✅ Sistema log completo
-
-<strong>TAB DATABASE:</strong>
-- Clienti, Timesheet, Pacchetti
-- Canoni (CA_YYYY_###), Firme (FD_YYYY_###)
-- RIF (config), System_Log
-
-<strong>TRIGGER:</strong>
-Giornaliero ore 8:00 → checkScadenzeGiornaliero()
-- Firme: email 30gg (cliente) + 10gg (cliente+Giuseppe)
-- Pacchetti SCADUTI: alert Giuseppe
-
-<strong>FILE DISPONIBILI:</strong>
-[Link documento HTML completo: CRM_Studio_Smart_RIEPILOGO_v3-7.html]
-                        </div>
-                    </div>
-                </div>
-
-                <div class="subsection">
-                    <h3 class="subsection-title">🔑 Comandi Utili</h3>
-                    
-                    <div class="grid">
-                        <div class="card">
-                            <div class="card-title">📂 Accesso Files</div>
-                            <div class="card-content">
-                                <strong>Google Sheet:</strong><br>
-                                <code style="font-size: 0.7rem;">1aSNuc5fzkgUERsJ6pNPn-Rkte3SJMcksHNicCu8T2yQ</code><br><br>
-                                <strong>Apps Script:</strong><br>
-                                script.google.com → Progetto CRM
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">🧪 Test API</div>
-                            <div class="card-content">
-                                <code style="font-size: 0.75rem;">?action=test_connection</code><br>
-                                <code style="font-size: 0.75rem;">?action=get_logs&limit=50</code><br>
-                                <code style="font-size: 0.75rem;">?action=check_integrity</code>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">📧 Email Config</div>
-                            <div class="card-content">
-                                <strong>From:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2c45424a436c5f5859484543015f414d5e58024558">[email&#160;protected]</a><br>
-                                <strong>Quota:</strong> 100/day (free)<br>
-                                <strong>Trigger:</strong> 8:00 giornaliero
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-title">🔧 Manutenzione</div>
-                            <div class="card-content">
-                                • Backup: generate_backup()<br>
-                                • Clean logs: clean_logs(30)<br>
-                                • Check trigger: Script Editor → Triggers
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="warning-box">
-                    <h4 style="margin-bottom: 10px;">⚠️ Note Importanti</h4>
-                    <ul style="margin-left: 20px;">
-                        <li><strong>Non modificare manualmente</strong> colonne con formule (Pacchetti: Ore_Residue, STATO)</li>
-                        <li><strong>Validare sempre cliente</strong> prima di operazioni (validateClient obbligatorio)</li>
-                        <li><strong>Event_ID Calendar</strong> va salvato per permettere delete/update eventi</li>
-                        <li><strong>ID_Precedente</strong> crea la catena storica rinnovi - non cancellare</li>
-                        <li><strong>Trigger email</strong> verifica quota giornaliera (100 email/day su account free)</li>
-                    </ul>
-                </div>
-
-                <div class="info-box">
-                    <h4 style="margin-bottom: 10px;">📚 Documentazione Completa</h4>
-                    <p>Questo documento HTML contiene l'intera architettura, tutti i file, funzioni, flussi e API endpoints del sistema CRM v3.7.</p>
-                    <p style="margin-top: 10px;"><strong>Usa questo file come riferimento</strong> per:</p>
-                    <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li>Iniziare nuove chat con Claude fornendo il contesto completo</li>
-                        <li>Onboarding nuovi sviluppatori</li>
-                        <li>Debugging e troubleshooting</li>
-                        <li>Pianificazione evolutive future</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- FOOTER -->
-            <div style="margin-top: 60px; padding: 30px; background: #f8f9fa; border-radius: 8px; text-align: center;">
-                <h3 style="color: #667eea; margin-bottom: 15px;">🎯 Sistema Pronto per Sviluppi v4.0</h3>
-                <p style="color: #666; margin-bottom: 20px;">
-                    Documentazione aggiornata al <strong>31 Ottobre 2025</strong><br>
-                    Versione CRM: <strong>3.7</strong> | Backend: <strong>~6.440 righe</strong> | Frontend: <strong>~3.041 righe</strong>
+            <!-- OVERVIEW -->
+            <div class="section">
+                <h2 class="section-title">🎯 Overview Progetto</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 20px;">
+                    <strong>CRM Studio Smart</strong> è un sistema completo di gestione clienti progettato per studi legali e professionali. 
+                    Integra timesheet, fatturazione, pacchetti ore, gestione scadenze e molto altro in un'unica applicazione web moderna, performante e offline-capable.
                 </p>
-                <div style="margin-top: 20px;">
-                    <span class="badge badge-success">✅ OPERATIVO</span>
-                    <span class="badge badge-info">📱 MOBILE-READY</span>
-                    <span class="badge
+                
+                <p style="line-height: 1.8; color: #666;">
+                    Il sistema è stato progettato per massimizzare efficienza e usabilità, con particolare attenzione a:
+                </p>
+                <ul style="margin: 16px 0 20px 20px; line-height: 2;">
+                    <li>🚀 <strong>Performance:</strong> Cache intelligente (+70% velocità), micro-caching backend</li>
+                    <li>📱 <strong>Mobile-first:</strong> PWA installabile, funziona offline</li>
+                    <li>🔒 <strong>Data integrity:</strong> Validazione robusta, sistema log completo</li>
+                    <li>⚡ <strong>Zero server cost:</strong> GitHub Pages + Google Apps Script</li>
+                    <li>🔄 <strong>Real-time sync:</strong> Google Sheets come database cloud</li>
+                </ul>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">~9.000</span>
+                        <span class="stat-label">Righe di Codice</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">14</span>
+                        <span class="stat-label">File Backend (.gs)</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">9</span>
+                        <span class="stat-label">File Frontend (.js)</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">33+</span>
+                        <span class="stat-label">API Endpoints</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ARCHITETTURA -->
+            <div class="section">
+                <h2 class="section-title">🏗️ Architettura Generale</h2>
+                
+                <div class="tech-stack">
+                    <div class="tech-row">
+                        <div class="tech-label">Frontend:</div>
+                        <div class="tech-value">HTML5 + Vanilla JavaScript + CSS3 (PWA)</div>
+                    </div>
+                    <div class="tech-row">
+                        <div class="tech-label">Backend:</div>
+                        <div class="tech-value">Google Apps Script (Serverless)</div>
+                    </div>
+                    <div class="tech-row">
+                        <div class="tech-label">Database:</div>
+                        <div class="tech-value">Google Sheets (Cloud Spreadsheet)</div>
+                    </div>
+                    <div class="tech-row">
+                        <div class="tech-label">API:</div>
+                        <div class="tech-value">REST over HTTPS, JSON response format</div>
+                    </div>
+                    <div class="tech-row">
+                        <div class="tech-label">Deployment:</div>
+                        <div class="tech-value">GitHub Pages (frontend) + Apps Script Web App (backend)</div>
+                    </div>
+                    <div class="tech-row">
+                        <div class="tech-label">Caching:</div>
+                        <div class="tech-value">Service Worker (frontend) + Micro-cache (backend)</div>
+                    </div>
+                    <div class="tech-row">
+                        <div class="tech-label">Versioning:</div>
+                        <div class="tech-value">Git (GitHub) + Apps Script native versioning</div>
+                    </div>
+                </div>
+                
+                <div class="architecture-diagram">
+<pre>
+┌───────────────────────────────────────────────────────────────────────┐
+│                         UTENTE (Browser)                               │
+│                      Desktop / Mobile / Tablet                         │
+└──────────────────────────────┬────────────────────────────────────────┘
+                               │
+                               │ HTTPS
+                               ↓
+┌───────────────────────────────────────────────────────────────────────┐
+│                    FRONTEND (GitHub Pages)                             │
+│                   https://niubbone.github.io/TSFE/                     │
+│                                                                         │
+│  ┌──────────────┐  ┌───────────────┐  ┌────────────────┐             │
+│  │  index.html  │  │  JavaScript   │  │ Service Worker │             │
+│  │   + CSS      │→ │  Modules      │→ │   (Cache)      │             │
+│  │              │  │               │  │                │             │
+│  │  • UI/UX     │  │ • main.js     │  │ • Offline      │             │
+│  │  • Forms     │  │ • client.js   │  │ • Cache API    │             │
+│  │  • Modals    │  │ • vendite.js  │  │ • Background   │             │
+│  │  • Tables    │  │ • dom.js      │  │   Sync         │             │
+│  └──────────────┘  └───────────────┘  └────────────────┘             │
+│                                                                         │
+│  State: window.clients, window.packets (in-memory cache)               │
+└──────────────────────────────┬────────────────────────────────────────┘
+                               │
+                               │ REST API (GET/POST)
+                               │ ?action=get_data&params=...
+                               ↓
+┌───────────────────────────────────────────────────────────────────────┐
+│                  BACKEND (Google Apps Script)                          │
+│                        Serverless Runtime                              │
+│                                                                         │
+│  ┌──────────────┐  ┌──────────────────────────────────┐               │
+│  │  Router.gs   │→ │     Business Logic Layer         │               │
+│  │              │  │                                  │               │
+│  │  doGet(e)    │  │  • Clienti.gs     • Vendite.gs  │               │
+│  │  doPost(e)   │  │  • Timesheet.gs   • Firme.gs    │               │
+│  │              │  │  • Pacchetti.gs   • Canoni.gs   │               │
+│  │  Switch/Case │  │  • Proforma.gs    • Email.gs    │               │
+│  │  Routing     │  │  • Calendar.gs    • Log.gs      │               │
+│  └──────────────┘  └──────────────────────────────────┘               │
+│                                                                         │
+│  ┌──────────────────────────────────────────────────────────┐         │
+│  │              Utility & Cache Layer                        │         │
+│  │  • crm_utils.gs (helpers, validation)                    │         │
+│  │  • Cache.gs (micro-cache: clienti +70% perf)             │         │
+│  │  • crm_email.gs (template email automation)              │         │
+│  └──────────────────────────────────────────────────────────┘         │
+└──────────────────────────────┬────────────────────────────────────────┘
+                               │
+                               │ SpreadsheetApp API
+                               │ getSheetByName(), getRange(), setValues()
+                               ↓
+┌───────────────────────────────────────────────────────────────────────┐
+│                     DATABASE (Google Sheets)                           │
+│                        Cloud Spreadsheet                               │
+│                                                                         │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐     │
+│  │  Clienti   │  │ Timesheet  │  │ Pacchetti  │  │  Proforma  │     │
+│  │            │  │            │  │            │  │            │     │
+│  │ • ID       │  │ • ID       │  │ • ID       │  │ • N°       │     │
+│  │ • Nome     │  │ • Cliente  │  │ • Cliente  │  │ • Cliente  │     │
+│  │ • Email    │  │ • Data     │  │ • Ore Tot  │  │ • Importo  │     │
+│  │ • Telefono │  │ • Ore      │  │ • Residue  │  │ • Data     │     │
+│  └────────────┘  └────────────┘  └────────────┘  └────────────┘     │
+│                                                                         │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐     │
+│  │   Canoni   │  │   Firme    │  │    Log     │  │   Config   │     │
+│  │            │  │  Digitali  │  │            │  │            │     │
+│  │ • ID       │  │ • ID       │  │ • Time     │  │ • Settings │     │
+│  │ • Cliente  │  │ • Cliente  │  │ • Action   │  │ • API Keys │     │
+│  │ • Importo  │  │ • Tipo     │  │ • User     │  │ • Globals  │     │
+│  │ • Scadenza │  │ • Scadenza │  │ • Result   │  │            │     │
+│  └────────────┘  └────────────┘  └────────────┘  └────────────┘     │
+│                                                                         │
+│  Formule: SUMIF, VLOOKUP, COUNTIF per aggregazioni real-time          │
+└───────────────────────────────────────────────────────────────────────┘
+
+                    ┌─────────────────────────────┐
+                    │  INTEGRAZIONI ESTERNE       │
+                    │                             │
+                    │  • Google Calendar API      │
+                    │    (scadenze automatiche)   │
+                    │                             │
+                    │  • Gmail API               │
+                    │    (email notifiche)        │
+                    │                             │
+                    │  • Google Docs API         │
+                    │    (proforma template)      │
+                    └─────────────────────────────┘
+</pre>
+                </div>
+            </div>
+            
+            <!-- DATA FLOW -->
+            <div class="section">
+                <h2 class="section-title">🔄 Data Flow Esempio</h2>
+                
+                <div class="architecture-diagram">
+<pre>
+ESEMPIO: Inserimento Nuovo Cliente
+
+1. UTENTE
+   └─> Compila form cliente (nome, email, telefono)
+   └─> Click "Salva Cliente"
+
+2. FRONTEND (client.js)
+   └─> Valida input (email format, campi required)
+   └─> showLoadingState()
+   └─> fetch(`${API_URL}?action=insert_client&nome=...&email=...`)
+
+3. BACKEND (Router.gs)
+   └─> doGet(e) riceve request
+   └─> switch(e.parameter.action)
+   └─> case 'insert_client': return insertClient(e.parameter)
+
+4. BUSINESS LOGIC (Clienti.gs)
+   └─> insertClient(params)
+       ├─> validateClientData(params) // check email duplicati
+       ├─> generateClientID() // C_2025_001
+       ├─> getSpreadsheet().getSheetByName('Clienti')
+       ├─> appendRow([id, nome, email, tel, ...])
+       ├─> writeLog('SUCCESS', 'INSERT_CLIENT', ...)
+       ├─> invalidateCacheClienti() // cache refresh
+       └─> return {success: true, clientId: "C_2025_001"}
+
+5. FRONTEND RESPONSE
+   └─> result = await response.json()
+   └─> if (result.success):
+       ├─> updateClientsList() // reload lista
+       ├─> closeModal('client-modal')
+       ├─> showSuccessMessage("Cliente creato!")
+       └─> window.clients.push(newClient) // update cache
+
+6. GOOGLE SHEETS
+   └─> Nuova riga in foglio "Clienti"
+   └─> Trigger formule automatiche (es: COUNTIF per stats)
+   └─> Data disponibile immediatamente per altre funzioni
+</pre>
+                </div>
+            </div>
+            
+            <!-- COMPONENTI -->
+            <div class="section">
+                <h2 class="section-title">📦 Componenti Principali</h2>
+                
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>📘 Backend Reference</h3>
+                        <p>Google Apps Script: API endpoints, funzioni core, gestione database Google Sheets, micro-caching, sistema log completo</p>
+                        <a href="arc_backend.html" class="card-link">Apri Backend Docs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📗 Frontend Reference</h3>
+                        <p>JavaScript modules: struttura codice, UI components, state management, PWA features, Service Worker strategy</p>
+                        <a href="arc_frontend.html" class="card-link">Apri Frontend Docs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>⚡ Quick Reference</h3>
+                        <p>Cheat sheet sviluppo: endpoints API, funzioni chiave, pattern comuni, esempi codice ready-to-use</p>
+                        <a href="tech_sheet.html" class="card-link">Apri Tech Sheet →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DEPLOYMENT -->
+            <div class="section">
+                <h2 class="section-title">🚀 Deployment & Infrastructure</h2>
+                
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Frontend (GitHub Pages)</h3>
+                        <p><strong>URL Produzione:</strong><br>
+                        <code>https://niubbone.github.io/TSFE/</code></p>
+                        
+                        <p style="margin-top: 12px;"><strong>Caratteristiche:</strong></p>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li>✅ PWA installabile</li>
+                            <li>✅ Service Worker attivo</li>
+                            <li>✅ Offline-capable</li>
+                            <li>✅ HTTPS nativo</li>
+                            <li>✅ CDN globale</li>
+                        </ul>
+                        
+                        <p style="margin-top: 12px;"><strong>Deploy:</strong><br>
+                        <code>git push origin main</code><br>
+                        Auto-deploy in ~1 minuto</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Backend (Google Apps Script)</h3>
+                        <p><strong>Runtime:</strong><br>
+                        Google Apps Script V8 Engine</p>
+                        
+                        <p style="margin-top: 12px;"><strong>Caratteristiche:</strong></p>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li>✅ Serverless (zero cost)</li>
+                            <li>✅ Auto-scaling</li>
+                            <li>✅ Micro-cache attivo</li>
+                            <li>✅ Execution time: ~2-3s avg</li>
+                            <li>✅ 99.9% uptime</li>
+                        </ul>
+                        
+                        <p style="margin-top: 12px;"><strong>Deploy:</strong><br>
+                        Apps Script Editor → Deploy → New version<br>
+                        Versioning automatico</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FEATURES -->
+            <div class="section">
+                <h2 class="section-title">✨ Funzionalità Principali</h2>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        ✅ <strong>Gestione Clienti:</strong> CRUD completo, ricerca avanzata, validazione email, deduplicazione automatica
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Timesheet:</strong> Tracciamento ore con modalità addebito (orario/forfait), export CSV, filtri avanzati
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Pacchetti Ore:</strong> Gestione automatica residui, calcolo scadenze, notifiche esaurimento
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Proforma:</strong> Generazione automatica con template Google Docs, numerazione progressiva, export PDF
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Vendite - Canoni:</strong> Gestione abbonamenti periodici, rinnovo automatico, Calendar integration
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Vendite - Firme Digitali:</strong> Token/Remota, durata 3 anni, alert scadenze 30/10 giorni
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Vendite - Pacchetti:</strong> Creazione pacchetti ore prepagati, tracking consumo, residui real-time
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Scadenzario:</strong> Google Calendar integrato, email automatiche, dashboard scadenze
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Sistema Rinnovi:</strong> Storico completo rinnovi canoni/firme, chain tracking
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Sistema Log:</strong> Tracciamento completo operazioni, data integrity check, query log avanzate
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>PWA:</strong> Installabile su desktop/mobile, cache intelligente, sync background
+                    </div>
+                    <div class="feature-item">
+                        ✅ <strong>Performance:</strong> Micro-cache +70%, Service Worker, lazy loading, debounced search
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PERFORMANCE METRICS -->
+            <div class="section">
+                <h2 class="section-title">📊 Performance & Metrics</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">+70%</span>
+                        <span class="stat-label">Performance Gain<br>(Micro-cache)</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">~2-3s</span>
+                        <span class="stat-label">Avg API Response<br>(cached: ~200ms)</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Offline Capability<br>(Service Worker)</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">0€</span>
+                        <span class="stat-label">Server Cost<br>(Serverless)</span>
+                    </div>
+                </div>
+                
+                <div class="tech-stack" style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 16px;">🎯 Ottimizzazioni Implementate</h3>
+                    <ul style="line-height: 2; margin-left: 20px;">
+                        <li><strong>Backend:</strong> Micro-cache clienti (5min TTL), query optimization, batch operations</li>
+                        <li><strong>Frontend:</strong> Service Worker caching, debounced search (300ms), lazy modals</li>
+                        <li><strong>Network:</strong> Request deduplication, retry logic, timeout management</li>
+                        <li><strong>Database:</strong> Indexed ranges, VLOOKUP optimization, formula caching</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- SECURITY -->
+            <div class="section">
+                <h2 class="section-title">🔒 Security & Data Integrity</h2>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        🔐 <strong>HTTPS Only:</strong> GitHub Pages (SSL) + Apps Script (SSL), no mixed content
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>Input Validation:</strong> Frontend (UI) + Backend (business logic), double layer
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>Email Validation:</strong> Regex pattern + domain verification, deduplicazione
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>SQL Injection:</strong> N/A (Google Sheets, no SQL queries)
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>XSS Protection:</strong> No innerHTML con user input, sanitization layer
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>Data Backup:</strong> Google Sheets native versioning (30 giorni history)
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>Audit Log:</strong> Tutte operazioni CRUD logged con timestamp + user
+                    </div>
+                    <div class="feature-item">
+                        🔐 <strong>Access Control:</strong> Apps Script deployed "as user" (OAuth Google)
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FUTURE ROADMAP -->
+            <div class="section">
+                <h2 class="section-title">🚀 Roadmap & Future Development</h2>
+                
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>✅ Completato (v4.0)</h3>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>Backend refactoring completo</li>
+                            <li>PWA implementation</li>
+                            <li>Micro-cache system</li>
+                            <li>Sistema rinnovi</li>
+                            <li>Version management</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🔄 In Progress (v4.1)</h3>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>Frontend refactoring (modules)</li>
+                            <li>Enhanced error handling</li>
+                            <li>Advanced analytics dashboard</li>
+                            <li>Export improvements</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📋 Planned (v4.2+)</h3>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li>Multi-user support</li>
+                            <li>Advanced reporting</li>
+                            <li>Mobile app (native)</li>
+                            <li>API v2 (GraphQL?)</li>
+                            <li>Real-time collaboration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- BACK LINK -->
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="../index.html" class="back-link">← Torna all'Applicazione</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
