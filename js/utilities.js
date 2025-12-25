@@ -123,19 +123,24 @@ window.downloadFrontendBackup = async function() {
             }
         }
         
-        // 5. ASSETS
-        const assetsFiles = [
-            'favicon.ico', 'favicon.svg', 'favicon-96x96.png',
-            'apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png'
+        // 5. ICONS
+        const iconsFolder = zip.folder('icons');
+        const iconFiles = [
+            'favicon.ico',
+            'favicon.svg',
+            'favicon-96x96.png',
+            'apple-touch-icon.png',
+            'web-app-manifest-192x192.png',
+            'web-app-manifest-512x512.png'
         ];
         
-        for (const file of assetsFiles) {
+        for (const file of iconFiles) {
             try {
-                const response = await fetch(file);
+                const response = await fetch(`icons/${file}`);
                 const blob = await response.blob();
-                zip.file(file, blob);
+                iconsFolder.file(file, blob);
             } catch(e) {
-                console.log(`${file} non trovato - ignorato`);
+                console.log(`icons/${file} non trovato - ignorato`);
             }
         }
         
@@ -164,12 +169,16 @@ CONTENUTO:
 ├── docs/ (4 files)
 │   ├── architecture.html, arc_backend.html
 │   └── arc_frontend.html, tech_sheet.html
-└── assets/ (6 icone)
+└── icons/ (6 files)
+    ├── favicon.ico, favicon.svg, favicon-96x96.png
+    ├── apple-touch-icon.png
+    ├── web-app-manifest-192x192.png
+    └── web-app-manifest-512x512.png
 
-TOTALE: 31 file frontend + assets
+TOTALE: 31 file frontend + 6 icone
 
 RIPRISTINO:
-1. Estrai tutti i file
+1. Estrai tutti i file mantenendo struttura cartelle
 2. Carica su GitHub Pages
 3. Verifica CONFIG.APPS_SCRIPT_URL in js/config.js
 4. Test locale: python3 -m http.server 8000
