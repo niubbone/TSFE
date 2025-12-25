@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Reference - CRM Studio Smart</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+        
+        .breadcrumb {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .breadcrumb a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .subsection {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .subsection-title {
+            font-size: 1.3rem;
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #d63031;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+        
+        .file-tree {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            margin: 30px 0;
+        }
+        
+        .nav-link {
+            flex: 1;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            .nav-links { flex-direction: column; }
+            table { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="breadcrumb">
+                <a href="architecture.html">← Architettura</a> / Backend Reference
+            </div>
+            <h1>📘 Backend Reference</h1>
+            <p>Google Apps Script - API Endpoints - Database Structure</p>
+        </div>
+        
+        <div class="content">
+            
+            <!-- STRUTTURA FILE -->
+            <div class="section">
+                <h2 class="section-title">📂 Struttura File Backend (.gs)</h2>
+                
+                <div class="file-tree">
+<pre>
+Backend (Google Apps Script)
+│
+├── 🔀 ROUTER & CORE
+│   ├── Router.gs                    → doGet(e), doPost(e), switch/case routing
+│   ├── crm_utils.gs                 → Utilities generali, helpers, validation
+│   └── Cache.gs                     → Micro-cache layer (+70% performance)
+│
+├── 📊 GESTIONE DATI
+│   ├── Clienti.gs                   → CRUD clienti, search, validation
+│   ├── Timesheet.gs                 → Insert/get timesheet, ore tracking
+│   ├── Pacchetti.gs                 → Gestione pacchetti ore, residui
+│   └── Proforma.gs                  → Generazione proforma, template Docs
+│
+├── 💼 VENDITE & PRODOTTI
+│   ├── Vendite.gs                   → Router vendite (firme/canoni/pacchetti)
+│   ├── Firme.gs                     → Gestione firme digitali
+│   ├── Canoni.gs                    → Gestione canoni periodici
+│   └── Rinnovi.gs                   → Sistema rinnovi automatici
+│
+├── 📅 SCADENZE & NOTIFICHE
+│   ├── Calendar.gs                  → Google Calendar integration
+│   ├── crm_email.gs                 → Template email, invio automatico
+│   └── Scadenze.gs                  → Monitoring scadenze, alert
+│
+└── 🛠️ UTILITIES
+    ├── Log.gs                       → Sistema log completo
+    └── Config.gs                    → Configurazione globale
+
+TOTALE: 14 file .gs
+</pre>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Nota Refactoring v4.0:</strong> Ridotti da 16 → 14 file, eliminati ~1.500 righe duplicate.
+                    Consolidate utilities (crm_utils.gs), email (crm_email.gs), cache centralizzata.
+                </div>
+            </div>
+            
+            <!-- API ENDPOINTS -->
+            <div class="section">
+                <h2 class="section-title">🔌 API Endpoints</h2>
+                
+                <div class="info-box">
+                    <p><strong>Base URL:</strong> <code>https://script.google.com/macros/s/[DEPLOYMENT_ID]/exec</code></p>
+                    <p><strong>Metodo:</strong> GET con parametro <code>?action=NOME_ACTION</code></p>
+                    <p><strong>Response:</strong> JSON format, sempre con <code>{success: boolean}</code></p>
+                </div>
+                
+                <!-- SISTEMA -->
+                <div class="subsection">
+                    <h3 class="subsection-title">📋 Sistema</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Parametri</th>
+                                <th>Response</th>
+                                <th>Descrizione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>test_connection</code></td>
+                                <td>-</td>
+                                <td>{success:true, version:"4.0.4"}</td>
+                                <td>Test connessione backend</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_version</code></td>
+                                <td>-</td>
+                                <td>{version:"4.0.4", lastUpdate:"..."}</td>
+                                <td>Info versione sistema</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_logs</code></td>
+                                <td>limit (default:100)</td>
+                                <td>{success:true, data:[...]}</td>
+                                <td>Ultimi N log di sistema</td>
+                            </tr>
+                            <tr>
+                                <td><code>clean_logs</code></td>
+                                <td>days (default:30)</td>
+                                <td>{success:true, deleted:N}</td>
+                                <td>Cancella log vecchi</td>
+                            </tr>
+                            <tr>
+                                <td><code>check_integrity</code></td>
+                                <td>-</td>
+                                <td>{success:true, issues:[], stats:{}}</td>
+                                <td>Verifica integrità database</td>
+                            </tr>
+                            <tr>
+                                <td><code>cache_info</code></td>
+                                <td>-</td>
+                                <td>{keys:[], stats:{...}}</td>
+                                <td>Info cache attiva</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- CLIENTI -->
+                <div class="subsection">
+                    <h3 class="subsection-title">👥 Clienti</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Parametri</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>get_data</code></td>
+                                <td>-</td>
+                                <td>{success:true, clients:[], config:{}, _fromCache:bool}</td>
+                            </tr>
+                            <tr>
+                                <td><code>add_client</code></td>
+                                <td>client_name, client_email, telefono, cellulare</td>
+                                <td>{success:true, message:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>search_clienti</code></td>
+                                <td>search</td>
+                                <td>{success:true, clienti:[...]}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_cliente</code></td>
+                                <td>id</td>
+                                <td>{success:true, cliente:{...}}</td>
+                            </tr>
+                            <tr>
+                                <td><code>update_client</code></td>
+                                <td>id, client_name, client_email, ...</td>
+                                <td>{success:true}</td>
+                            </tr>
+                            <tr>
+                                <td><code>delete_client</code></td>
+                                <td>id</td>
+                                <td>{success:true}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- TIMESHEET -->
+                <div class="subsection">
+                    <h3 class="subsection-title">⏱️ Timesheet</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Parametri</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>insert_timesheet</code></td>
+                                <td>cliente, data, ore, descrizione, modalita_addebito</td>
+                                <td>{success:true, id:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_timesheet</code></td>
+                                <td>cliente (optional), data_inizio, data_fine</td>
+                                <td>{success:true, data:[...]}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_timesheet_month</code></td>
+                                <td>mese, anno</td>
+                                <td>{success:true, entries:[...]}</td>
+                            </tr>
+                            <tr>
+                                <td><code>delete_timesheet</code></td>
+                                <td>id</td>
+                                <td>{success:true}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- PACCHETTI -->
+                <div class="subsection">
+                    <h3 class="subsection-title">📦 Pacchetti Ore</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Parametri</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>insert_pacchetto</code></td>
+                                <td>cliente_nome, ore_totali, importo, descrizione, data_inizio</td>
+                                <td>{success:true, id_pacchetto:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_pacchetti</code></td>
+                                <td>cliente (optional)</td>
+                                <td>{success:true, data:[...]}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_pacchetto_attivo</code></td>
+                                <td>cliente</td>
+                                <td>{success:true, pacchetto:{...}}</td>
+                            </tr>
+                            <tr>
+                                <td><code>update_residuo_pacchetto</code></td>
+                                <td>id_pacchetto, ore_consumate</td>
+                                <td>{success:true}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- PROFORMA -->
+                <div class="subsection">
+                    <h3 class="subsection-title">📄 Proforma</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Parametri</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>get_proforma_list</code></td>
+                                <td>-</td>
+                                <td>{success:true, data:[...]}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_proforma_data</code></td>
+                                <td>cliente, mese, anno</td>
+                                <td>{success:true, timesheet:[], totale_ore:N}</td>
+                            </tr>
+                            <tr>
+                                <td><code>genera_proforma</code></td>
+                                <td>cliente, mese, anno</td>
+                                <td>{success:true, docUrl:"...", n_proforma:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>update_numero_fattura</code></td>
+                                <td>n_proforma, numero_fattura, pagato</td>
+                                <td>{success:true}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- VENDITE -->
+                <div class="subsection">
+                    <h3 class="subsection-title">💼 Vendite (Canoni/Firme/Pacchetti)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Parametri</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>insert_canone</code></td>
+                                <td>cliente_nome, descrizione, importo, data_inizio, durata_anni</td>
+                                <td>{success:true, canoneId:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>insert_firma</code></td>
+                                <td>cliente_nome, tipo, importo, data_inizio, durata_anni</td>
+                                <td>{success:true, firmaId:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_scadenze</code></td>
+                                <td>giorni (default:90)</td>
+                                <td>{success:true, data:{canoni:[], firme:[], tutti:[]}}</td>
+                            </tr>
+                            <tr>
+                                <td><code>rinnova_canone</code></td>
+                                <td>canone_id, descrizione, importo, durata_anni</td>
+                                <td>{success:true, nuovoCanoneId:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>rinnova_firma</code></td>
+                                <td>firma_id, tipo, importo, durata_anni</td>
+                                <td>{success:true, nuovaFirmaId:"..."}</td>
+                            </tr>
+                            <tr>
+                                <td><code>get_storico_rinnovi</code></td>
+                                <td>prodotto_id, tipo</td>
+                                <td>{success:true, data:[...]}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- FUNZIONI CORE -->
+            <div class="section">
+                <h2 class="section-title">🛠️ Funzioni Core</h2>
+                
+                <!-- CLIENTI -->
+                <div class="subsection">
+                    <h3 class="subsection-title">Clienti.gs</h3>
+                    
+                    <h4 style="margin: 16px 0 8px 0;">insertClient(params)</h4>
+                    <pre><code>// Inserisce nuovo cliente con validazione
+function insertClient(params) {
+  // 1. Valida email format e duplicati
+  // 2. Genera ID_Cliente (C_YYYY_###)
+  // 3. Append row in Sheets
+  // 4. Invalida cache clienti
+  // 5. Write log operazione
+  return {success: true, clientId: "C_2025_001"}
+}</code></pre>
+                    
+                    <h4 style="margin: 16px 0 8px 0;">validateClient(nomeCliente)</h4>
+                    <pre><code>// Valida esistenza cliente, ritorna ID
+function validateClient(nomeCliente) {
+  // Cerca cliente per nome (exact match)
+  // Return {valid: true, clientId: "C_2025_001"}
+  // oppure {valid: false, error: "Cliente non trovato"}
+}</code></pre>
+                    
+                    <h4 style="margin: 16px 0 8px 0;">searchClienti(query)</h4>
+                    <pre><code>// Ricerca clienti (nome, email, telefono)
+// Case-insensitive, partial match
+// Return array clienti ordinati per rilevanza
+</code></pre>
+                </div>
+                
+                <!-- CACHE -->
+                <div class="subsection">
+                    <h3 class="subsection-title">Cache.gs - Micro-cache System</h3>
+                    
+                    <div class="warning-box">
+                        <strong>⚡ Performance Boost:</strong> Micro-cache riduce tempo risposta da ~3s a ~200ms (+70% velocità)
+                    </div>
+                    
+                    <h4 style="margin: 16px 0 8px 0;">getCachedData(key, fetchFunction, ttl)</h4>
+                    <pre><code>// Generic cache wrapper
+function getCachedData(key, fetchFunction, ttl = 300) {
+  const cache = CacheService.getScriptCache();
+  let data = cache.get(key);
+  
+  if (!data) {
+    data = fetchFunction();
+    cache.put(key, JSON.stringify(data), ttl);
+  } else {
+    data = JSON.parse(data);
+    data._fromCache = true;
+  }
+  
+  return data;
+}</code></pre>
+                    
+                    <h4 style="margin: 16px 0 8px 0;">invalidateCacheClienti()</h4>
+                    <pre><code>// Invalida cache clienti dopo INSERT/UPDATE/DELETE
+function invalidateCacheClienti() {
+  CacheService.getScriptCache().remove('clienti_list');
+}</code></pre>
+                </div>
+                
+                <!-- EMAIL -->
+                <div class="subsection">
+                    <h3 class="subsection-title">crm_email.gs - Email Templates</h3>
+                    
+                    <h4 style="margin: 16px 0 8px 0;">sendScadenzaEmail(destinatario, tipo, datiProdotto)</h4>
+                    <pre><code>// Invia email alert scadenza (canone/firma)
+function sendScadenzaEmail(destinatario, tipo, datiProdotto) {
+  const template = getEmailTemplate(tipo);
+  const subject = `⚠️ Scadenza ${tipo}: ${datiProdotto.cliente}`;
+  const body = template.replace('{{cliente}}', datiProdotto.cliente)
+                       .replace('{{data}}', datiProdotto.dataScadenza);
+  
+  MailApp.sendEmail(destinatario, subject, body);
+}</code></pre>
+                </div>
+            </div>
+            
+            <!-- GOOGLE SHEETS STRUCTURE -->
+            <div class="section">
+                <h2 class="section-title">📋 Google Sheets Structure</h2>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Foglio: Clienti</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Col</th>
+                                <th>Nome Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>ID_Cliente</td><td>String</td><td>C_YYYY_###</td></tr>
+                            <tr><td>B</td><td>Nome</td><td>String</td><td>Nome cliente</td></tr>
+                            <tr><td>C</td><td>Email</td><td>String</td><td>Email (unique)</td></tr>
+                            <tr><td>D</td><td>Telefono</td><td>String</td><td>Fisso</td></tr>
+                            <tr><td>E</td><td>Cellulare</td><td>String</td><td>Mobile</td></tr>
+                            <tr><td>F</td><td>Data_Creazione</td><td>Date</td><td>Timestamp</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Foglio: Timesheet</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Col</th>
+                                <th>Nome Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>ID</td><td>String</td><td>Auto-increment</td></tr>
+                            <tr><td>B</td><td>ID_Cliente</td><td>String</td><td>FK → Clienti</td></tr>
+                            <tr><td>C</td><td>Nome_Cliente</td><td>String</td><td>Denormalized</td></tr>
+                            <tr><td>D</td><td>Data</td><td>Date</td><td>GG/MM/AAAA</td></tr>
+                            <tr><td>E</td><td>Ore</td><td>Number</td><td>Ore lavorate</td></tr>
+                            <tr><td>F</td><td>Descrizione</td><td>String</td><td>Attività</td></tr>
+                            <tr><td>G</td><td>Modalita_Addebito</td><td>String</td><td>orario/forfait</td></tr>
+                            <tr><td>H</td><td>Fatturato</td><td>Boolean</td><td>SI/NO</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Foglio: Pacchetti</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Col</th>
+                                <th>Nome Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>ID_Pacchetto</td><td>String</td><td>P_YYYY_###</td></tr>
+                            <tr><td>B</td><td>ID_Cliente</td><td>String</td><td>FK → Clienti</td></tr>
+                            <tr><td>C</td><td>Nome_Cliente</td><td>String</td><td>Denormalized</td></tr>
+                            <tr><td>D</td><td>Ore_Totali</td><td>Number</td><td>Ore acquistate</td></tr>
+                            <tr><td>E</td><td>Ore_Residue</td><td>Number</td><td>Calcolato</td></tr>
+                            <tr><td>F</td><td>Importo</td><td>Number</td><td>Costo totale</td></tr>
+                            <tr><td>G</td><td>Data_Inizio</td><td>Date</td><td>Attivazione</td></tr>
+                            <tr><td>H</td><td>Scadenza</td><td>Date</td><td>Calcolata</td></tr>
+                            <tr><td>I</td><td>STATO</td><td>String</td><td>ATTIVO/SCADUTO/ESAURITO</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Foglio: Canoni</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Col</th>
+                                <th>Nome Campo</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>ID_Canone</td><td>CA_YYYY_###</td></tr>
+                            <tr><td>B</td><td>ID_Precedente</td><td>Chain rinnovi</td></tr>
+                            <tr><td>C</td><td>ID_Cliente</td><td>FK → Clienti</td></tr>
+                            <tr><td>D</td><td>Nome_Cliente</td><td>String</td></tr>
+                            <tr><td>E</td><td>Descrizione</td><td>String</td></tr>
+                            <tr><td>F</td><td>Data_Inizio</td><td>Date</td></tr>
+                            <tr><td>G</td><td>Data_Scadenza</td><td>Date</td></tr>
+                            <tr><td>H</td><td>Importo</td><td>Number</td></tr>
+                            <tr><td>I</td><td>STATO</td><td>ATTIVO/SCADUTO/RINNOVATO</td></tr>
+                            <tr><td>L</td><td>Event_ID</td><td>Calendar event ID</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title">Foglio: Firme</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Col</th>
+                                <th>Nome Campo</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>ID_Firma</td><td>FD_YYYY_###</td></tr>
+                            <tr><td>B</td><td>ID_Precedente</td><td>Chain rinnovi</td></tr>
+                            <tr><td>C</td><td>ID_Cliente</td><td>FK → Clienti</td></tr>
+                            <tr><td>D</td><td>Nome_Cliente</td><td>String</td></tr>
+                            <tr><td>E</td><td>Tipo</td><td>Token/Remota</td></tr>
+                            <tr><td>F</td><td>Data_Inizio</td><td>Date</td></tr>
+                            <tr><td>G</td><td>Data_Scadenza</td><td>Date (+3 anni)</td></tr>
+                            <tr><td>H</td><td>Importo</td><td>Number</td></tr>
+                            <tr><td>I</td><td>STATO</td><td>Attivo/Scaduto/Rinnovato</td></tr>
+                            <tr><td>L</td><td>Event_ID</td><td>Calendar event ID</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- NAVIGATION -->
+            <div class="nav-links">
+                <a href="arc_frontend.html" class="nav-link">📗 Frontend Reference →</a>
+                <a href="tech_sheet.html" class="nav-link">⚡ Quick Reference →</a>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="architecture.html" class="back-link">← Torna al Riepilogo</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
