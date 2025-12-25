@@ -35,9 +35,39 @@ window.downloadFrontendBackup = async function() {
             console.log('manifest.json non trovato');
         }
         
+        // 2.1. FILE ROOT PWA
+        const rootFiles = [
+            'service-worker.js',
+            'sw-register.js',
+            'version.js',
+            'version-display.js',
+            'version-display.css'
+        ];
+        
+        for (const file of rootFiles) {
+            try {
+                const response = await fetch(file);
+                const content = await response.text();
+                zip.file(file, content);
+            } catch(e) {
+                console.log(`${file} non trovato - ignorato`);
+            }
+        }
+        
         // 3. CSS
         const cssFolder = zip.folder('css');
-        const cssFiles = ['clienti.css', 'main.css', 'tabs.css', 'forms.css', 'tables.css', 'modals.css', 'utilities.css', 'vendite.css', 'vendite-scaduti.css'];
+        const cssFiles = [
+            'clienti.css',
+            'forms.css', 
+            'main.css',
+            'modals.css',
+            'proforma-list.css',
+            'tables.css',
+            'tabs.css',
+            'utilities.css',
+            'vendite-scaduti.css',
+            'vendite.css'
+        ];
         
         for (const file of cssFiles) {
             try {
@@ -51,7 +81,18 @@ window.downloadFrontendBackup = async function() {
         
         // 4. JAVASCRIPT
         const jsFolder = zip.folder('js');
-        const jsFiles = ['clienti.js', 'config.js', 'main.js', 'api.js', 'timesheet.js', 'proforma.js', 'utilities.js', 'utils.js', 'vendite.js'];
+        const jsFiles = [
+            'api.js',
+            'clienti.js',
+            'config.js',
+            'main.js',
+            'proforma-list.js',
+            'proforma.js',
+            'timesheet.js',
+            'utilities.js',
+            'utils.js',
+            'vendite.js'
+        ];
         
         for (const file of jsFiles) {
             try {
@@ -60,6 +101,25 @@ window.downloadFrontendBackup = async function() {
                 jsFolder.file(file, content);
             } catch(e) {
                 console.log(`js/${file} non trovato`);
+            }
+        }
+        
+        // 4.1. DOCUMENTAZIONE
+        const docsFolder = zip.folder('docs');
+        const docsFiles = [
+            'architecture.html',
+            'arc_backend.html',
+            'arc_frontend.html',
+            'tech_sheet.html'
+        ];
+        
+        for (const file of docsFiles) {
+            try {
+                const response = await fetch(`docs/${file}`);
+                const content = await response.text();
+                docsFolder.file(file, content);
+            } catch(e) {
+                console.log(`docs/${file} non trovato - ignorato`);
             }
         }
         
@@ -91,20 +151,34 @@ Versione: ${CONFIG.VERSION}
 CONTENUTO:
 ├── index.html
 ├── manifest.json
-├── css/ (9 files)
-├── js/ (9 files)
-└── assets/ (icone)
+├── service-worker.js, sw-register.js
+├── version.js, version-display.js, version-display.css
+├── css/ (10 files)
+│   ├── clienti.css, forms.css, main.css, modals.css
+│   ├── proforma-list.css, tables.css, tabs.css
+│   └── utilities.css, vendite.css, vendite-scaduti.css
+├── js/ (10 files)
+│   ├── api.js, clienti.js, config.js, main.js
+│   ├── proforma-list.js, proforma.js, timesheet.js
+│   └── utilities.js, utils.js, vendite.js
+├── docs/ (4 files)
+│   ├── architecture.html, arc_backend.html
+│   └── arc_frontend.html, tech_sheet.html
+└── assets/ (6 icone)
+
+TOTALE: 31 file frontend + assets
 
 RIPRISTINO:
 1. Estrai tutti i file
 2. Carica su GitHub Pages
 3. Verifica CONFIG.APPS_SCRIPT_URL in js/config.js
-4. Test: python3 -m http.server 8000
+4. Test locale: python3 -m http.server 8000
 
 BACKEND (NON INCLUSO):
 Per salvare backend Apps Script:
 1. Apri script.google.com
-2. Copia manualmente ogni file .gs
+2. Copia manualmente ogni file .gs (13 file)
+3. Esporta foglio Google Sheets
 
 CONFIGURAZIONE CORRENTE:
 Apps Script URL: ${CONFIG.APPS_SCRIPT_URL}
