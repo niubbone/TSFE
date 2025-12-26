@@ -46,10 +46,9 @@ window.switchTab = async function(tabName) {
     activeBtn.classList.add('active');
   }
   
-  // ✅ NUOVO: LOGICA IBRIDA
-  // Utilities, timesheet, clienti e vendite usano loader dinamico
-  // Solo proforma usa ancora logica statica
-  if ((tabName === 'utilities' || tabName === 'timesheet' || tabName === 'clienti' || tabName === 'vendite') && tabLoader) {
+  // ✅ TUTTE LE TAB USANO LOADER DINAMICO
+  // Migrazione completata!
+  if (tabLoader) {
     console.log(`🔄 Loading ${tabName} dynamically...`);
     
     // Nascondi tutte le tab statiche
@@ -96,29 +95,14 @@ window.switchTab = async function(tabName) {
     }
     
     // Inizializza il contenuto specifico della tab
+    // Tutte le tab sono ora dinamiche - questi fallback non dovrebbero mai attivarsi
     switch(tabName) {
       case 'proforma':
-        if (typeof showProformaStep === 'function') {
-          showProformaStep(1);
-        }
-        break;
       case 'utilities':
-        // Fallback - non dovrebbe mai attivarsi
-        if (typeof initUtilities === 'function') {
-          initUtilities();
-        }
-        break;
       case 'timesheet':
-        // Fallback - non dovrebbe mai attivarsi
-        console.log('⚠️ Timesheet fallback - dovrebbe essere dinamico');
-        break;
       case 'clienti':
-        // Fallback - non dovrebbe mai attivarsi
-        console.log('⚠️ Clienti fallback - dovrebbe essere dinamico');
-        break;
       case 'vendite':
-        // Fallback - non dovrebbe mai attivarsi
-        console.log('⚠️ Vendite fallback - dovrebbe essere dinamico');
+        console.log(`⚠️ ${tabName} fallback - dovrebbe essere dinamico`);
         break;
     }
   }
@@ -157,7 +141,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ Applicazione inizializzata con successo!');
 });
 
-// ✅ NUOVO: Event listener per tab caricate dinamicamente
+// ✅ Event listener per tab caricate dinamicamente
 window.addEventListener('tab-loaded', (e) => {
   const tabName = e.detail.tab;
   console.log(`🎯 Tab loaded event: ${tabName}`);
@@ -165,18 +149,19 @@ window.addEventListener('tab-loaded', (e) => {
   // Init specifico per tab dinamiche
   if (tabName === 'utilities') {
     console.log('✅ Utilities tab ready (dynamic)');
-    // initUtilities viene già chiamato in utilities.js se necessario
   } else if (tabName === 'timesheet') {
     console.log('✅ Timesheet tab ready (dynamic)');
-    // initTimesheet già eseguito all'avvio, form già pronto
   } else if (tabName === 'clienti') {
     console.log('✅ Clienti tab ready (dynamic)');
-    // initClienti già eseguito, funzioni disponibili
   } else if (tabName === 'vendite') {
     console.log('✅ Vendite tab ready (dynamic)');
-    // initVenditeTab chiamato se necessario
     if (typeof initVenditeTab === 'function') {
       initVenditeTab();
+    }
+  } else if (tabName === 'proforma') {
+    console.log('✅ Proforma tab ready (dynamic)');
+    if (typeof showProformaStep === 'function') {
+      showProformaStep(1);
     }
   }
 });
