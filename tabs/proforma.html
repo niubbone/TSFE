@@ -183,28 +183,40 @@
 
 
 
-<!-- Script inizializzazione Proforma (eseguito quando tab caricata) -->
+<!-- Script inizializzazione Proforma - ascolta evento tab-loaded -->
 <script>
-(function() {
-    console.log('🔄 Inizializzazione Gestione Proforma (dynamic)...');
-    
-    // Aspetta che DOM sia pronto
-    setTimeout(function() {
-        // Popola filtro clienti
-        if (typeof populateProformaClientFilter === 'function') {
-            populateProformaClientFilter();
-            console.log('✅ Filtro clienti popolato');
-        } else {
-            console.warn('⚠️ populateProformaClientFilter non trovata');
-        }
+window.addEventListener('tab-loaded', function(e) {
+    if (e.detail.tab === 'proforma') {
+        console.log('🎯 Proforma tab-loaded event ricevuto');
         
-        // Carica lista proforma
-        if (typeof loadProformaList === 'function') {
-            loadProformaList();
-            console.log('✅ Lista proforma caricata');
-        } else {
-            console.warn('⚠️ loadProformaList non trovata');
-        }
-    }, 300);
-})();
+        // Aspetta un attimo per sicurezza che tutto sia nel DOM
+        setTimeout(function() {
+            console.log('🔄 Inizializzazione Gestione Proforma...');
+            
+            // Popola filtro clienti
+            if (typeof populateProformaClientFilter === 'function') {
+                try {
+                    populateProformaClientFilter();
+                    console.log('✅ Filtro clienti popolato');
+                } catch(err) {
+                    console.error('❌ Errore popolamento clienti:', err);
+                }
+            } else {
+                console.error('❌ populateProformaClientFilter non trovata - proforma-list.js caricato?');
+            }
+            
+            // Carica lista proforma
+            if (typeof loadProformaList === 'function') {
+                try {
+                    loadProformaList();
+                    console.log('✅ Lista proforma caricata');
+                } catch(err) {
+                    console.error('❌ Errore caricamento lista:', err);
+                }
+            } else {
+                console.error('❌ loadProformaList non trovata - proforma-list.js caricato?');
+            }
+        }, 100);
+    }
+});
 </script>
