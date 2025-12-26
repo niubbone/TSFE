@@ -1,0 +1,84 @@
+<div id="timesheet-tab" class="tab-content active">
+    <div class="form-container">
+        <h1>Inserimento Timesheet</h1>
+        
+        <div id="info-box" class="info-box">
+            <p>⏳ Caricamento in corso...</p>
+        </div>
+        
+        <form id="timesheet-form" method="POST" action="https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec" target="hidden_iframe">
+            
+            <div class="top-row">
+                <div>
+                    <label for="date">Data:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div>
+                    <label for="duration">Durata (ore):</label>
+                    <input type="text" id="duration" name="duration" placeholder="es. 0.5, 1, 1.5" required>
+                </div>
+            </div>
+            
+            <!-- TOGGLE PER CAMPI OPZIONALI (SOLO MOBILE) -->
+            <div class="optional-fields-toggle" id="optional-fields-toggle" onclick="toggleOptionalFields()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                <span>Campi opzionali (Ora Inizio/Fine)</span>
+            </div>
+            
+            <div class="time-group" id="time-group">
+                <div>
+                    <label for="start_time">Ora Inizio (Opzionale):</label>
+                    <input type="time" id="start_time" name="start_time">
+                </div>
+                <div>
+                    <label for="end_time">Ora Fine (Opzionale):</label>
+                    <input type="time" id="end_time" name="end_time">
+                </div>
+            </div>
+            
+            <div class="client-row">
+                <div>
+                    <label for="client">Cliente:</label>
+                    <input type="text" id="client" name="client" list="client_list" required placeholder="Cerca o inserisci un cliente">
+                    <datalist id="client_list">
+                    </datalist>
+                </div>
+                <button type="button" class="add-client-btn" onclick="openAddClientModal()" title="Aggiungi nuovo cliente">+</button>
+            </div>
+
+            <label for="tipo_intervento">Tipo Intervento:</label>
+            <select id="tipo_intervento" name="tipo_intervento" required>
+                <option value="" disabled selected>Seleziona Tipo Intervento</option> 
+            </select>
+
+            <label for="mod_esecuzione">Modalità Esecuzione:</label>
+            <select id="mod_esecuzione" name="mod_esecuzione" required>
+                <option value="" disabled selected>Seleziona Modalità Esecuzione</option>
+            </select>
+            
+            <label for="mod_addebito">Modalità Addebito:</label>
+            <select id="mod_addebito" name="mod_addebito" required>
+                <option value="" disabled selected>Seleziona Modalità Addebito</option>
+            </select>
+            
+            <!-- CAMPO CHIAMATA OPZIONALE -->
+            <div class="chiamata-field">
+                <label for="chiamata">Chiamata (€):</label>
+                <input type="number" id="chiamata" name="chiamata" step="0.01" min="0" max="999" placeholder="0">
+            </div>
+            
+            <label for="description">Descrizione Attività:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="send_email" name="send_email" value="true" checked> 
+                <label for="send_email">Invia Email di Riepilogo al Cliente</label>
+            </div>
+            
+            <input type="submit" id="submit-btn" value="Salva Timesheet">
+        </form>
+    </div>
+</div>
+
