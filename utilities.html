@@ -1,0 +1,146 @@
+<div id="utilities-tab" class="tab-content">
+    <div class="form-container">
+        <h1>⚙️ Utilities & Manutenzione</h1>
+        
+        <!-- INFO BOX GLOBALE -->
+        <div id="info-box" class="info-box">
+            <p>Benvenuto nella sezione Utilities</p>
+        </div>
+        
+        <!-- SEZIONE BACKUP -->
+        <div class="utility-section">
+            <h3>💾 Backup Frontend</h3>
+            
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Scarica Backup Completo Frontend</h4>
+                    <p>Scarica uno ZIP con tutti i file del frontend (HTML, CSS, JS, assets)</p>
+                    <p style="font-size: 0.9em; color: #6c757d; margin-top: 8px;">
+                        Include: index.html, tutti i CSS, tutti i JS, icone e manifest
+                    </p>
+                </div>
+                <button class="btn btn-primary" onclick="downloadFrontendBackup()" style="min-width: 180px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Scarica Backup ZIP
+                </button>
+            </div>
+        </div>
+
+        <!-- SEZIONE LOG -->
+        <div class="utility-section">
+            <h3>📋 Log Sistema</h3>
+            
+            <div id="log-info" class="info-box" style="margin-bottom: 15px;">
+                <p>Visualizza e gestisci i log di sistema</p>
+            </div>
+            
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Carica Log Sistema</h4>
+                    <p>Visualizza gli ultimi 100 eventi e operazioni</p>
+                </div>
+                <button class="btn btn-primary" onclick="viewLogs()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    Visualizza Log
+                </button>
+            </div>
+            
+            <!-- FILTRI E AZIONI LOG -->
+            <div id="log-controls" class="log-controls" style="display: none;">
+                <div class="log-filters">
+                    <button class="filter-btn active" onclick="filterLogs('ALL', event)">Tutti</button>
+                    <button class="filter-btn" onclick="filterLogs('INFO', event)">ℹ️ Info</button>
+                    <button class="filter-btn" onclick="filterLogs('SUCCESS', event)">✅ Success</button>
+                    <button class="filter-btn" onclick="filterLogs('WARNING', event)">⚠️ Warning</button>
+                    <button class="filter-btn" onclick="filterLogs('ERROR', event)">❌ Error</button>
+                </div>
+                <div class="log-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportLogsCSV()">
+                        📥 Esporta CSV
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="showCleanLogsMenu(event)">
+                        🗑️ Cancella Log
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DISPLAY LOG -->
+            <div class="utility-card full-width">
+                <div id="log-display" class="log-container">
+                    <p class="text-muted">Clicca "Visualizza Log" per caricare gli eventi recenti</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE DIAGNOSTICA -->
+        <div class="utility-section">
+            <h3>🔍 Diagnostica</h3>
+            
+            <div id="diagnostic-info" class="info-box" style="margin-bottom: 15px;">
+                <p>Strumenti di test e verifica sistema</p>
+            </div>
+            
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Test Connessione Backend</h4>
+                    <p>Verifica la connessione con Google Apps Script</p>
+                </div>
+                <button class="btn btn-primary" onclick="testConnection()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Test Connessione
+                </button>
+            </div>
+
+            <div class="utility-card">
+                <div class="utility-info">
+                    <h4>Verifica Integrità Dati</h4>
+                    <p>Controlla eventuali anomalie nei fogli Google</p>
+                </div>
+                <button class="btn btn-primary" onclick="checkDataIntegrity()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Verifica Dati
+                </button>
+            </div>
+            
+            <!-- FILTRI E AZIONI INTEGRITY -->
+            <div id="integrity-controls" class="log-controls" style="display: none;">
+                <div class="log-filters">
+                    <button class="filter-btn active" onclick="filterIntegrity('ALL', event)">Tutti</button>
+                    <button class="filter-btn" onclick="filterIntegrity('STATS', event)">📊 Statistiche</button>
+                    <button class="filter-btn" onclick="filterIntegrity('ERRORS', event)">❌ Errori</button>
+                    <button class="filter-btn" onclick="filterIntegrity('WARNINGS', event)">⚠️ Avvisi</button>
+                    <button class="filter-btn" onclick="filterIntegrity('SUCCESS', event)">✅ Integro</button>
+                </div>
+                <div class="log-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportIntegrityReport()">
+                        📥 Esporta Report
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DISPLAY INTEGRITY -->
+            <div class="utility-card full-width">
+                <div id="integrity-display" class="log-container">
+                    <p class="text-muted">Clicca "Verifica Dati" per analizzare l'integrità del sistema</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<!-- TAB CLIENTI -->
