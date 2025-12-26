@@ -160,9 +160,7 @@ window.addEventListener('tab-loaded', (e) => {
     }
   } else if (tabName === 'proforma') {
     console.log('✅ Proforma tab ready (dynamic)');
-    if (typeof showProformaStep === 'function') {
-      showProformaStep(1);
-    }
+    // Init fatto dallo script inline in proforma.html
   }
 });
 
