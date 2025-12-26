@@ -182,3 +182,29 @@
 </div>
 
 
+
+<!-- Script inizializzazione Proforma (eseguito quando tab caricata) -->
+<script>
+(function() {
+    console.log('🔄 Inizializzazione Gestione Proforma (dynamic)...');
+    
+    // Aspetta che DOM sia pronto
+    setTimeout(function() {
+        // Popola filtro clienti
+        if (typeof populateProformaClientFilter === 'function') {
+            populateProformaClientFilter();
+            console.log('✅ Filtro clienti popolato');
+        } else {
+            console.warn('⚠️ populateProformaClientFilter non trovata');
+        }
+        
+        // Carica lista proforma
+        if (typeof loadProformaList === 'function') {
+            loadProformaList();
+            console.log('✅ Lista proforma caricata');
+        } else {
+            console.warn('⚠️ loadProformaList non trovata');
+        }
+    }, 300);
+})();
+</script>
