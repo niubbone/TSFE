@@ -160,7 +160,34 @@ window.addEventListener('tab-loaded', (e) => {
     }
   } else if (tabName === 'proforma') {
     console.log('✅ Proforma tab ready (dynamic)');
-    // Init fatto dallo script inline in proforma.html
+    // Init proforma con delay per DOM
+    setTimeout(function() {
+      console.log('🔄 Inizializzazione Gestione Proforma...');
+      
+      // Popola filtro clienti
+      if (typeof populateProformaClientFilter === 'function') {
+        try {
+          populateProformaClientFilter();
+          console.log('✅ Filtro clienti popolato');
+        } catch(err) {
+          console.error('❌ Errore popolamento clienti:', err);
+        }
+      } else {
+        console.error('❌ populateProformaClientFilter non trovata');
+      }
+      
+      // Carica lista proforma
+      if (typeof loadProformaList === 'function') {
+        try {
+          loadProformaList();
+          console.log('✅ Lista proforma caricata');
+        } catch(err) {
+          console.error('❌ Errore caricamento lista:', err);
+        }
+      } else {
+        console.error('❌ loadProformaList non trovata');
+      }
+    }, 200);
   }
 });
 
