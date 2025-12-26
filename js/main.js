@@ -15,23 +15,21 @@ import {
 } from './proforma.js';
 import { initUtilities } from './utilities.js';
 
+// ✅ NUOVO: Istanza TabLoader globale
+let tabLoader = null;
+
 /**
- * Cambia tab attivo - ESPOSTA GLOBALMENTE SUBITO
- * VERSIONE CORRETTA con protezione undefined e controlli null
+ * Cambia tab attivo - VERSIONE IBRIDA con loader dinamico
+ * IMPORTANTE: Solo utilities usa il loader (POC), altre tab funzionano come prima
  */
-window.switchTab = function(tabName) {
+window.switchTab = async function(tabName) {
   // 🛡️ PROTEZIONE: Previeni errori se chiamata senza parametro valido
   if (!tabName || tabName === 'undefined') {
     console.warn('⚠️ switchTab chiamata senza parametro valido - operazione ignorata');
     return;
   }
   
-  // Nascondi tutte le tab - CON CONTROLLO NULL
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    if (tab && tab.classList) {
-      tab.classList.remove('active');
-    }
-  });
+  console.log(`🖱️ Switching to tab: ${tabName}`);
   
   // Disattiva tutti i pulsanti - CON CONTROLLO NULL
   document.querySelectorAll('.tab-button').forEach(btn => {
@@ -39,15 +37,6 @@ window.switchTab = function(tabName) {
       btn.classList.remove('active');
     }
   });
-  
-  // Attiva la tab selezionata - CON CONTROLLO NULL
-  const targetTab = document.getElementById(tabName + '-tab');
-  if (targetTab && targetTab.classList) {
-    targetTab.classList.add('active');
-  } else {
-    console.error('❌ Tab non trovata:', tabName + '-tab');
-    return;
-  }
   
   // Attiva il pulsante corrispondente
   const activeBtn = Array.from(document.querySelectorAll('.tab-button'))
@@ -57,23 +46,62 @@ window.switchTab = function(tabName) {
     activeBtn.classList.add('active');
   }
   
-  // Inizializza il contenuto specifico della tab
-  switch(tabName) {
-    case 'proforma':
-      if (typeof showProformaStep === 'function') {
-        showProformaStep(1);
+  // ✅ NUOVO: LOGICA IBRIDA
+  // Solo utilities usa loader dinamico (POC)
+  // Altre tab usano vecchia logica (sicuro)
+  if (tabName === 'utilities' && tabLoader) {
+    console.log('🔄 Loading utilities dynamically...');
+    
+    // Nascondi tutte le tab statiche
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      if (tab && tab.classList) {
+        tab.classList.remove('active');
       }
-      break;
-    case 'utilities':
-      if (typeof initUtilities === 'function') {
-        initUtilities();
+    });
+    
+    // Carica utilities dinamicamente
+    await tabLoader.show(tabName);
+    
+  } else {
+    console.log('📄 Using static tab switching...');
+    
+    // VECCHIA LOGICA (invariata) per altre tab
+    // Nascondi tutte le tab - CON CONTROLLO NULL
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      if (tab && tab.classList) {
+        tab.classList.remove('active');
       }
-      break;
-    case 'vendite':
-      if (typeof initVenditeTab === 'function') {
-        initVenditeTab();
-      }
-      break;
+    });
+    
+    // Attiva la tab selezionata - CON CONTROLLO NULL
+    const targetTab = document.getElementById(tabName + '-tab');
+    if (targetTab && targetTab.classList) {
+      targetTab.classList.add('active');
+    } else {
+      console.error('❌ Tab non trovata:', tabName + '-tab');
+      return;
+    }
+    
+    // Inizializza il contenuto specifico della tab
+    switch(tabName) {
+      case 'proforma':
+        if (typeof showProformaStep === 'function') {
+          showProformaStep(1);
+        }
+        break;
+      case 'utilities':
+        // Questo caso non dovrebbe mai attivarsi (utilities usa loader)
+        // Ma lo lasciamo come fallback
+        if (typeof initUtilities === 'function') {
+          initUtilities();
+        }
+        break;
+      case 'vendite':
+        if (typeof initVenditeTab === 'function') {
+          initVenditeTab();
+        }
+        break;
+    }
   }
 };
 
@@ -86,6 +114,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Inizializza stato globale
   initGlobalState();
   
+  // ✅ NUOVO: Inizializza TabLoader
+  if (window.TabLoader) {
+    tabLoader = new TabLoader();
+    if (!tabLoader.init()) {
+      console.error('❌ TabLoader init failed, fallback to static tabs');
+      tabLoader = null;
+    }
+  } else {
+    console.warn('⚠️ TabLoader not found, using static tabs only');
+  }
+  
   // Setup tab switching
   setupTabs();
   
@@ -97,6 +136,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   exposeGlobalFunctions();
   
   console.log('✅ Applicazione inizializzata con successo!');
+});
+
+// ✅ NUOVO: Event listener per tab caricate dinamicamente
+window.addEventListener('tab-loaded', (e) => {
+  const tabName = e.detail.tab;
+  console.log(`🎯 Tab loaded event: ${tabName}`);
+  
+  // Init specifico per tab dinamiche
+  if (tabName === 'utilities') {
+    console.log('✅ Utilities tab ready (dynamic)');
+    // initUtilities viene già chiamato in utilities.js se necessario
+  }
 });
 
 /**
