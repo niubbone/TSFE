@@ -47,9 +47,9 @@ window.switchTab = async function(tabName) {
   }
   
   // ✅ NUOVO: LOGICA IBRIDA
-  // Utilities, timesheet e clienti usano loader dinamico
-  // Altre tab usano vecchia logica (sicuro)
-  if ((tabName === 'utilities' || tabName === 'timesheet' || tabName === 'clienti') && tabLoader) {
+  // Utilities, timesheet, clienti e vendite usano loader dinamico
+  // Solo proforma usa ancora logica statica
+  if ((tabName === 'utilities' || tabName === 'timesheet' || tabName === 'clienti' || tabName === 'vendite') && tabLoader) {
     console.log(`🔄 Loading ${tabName} dynamically...`);
     
     // Nascondi tutte le tab statiche
@@ -103,26 +103,22 @@ window.switchTab = async function(tabName) {
         }
         break;
       case 'utilities':
-        // Questo caso non dovrebbe mai attivarsi (utilities usa loader)
-        // Ma lo lasciamo come fallback
+        // Fallback - non dovrebbe mai attivarsi
         if (typeof initUtilities === 'function') {
           initUtilities();
         }
         break;
       case 'timesheet':
-        // Questo caso non dovrebbe mai attivarsi (timesheet usa loader)
-        // Ma lo lasciamo come fallback
+        // Fallback - non dovrebbe mai attivarsi
         console.log('⚠️ Timesheet fallback - dovrebbe essere dinamico');
         break;
       case 'clienti':
-        // Questo caso non dovrebbe mai attivarsi (clienti usa loader)
-        // Ma lo lasciamo come fallback
+        // Fallback - non dovrebbe mai attivarsi
         console.log('⚠️ Clienti fallback - dovrebbe essere dinamico');
         break;
       case 'vendite':
-        if (typeof initVenditeTab === 'function') {
-          initVenditeTab();
-        }
+        // Fallback - non dovrebbe mai attivarsi
+        console.log('⚠️ Vendite fallback - dovrebbe essere dinamico');
         break;
     }
   }
@@ -176,6 +172,12 @@ window.addEventListener('tab-loaded', (e) => {
   } else if (tabName === 'clienti') {
     console.log('✅ Clienti tab ready (dynamic)');
     // initClienti già eseguito, funzioni disponibili
+  } else if (tabName === 'vendite') {
+    console.log('✅ Vendite tab ready (dynamic)');
+    // initVenditeTab chiamato se necessario
+    if (typeof initVenditeTab === 'function') {
+      initVenditeTab();
+    }
   }
 });
 
