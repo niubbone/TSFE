@@ -47,9 +47,9 @@ window.switchTab = async function(tabName) {
   }
   
   // ✅ NUOVO: LOGICA IBRIDA
-  // Utilities e timesheet usano loader dinamico
+  // Utilities, timesheet e clienti usano loader dinamico
   // Altre tab usano vecchia logica (sicuro)
-  if ((tabName === 'utilities' || tabName === 'timesheet') && tabLoader) {
+  if ((tabName === 'utilities' || tabName === 'timesheet' || tabName === 'clienti') && tabLoader) {
     console.log(`🔄 Loading ${tabName} dynamically...`);
     
     // Nascondi tutte le tab statiche
@@ -114,6 +114,11 @@ window.switchTab = async function(tabName) {
         // Ma lo lasciamo come fallback
         console.log('⚠️ Timesheet fallback - dovrebbe essere dinamico');
         break;
+      case 'clienti':
+        // Questo caso non dovrebbe mai attivarsi (clienti usa loader)
+        // Ma lo lasciamo come fallback
+        console.log('⚠️ Clienti fallback - dovrebbe essere dinamico');
+        break;
       case 'vendite':
         if (typeof initVenditeTab === 'function') {
           initVenditeTab();
@@ -168,6 +173,9 @@ window.addEventListener('tab-loaded', (e) => {
   } else if (tabName === 'timesheet') {
     console.log('✅ Timesheet tab ready (dynamic)');
     // initTimesheet già eseguito all'avvio, form già pronto
+  } else if (tabName === 'clienti') {
+    console.log('✅ Clienti tab ready (dynamic)');
+    // initClienti già eseguito, funzioni disponibili
   }
 });
 
