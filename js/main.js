@@ -59,11 +59,24 @@ window.switchTab = async function(tabName) {
       }
     });
     
+    // ✅ FIX: Nascondi anche container per evitare conflitti
+    const container = document.getElementById('tab-container');
+    if (container) {
+      // Salva stato corrente prima di pulire
+      container.dataset.loadingDynamic = 'true';
+    }
+    
     // Carica utilities dinamicamente
     await tabLoader.show(tabName);
     
   } else {
     console.log('📄 Using static tab switching...');
+    
+    // ✅ FIX: Ripristina container se era dinamico
+    const container = document.getElementById('tab-container');
+    if (container && container.dataset.loadingDynamic === 'true') {
+      delete container.dataset.loadingDynamic;
+    }
     
     // VECCHIA LOGICA (invariata) per altre tab
     // Nascondi tutte le tab - CON CONTROLLO NULL
@@ -84,6 +97,12 @@ window.switchTab = async function(tabName) {
     
     // Inizializza il contenuto specifico della tab
     switch(tabName) {
+      case 'timesheet':
+        // ✅ FIX: Re-init timesheet solo se torniamo da utilities dinamica
+        if (typeof initTimesheet === 'function') {
+          initTimesheet().catch(err => console.warn('Timesheet già inizializzato:', err));
+        }
+        break;
       case 'proforma':
         if (typeof showProformaStep === 'function') {
           showProformaStep(1);
@@ -152,11 +171,15 @@ window.addEventListener('tab-loaded', (e) => {
 
 /**
  * Setup navigazione tab
- * VERSIONE CORRETTA con caso Clienti aggiunto
+ * VERSIONE CORRETTA con caso Clienti aggiunto e fix double click
  */
 function setupTabs() {
   document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      // ✅ FIX: Previeni propagazione multipla
+      e.preventDefault();
+      e.stopPropagation();
+      
       let tabName;
       
       if (btn.textContent.includes('Timesheet')) {
@@ -177,7 +200,7 @@ function setupTabs() {
       } else {
         console.warn('⚠️ Pulsante tab non riconosciuto:', btn.textContent);
       }
-    });
+    }, { once: false }); // Non once, ma preveniamo duplicati con stopPropagation
   });
 }
 
