@@ -47,10 +47,10 @@ window.switchTab = async function(tabName) {
   }
   
   // ✅ NUOVO: LOGICA IBRIDA
-  // Solo utilities usa loader dinamico (POC)
+  // Utilities e timesheet usano loader dinamico
   // Altre tab usano vecchia logica (sicuro)
-  if (tabName === 'utilities' && tabLoader) {
-    console.log('🔄 Loading utilities dynamically...');
+  if ((tabName === 'utilities' || tabName === 'timesheet') && tabLoader) {
+    console.log(`🔄 Loading ${tabName} dynamically...`);
     
     // Nascondi tutte le tab statiche
     document.querySelectorAll('.tab-content').forEach(tab => {
@@ -97,12 +97,6 @@ window.switchTab = async function(tabName) {
     
     // Inizializza il contenuto specifico della tab
     switch(tabName) {
-      case 'timesheet':
-        // ✅ FIX: Re-init timesheet solo se torniamo da utilities dinamica
-        if (typeof initTimesheet === 'function') {
-          initTimesheet().catch(err => console.warn('Timesheet già inizializzato:', err));
-        }
-        break;
       case 'proforma':
         if (typeof showProformaStep === 'function') {
           showProformaStep(1);
@@ -114,6 +108,11 @@ window.switchTab = async function(tabName) {
         if (typeof initUtilities === 'function') {
           initUtilities();
         }
+        break;
+      case 'timesheet':
+        // Questo caso non dovrebbe mai attivarsi (timesheet usa loader)
+        // Ma lo lasciamo come fallback
+        console.log('⚠️ Timesheet fallback - dovrebbe essere dinamico');
         break;
       case 'vendite':
         if (typeof initVenditeTab === 'function') {
@@ -166,6 +165,9 @@ window.addEventListener('tab-loaded', (e) => {
   if (tabName === 'utilities') {
     console.log('✅ Utilities tab ready (dynamic)');
     // initUtilities viene già chiamato in utilities.js se necessario
+  } else if (tabName === 'timesheet') {
+    console.log('✅ Timesheet tab ready (dynamic)');
+    // initTimesheet già eseguito all'avvio, form già pronto
   }
 });
 
