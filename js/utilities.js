@@ -504,7 +504,7 @@ function formatStatsForDisplay(stats) {
 /**
  * Filtra risultati integrità per tipo
  */
-window.filterIntegrity = function(type) {
+window.filterIntegrity = function(type, evt) {
     const entries = document.querySelectorAll('#integrity-display .log-entry');
     
     entries.forEach(entry => {
@@ -532,7 +532,9 @@ window.filterIntegrity = function(type) {
     document.querySelectorAll('#integrity-controls .filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (evt && evt.target) {
+        evt.target.classList.add('active');
+    }
 };
 
 /**
@@ -717,7 +719,7 @@ function displayLogs(logs) {
 /**
  * Filtra log per livello
  */
-window.filterLogs = function(level) {
+window.filterLogs = function(level, evt) {
     const entries = document.querySelectorAll('.log-entry');
     
     entries.forEach(entry => {
@@ -732,14 +734,26 @@ window.filterLogs = function(level) {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (evt && evt.target) {
+        evt.target.classList.add('active');
+    }
 };
 
 /**
  * Mostra dropdown per scegliere quanti giorni di log cancellare
  */
-window.showCleanLogsMenu = function() {
-    const btn = event.target.closest('button');
+window.showCleanLogsMenu = function(evt) {
+    if (!evt || !evt.target) {
+        console.warn('showCleanLogsMenu: event parameter missing');
+        return;
+    }
+    
+    const btn = evt.target.closest('button');
+    if (!btn) {
+        console.warn('showCleanLogsMenu: button not found');
+        return;
+    }
+    
     const rect = btn.getBoundingClientRect();
     
     // Rimuovi menu esistente se presente
