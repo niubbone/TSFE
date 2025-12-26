@@ -1,0 +1,184 @@
+    <div class="form-container">
+        <h1>Genera Proforma</h1>
+        
+        <div id="proforma-info-box" class="info-box">
+            <p>📄 Seleziona un cliente per iniziare</p>
+        </div>
+        
+        <div class="proforma-steps">
+            
+            <!-- STEP 1: Seleziona Cliente -->
+            <div id="step-1" class="step active">
+                <div class="step-header">
+                    <div class="step-title">Seleziona Cliente</div>
+                    <div class="step-number">1</div>
+                </div>
+                
+                <label for="proforma_client_select">Cliente:</label>
+                <select id="proforma_client_select">
+                    <option value="">Seleziona Cliente</option>
+                </select>
+                
+                <div id="loading-timesheet" class="info-box" style="display: none; margin-top: 20px !important;">
+                    <p>⏳ Caricamento timesheet...</p>
+                </div>
+                
+                <button onclick="loadTimesheetForClient()" class="btn-primary" style="margin-top: 20px !important;">
+                    Carica Timesheet da Fatturare
+                </button>
+            </div>
+            
+            <!-- STEP 2: Seleziona Timesheet -->
+            <div id="step-2" class="step">
+                <div class="step-header">
+                    <div class="step-title">Seleziona Timesheet</div>
+                    <div class="step-number">2</div>
+                </div>
+                
+                <div class="selection-actions">
+                    <button onclick="selectAllTimesheet()">✓ Seleziona Tutti</button>
+                    <button onclick="deselectAllTimesheet()">✗ Deseleziona Tutti</button>
+                </div>
+                
+                <div id="timesheet-table-container">
+                    <table class="timesheet-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">✓</th>
+                                <th>Data</th>
+                                <th>Tipo Intervento</th>
+                                <th>Modalità</th>
+                                <th>Ore</th>
+                                <th>Chiamata</th>
+                                <th>Costo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timesheet-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="selection-info" class="info-box" style="margin-top: 20px !important;">
+                    <p>
+                        <strong>Selezionati:</strong> <span id="selected-count">0</span> timesheet<br>
+                        <strong>Subtotale:</strong> <span id="subtotale-preview">€ 0.00</span>
+                    </p>
+                </div>
+                
+                <div class="btn-row">
+                    <button onclick="showProformaStep(1)" class="btn-secondary">← Indietro</button>
+                    <button id="proceed-to-step3-btn" onclick="proceedToStep3()" class="btn-primary" disabled>Continua →</button>
+                </div>
+            </div>
+            
+            <!-- STEP 3: Configura e Genera -->
+            <div id="step-3" class="step">
+                <div class="step-header">
+                    <div class="step-title">Configura Proforma</div>
+                    <div class="step-number">3</div>
+                </div>
+                
+                <label for="proforma_causale">Causale:</label>
+                <textarea id="proforma_causale" rows="2" placeholder="Es: Per interventi, consulenze e formazione al 31/12/2024"></textarea>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="applica_quota"> 
+                    <label for="applica_quota">Applica Contributo Integrativo 4%</label>
+                </div>
+
+                <!-- STEP 4: Lista Proforma + Fattura Diretta -->
+                
+                <div class="totale-box">
+                    <h3 style="margin-bottom: 15px !important;">Riepilogo Importi</h3>
+                    <div class="totale-row">
+                        <span>Totale compensi e spese:</span>
+                        <span id="totale-subtotale">€ 0.00</span>
+                    </div>
+                    <div class="totale-row" id="totale-quota-row" style="display: none;">
+                        <span>Contributo integrativo (4%):</span>
+                        <span id="totale-quota">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Totale imponibile IVA:</span>
+                        <span id="totale-imponibile">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Ritenuta d'acconto (20%):</span>
+                        <span id="totale-ritenuta">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>IVA (22%):</span>
+                        <span id="totale-iva">€ 0.00</span>
+                    </div>
+                    <div class="totale-row">
+                        <span>Totale lordo:</span>
+                        <span id="totale-lordo">€ 0.00</span>
+                    </div>
+                    <div class="totale-row final">
+                        <span>NETTO DA LIQUIDARE:</span>
+                        <span id="totale-netto">€ 0.00</span>
+                    </div>
+                </div>
+                
+                <div class="btn-row">
+                    <button onclick="showProformaStep(2)" class="btn-secondary">← Indietro</button>
+                    <button id="generate-proforma-final-btn" onclick="generateProformaFinal()" class="btn-primary">📄 Genera e Invia Proforma</button>
+                    <button class="btn-secondary" onclick="openFatturaDirettaModal()" style="margin-left: 10px;">
+  🧾 Fattura Diretta (senza proforma)
+</button>
+                </div>
+            </div>
+            
+        </div>
+<div id="gestione-proforma-section" class="proforma-management-section">
+  <h3>📋 Gestione Proforma e Fatture</h3>
+  
+  <!-- Nav tabs interna -->
+  <div class="proforma-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e9ecef;">
+    <button class="proforma-tab-btn active" onclick="switchProformaView('lista')">
+      📄 Proforma Emesse
+    </button>
+    <button class="proforma-tab-btn" onclick="switchProformaView('fattura-diretta')">
+      🧾 Fattura Diretta
+    </button>
+  </div>
+  
+  <!-- Vista Lista Proforma -->
+  <div id="proforma-lista-view" class="proforma-view active">
+    <div class="filters-row">
+      <select id="filter-cliente-proforma" onchange="filterProformaList()">
+        <option value="">Tutti i clienti</option>
+      </select>
+      <button class="btn-secondary" onclick="loadProformaList()">🔄 Aggiorna</button>
+    </div>
+    
+    <div id="proforma-lista-container">
+      <div class="loading">⏳ Caricamento proforma...</div>
+    </div>
+  </div>
+  
+  <!-- Vista Fattura Diretta -->
+  <div id="fattura-diretta-view" class="proforma-view" style="display: none;">
+    <div class="info-banner" style="margin-bottom: 20px;">
+      <strong>💡 Fattura Diretta:</strong> Genera fattura senza emettere proforma. 
+      I timesheet verranno marcati come "Fatturato" e la fattura sarà sincronizzata con "Fatture Smart".
+    </div>
+    
+    <div id="fattura-diretta-form">
+      <!-- Il form viene popolato dinamicamente quando si selezionano timesheet -->
+      <p style="text-align: center; color: #6c757d; padding: 40px;">
+        Seleziona i timesheet nello Step 2, poi scegli "Fattura Diretta" qui per procedere.
+      </p>
+    </div>
+  </div>
+  
+  <div style="margin-top: 20px; text-align: center;">
+    <button class="btn-secondary" onclick="showProformaStep(1)">
+      ← Torna a Selezione Cliente
+    </button>
+  </div>
+</div>
+    </div>
+</div>
+
+
