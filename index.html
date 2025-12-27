@@ -29,58 +29,6 @@
     <link rel="stylesheet" href="css/vendite.css">
     <link rel="stylesheet" href="css/clienti.css">
     <link rel="stylesheet" href="css/proforma-list.css">
-    
-    <style>
-        /* STILI PER CAMPI OPZIONALI COLLASSABILI */
-        .optional-fields-toggle {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            user-select: none;
-        }
-        
-        @media (max-width: 768px) {
-            .optional-fields-toggle {
-                display: flex;
-            }
-            
-            .optional-fields-toggle .toggle-icon {
-                transition: transform 0.3s ease;
-            }
-            
-            .optional-fields-toggle.collapsed .toggle-icon {
-                transform: rotate(-90deg);
-            }
-            
-            .optional-fields {
-                max-height: 1000px;
-                overflow: hidden;
-                transition: max-height 0.3s ease;
-            }
-            
-            .optional-fields.collapsed {
-                max-height: 0;
-            }
-        }
-        
-        .proforma-management-section {
-            margin-top: 40px !important;
-            padding-top: 30px !important;
-            border-top: 3px solid var(--border-color);
-        }
-        
-        .proforma-management-section h3 {
-            color: var(--primary-color);
-            margin-bottom: 20px !important;
-            padding-bottom: 15px !important;
-            border-bottom: 2px solid var(--primary-color);
-        }
-    </style>
 </head>
 <body>
 
@@ -131,10 +79,6 @@
 
 <!-- Service Worker Registration -->
 <script src="sw-register.js"></script>
-
-<!-- Version Display -->
-<script src="version.js"></script>
-<script src="version-display.js"></script>
 
 </body>
 </html>
