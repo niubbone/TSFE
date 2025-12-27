@@ -160,15 +160,38 @@ window.addEventListener('tab-loaded', (e) => {
     }
   } else if (tabName === 'proforma') {
     console.log('✅ Proforma tab ready (dynamic)');
-    // Init proforma con delay per DOM
+    // Init proforma con delay aumentato e debug
     setTimeout(function() {
       console.log('🔄 Inizializzazione Gestione Proforma...');
+      
+      // Debug: verifica dropdown esistono
+      const wizardDropdown = document.querySelector('#proforma_client_select');
+      const filterDropdown = document.querySelector('#filter-cliente-proforma');
+      console.log('🔍 Wizard dropdown trovato?', !!wizardDropdown, 'Options prima:', wizardDropdown?.options.length);
+      console.log('🔍 Filter dropdown trovato?', !!filterDropdown, 'Options prima:', filterDropdown?.options.length);
       
       // Popola filtro clienti
       if (typeof populateProformaClientFilter === 'function') {
         try {
-          populateProformaClientFilter();
-          console.log('✅ Filtro clienti popolato');
+          console.log('📞 Chiamata populateProformaClientFilter()...');
+          const result = populateProformaClientFilter();
+          
+          // Se è async, aspetta
+          if (result && typeof result.then === 'function') {
+            result.then(() => {
+              console.log('✅ Filtro clienti popolato (async)');
+              setTimeout(() => {
+                console.log('🔍 Wizard options dopo:', wizardDropdown?.options.length);
+                console.log('🔍 Filter options dopo:', filterDropdown?.options.length);
+              }, 200);
+            }).catch(err => console.error('❌ Errore async:', err));
+          } else {
+            console.log('✅ Filtro clienti popolato (sync)');
+            setTimeout(() => {
+              console.log('🔍 Wizard options dopo:', wizardDropdown?.options.length);
+              console.log('🔍 Filter options dopo:', filterDropdown?.options.length);
+            }, 200);
+          }
         } catch(err) {
           console.error('❌ Errore popolamento clienti:', err);
         }
@@ -187,7 +210,7 @@ window.addEventListener('tab-loaded', (e) => {
       } else {
         console.error('❌ loadProformaList non trovata');
       }
-    }, 200);
+    }, 300);
   }
 });
 
