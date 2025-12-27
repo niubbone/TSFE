@@ -195,6 +195,34 @@ window.addEventListener('tab-loaded', (e) => {
           console.error('❌ Errore lista:', err);
         }
       }
+      
+      // 🔍 DEBUG WRAPPER per loadTimesheetForClient
+      const originalLoadTimesheet = window.loadTimesheetForClient;
+      window.loadTimesheetForClient = async function() {
+        const clientInput = document.getElementById('proforma_client_select');
+        const clientName = clientInput?.value;
+        
+        console.log('🔍 DEBUG loadTimesheetForClient:');
+        console.log('  - Input element:', clientInput);
+        console.log('  - Cliente selezionato:', clientName);
+        console.log('  - Lunghezza nome:', clientName?.length);
+        console.log('  - JSON:', JSON.stringify(clientName));
+        
+        if (!clientName || clientName.trim() === '') {
+          console.error('❌ Cliente vuoto!');
+          alert('Seleziona un cliente dalla lista');
+          return;
+        }
+        
+        console.log('✅ Chiamata API per cliente:', clientName);
+        
+        // Chiama funzione originale
+        if (originalLoadTimesheet) {
+          return await originalLoadTimesheet.call(this);
+        }
+      };
+      console.log('✅ Debug wrapper installato');
+      
     }, 300);
   }
 });
