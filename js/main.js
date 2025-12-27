@@ -165,15 +165,15 @@ window.addEventListener('tab-loaded', (e) => {
     setTimeout(function() {
       console.log('🔄 Inizializzazione Gestione Proforma...');
       
-      // Popola wizard dropdown usando funzione esistente in timesheet.js
-      if (typeof populateProformaClients === 'function') {
-        console.log('📞 Chiamata populateProformaClients()...');
-        populateProformaClients();
+      // Popola wizard datalist usando funzione con ordinamento alfabetico
+      if (typeof populateProformaClientsDatalist === 'function') {
+        console.log('📞 Chiamata populateProformaClientsDatalist()...');
+        populateProformaClientsDatalist();
         
-        const wizardDropdown = document.querySelector('#proforma_client_select');
-        console.log('✅ Wizard dropdown popolato:', wizardDropdown?.options.length - 1, 'clienti');
+        const datalist = document.querySelector('#proforma_client_list');
+        console.log('✅ Wizard datalist popolato:', datalist?.options.length, 'clienti (ordinato alfabeticamente)');
       } else {
-        console.error('❌ populateProformaClients non trovata');
+        console.error('❌ populateProformaClientsDatalist non trovata');
       }
       
       // Popola filtro lista proforma
