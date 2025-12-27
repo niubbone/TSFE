@@ -160,43 +160,47 @@ window.addEventListener('tab-loaded', (e) => {
     }
   } else if (tabName === 'proforma') {
     console.log('✅ Proforma tab ready (dynamic)');
-    // Init proforma con delay aumentato e debug
+    
+    // Init proforma con delay aumentato
     setTimeout(function() {
       console.log('🔄 Inizializzazione Gestione Proforma...');
       
-      // Debug: verifica dropdown esistono
       const wizardDropdown = document.querySelector('#proforma_client_select');
       const filterDropdown = document.querySelector('#filter-cliente-proforma');
-      console.log('🔍 Wizard dropdown trovato?', !!wizardDropdown, 'Options prima:', wizardDropdown?.options.length);
-      console.log('🔍 Filter dropdown trovato?', !!filterDropdown, 'Options prima:', filterDropdown?.options.length);
       
-      // Popola filtro clienti
+      // Popola filtro clienti (lista proforma)
       if (typeof populateProformaClientFilter === 'function') {
         try {
-          console.log('📞 Chiamata populateProformaClientFilter()...');
-          const result = populateProformaClientFilter();
-          
-          // Se è async, aspetta
-          if (result && typeof result.then === 'function') {
-            result.then(() => {
-              console.log('✅ Filtro clienti popolato (async)');
-              setTimeout(() => {
-                console.log('🔍 Wizard options dopo:', wizardDropdown?.options.length);
-                console.log('🔍 Filter options dopo:', filterDropdown?.options.length);
-              }, 200);
-            }).catch(err => console.error('❌ Errore async:', err));
-          } else {
-            console.log('✅ Filtro clienti popolato (sync)');
-            setTimeout(() => {
-              console.log('🔍 Wizard options dopo:', wizardDropdown?.options.length);
-              console.log('🔍 Filter options dopo:', filterDropdown?.options.length);
-            }, 200);
-          }
+          populateProformaClientFilter();
+          console.log('✅ Filtro lista popolato');
         } catch(err) {
-          console.error('❌ Errore popolamento clienti:', err);
+          console.error('❌ Errore popolamento filtro:', err);
         }
+      }
+      
+      // Popola wizard dropdown MANUALMENTE da CONFIG
+      if (wizardDropdown && window.CONFIG && window.CONFIG.clienti) {
+        console.log('🔄 Popolamento manuale wizard dropdown...');
+        
+        // Pulisci dropdown (mantieni solo prima option)
+        while (wizardDropdown.options.length > 1) {
+          wizardDropdown.remove(1);
+        }
+        
+        // Aggiungi clienti da CONFIG
+        const clienti = window.CONFIG.clienti;
+        console.log('📊 Clienti disponibili:', clienti.length);
+        
+        clienti.forEach(cliente => {
+          const option = document.createElement('option');
+          option.value = cliente.id;
+          option.textContent = cliente.nome_completo || cliente.nome;
+          wizardDropdown.appendChild(option);
+        });
+        
+        console.log('✅ Wizard dropdown popolato:', wizardDropdown.options.length, 'clienti');
       } else {
-        console.error('❌ populateProformaClientFilter non trovata');
+        console.error('❌ Wizard dropdown o CONFIG.clienti non trovati');
       }
       
       // Carica lista proforma
@@ -207,8 +211,6 @@ window.addEventListener('tab-loaded', (e) => {
         } catch(err) {
           console.error('❌ Errore caricamento lista:', err);
         }
-      } else {
-        console.error('❌ loadProformaList non trovata');
       }
     }, 300);
   }
