@@ -62,7 +62,8 @@ export async function getTimesheetDaFatturare(clientName) {
     throw new Error(data.error || 'Impossibile caricare i timesheet');
   }
   
-  return data.timesheet || [];
+  // ✅ FIX: Backend restituisce data.data dopo refactoring
+  return data.data || data.timesheet || [];
 }
 
 /**
