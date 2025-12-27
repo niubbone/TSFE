@@ -1,4 +1,4 @@
-    <div class="form-container">
+<div class="form-container">
         <h1>Genera Proforma</h1>
         
         <div id="proforma-info-box" class="info-box">
@@ -15,9 +15,15 @@
                 </div>
                 
                 <label for="proforma_client_select">Cliente:</label>
-                <select id="proforma_client_select">
-                    <option value="">Seleziona Cliente</option>
-                </select>
+                <input 
+                    type="text" 
+                    id="proforma_client_select" 
+                    list="proforma_client_list" 
+                    placeholder="Cerca o seleziona cliente..."
+                    autocomplete="off"
+                    required>
+                <datalist id="proforma_client_list">
+                </datalist>
                 
                 <div id="loading-timesheet" class="info-box" style="display: none; margin-top: 20px !important;">
                     <p>⏳ Caricamento timesheet...</p>
@@ -180,43 +186,3 @@
 </div>
     </div>
 </div>
-
-
-
-<!-- Script inizializzazione Proforma - ascolta evento tab-loaded -->
-<script>
-window.addEventListener('tab-loaded', function(e) {
-    if (e.detail.tab === 'proforma') {
-        console.log('🎯 Proforma tab-loaded event ricevuto');
-        
-        // Aspetta un attimo per sicurezza che tutto sia nel DOM
-        setTimeout(function() {
-            console.log('🔄 Inizializzazione Gestione Proforma...');
-            
-            // Popola filtro clienti
-            if (typeof populateProformaClientFilter === 'function') {
-                try {
-                    populateProformaClientFilter();
-                    console.log('✅ Filtro clienti popolato');
-                } catch(err) {
-                    console.error('❌ Errore popolamento clienti:', err);
-                }
-            } else {
-                console.error('❌ populateProformaClientFilter non trovata - proforma-list.js caricato?');
-            }
-            
-            // Carica lista proforma
-            if (typeof loadProformaList === 'function') {
-                try {
-                    loadProformaList();
-                    console.log('✅ Lista proforma caricata');
-                } catch(err) {
-                    console.error('❌ Errore caricamento lista:', err);
-                }
-            } else {
-                console.error('❌ loadProformaList non trovata - proforma-list.js caricato?');
-            }
-        }, 100);
-    }
-});
-</script>
