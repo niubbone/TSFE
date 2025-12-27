@@ -391,5 +391,30 @@ export async function saveNewClient() {
     saveBtn.disabled = false;
   }
 }
+
+/**
+ * Popola datalist clienti per proforma (ordinato alfabeticamente)
+ */
+function populateProformaClientsDatalist() {
+  const datalist = document.getElementById('proforma_client_list');
+  if (!datalist) return;
+  
+  datalist.innerHTML = '';
+  
+  // Ordina clienti alfabeticamente
+  const sortedClients = [...window.clients].sort((a, b) => {
+    const nameA = a.name.toUpperCase();
+    const nameB = b.name.toUpperCase();
+    return nameA.localeCompare(nameB);
+  });
+  
+  sortedClients.forEach(client => {
+    const option = document.createElement('option');
+    option.value = client.name;
+    datalist.appendChild(option);
+  });
+}
+
 // Esponi funzioni globalmente per uso da altre tab
 window.populateProformaClients = populateProformaClients;
+window.populateProformaClientsDatalist = populateProformaClientsDatalist;
