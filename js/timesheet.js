@@ -391,3 +391,5 @@ export async function saveNewClient() {
     saveBtn.disabled = false;
   }
 }
+// Esponi funzioni globalmente per uso da altre tab
+window.populateProformaClients = populateProformaClients;
