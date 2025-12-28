@@ -57,7 +57,6 @@ export async function loadTimesheetForClient() {
   try {
     const timesheet = await getTimesheetDaFatturare(clientName);
     window.currentTimesheetData = timesheet;
-    console.log('Timesheet ricevuti:', timesheet);
     displayTimesheetTable(timesheet);
     showProformaStep(2);
   } catch (error) {
@@ -75,13 +74,6 @@ function displayTimesheetTable(timesheet) {
   const tbody = document.getElementById('timesheet-tbody');
   tbody.innerHTML = '';
   window.selectedTimesheet = [];
-  
-  console.log('=== DEBUG TIMESHEET ===');
-  console.log('Numero timesheet ricevuti:', timesheet.length);
-  if (timesheet.length > 0) {
-    console.log('Primo timesheet completo:', JSON.stringify(timesheet[0], null, 2));
-  }
-  console.log('=======================');
   
   if (timesheet.length === 0) {
     document.getElementById('timesheet-table-container').innerHTML = `
