@@ -71,7 +71,8 @@ export async function getTimesheetDaFatturare(clientName) {
  */
 export async function generateProforma(clientName, timesheetIds, causale, applicaQuota) {
   const timesheetIdsStr = timesheetIds.join(',');
-  const url = `${CONFIG.APPS_SCRIPT_URL}?action=generate_proforma&client_name=${encodeURIComponent(clientName)}&timesheet_ids=${timesheetIdsStr}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
+  // ✅ FIX: Backend usa 'cliente' non 'client_name'
+  const url = `${CONFIG.APPS_SCRIPT_URL}?action=generate_proforma&cliente=${encodeURIComponent(clientName)}&timesheet_ids=${timesheetIdsStr}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
   
   const response = await fetch(url, { method: 'GET' });
   const data = await response.json();
