@@ -628,7 +628,7 @@
                 <div class="subsection">
                     <h3 style="color: #764ba2; margin-bottom: 12px;">API Call Pattern</h3>
 <pre><code>// Frontend
-const response = await fetch(`${API_URL}?action=add_client&client_name=${name}&client_email=${email}`);
+const response = await fetch(`${API_URL}?action=add_client&cliente=${name}&client_email=${email}`);
 const result = await response.json();
 
 if (result.success) {
