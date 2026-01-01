@@ -391,3 +391,101 @@ export async function saveNewClient() {
     saveBtn.disabled = false;
   }
 }
+
+// =============================================================================
+// HANDLER MODALITÀ EDIT
+// =============================================================================
+
+/**
+ * Gestisce il submit del form in modalità edit
+ * Modifica il comportamento se submit-btn ha dataset.editMode = 'true'
+ */
+function handleTimesheetSubmit(event) {
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Controlla se siamo in modalità edit
+    if (submitBtn.dataset.editMode === 'true') {
+        event.preventDefault(); // Blocca submit normale
+        
+        const rowIndex = parseInt(submitBtn.dataset.editRow);
+        
+        if (!rowIndex) {
+            alert('❌ Errore: riga da modificare non specificata');
+            return;
+        }
+        
+        // Raccogli dati dal form
+        const formData = {
+            row: rowIndex,
+            date: document.getElementById('date').value,
+            start_time: document.getElementById('start_time').value,
+            stop_time: document.getElementById('stop_time').value,
+            client_name: document.getElementById('client_name').value,
+            tipo_intervento: document.getElementById('tipo_intervento').value,
+            mod_esecuzione: document.getElementById('mod_esecuzione').value,
+            chiamata: document.getElementById('chiamata').value,
+            mod_addebito: document.getElementById('mod_addebito').value,
+            description: document.getElementById('description').value
+        };
+        
+        // Chiamata backend per update
+        updateTimesheet(formData);
+    }
+    // Altrimenti lascia procedere il submit normale (nuovo timesheet)
+}
+
+/**
+ * Aggiorna timesheet esistente via backend
+ */
+async function updateTimesheet(formData) {
+    try {
+        // Costruisci URL
+        const params = new URLSearchParams();
+        params.append('action', 'update_timesheet');
+        
+        Object.keys(formData).forEach(key => {
+            params.append(key, formData[key]);
+        });
+        
+        const url = `${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`;
+        
+        // Loading
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.value = '⏳ Aggiornamento...';
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Timesheet aggiornato con successo!');
+            
+            // Reset form
+            document.getElementById('timesheet-form').reset();
+            
+            // Reset pulsante a modalità normale
+            submitBtn.value = 'Salva Timesheet';
+            submitBtn.dataset.editMode = 'false';
+            delete submitBtn.dataset.editRow;
+            
+        } else {
+            throw new Error(data.error || 'Errore aggiornamento');
+        }
+        
+    } catch (error) {
+        console.error('Errore update timesheet:', error);
+        alert('❌ Errore durante l\'aggiornamento del timesheet');
+    } finally {
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = false;
+        submitBtn.value = 'Salva Timesheet';
+    }
+}
+
+// Aggancia l'handler al form
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('timesheet-form');
+    if (form) {
+        form.addEventListener('submit', handleTimesheetSubmit);
+    }
+});
