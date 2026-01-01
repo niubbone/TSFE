@@ -115,7 +115,112 @@
             padding-bottom: 15px !important;
             border-bottom: 2px solid var(--primary-color);
         }
-    </style>
+    
+/* Card statistiche viola */
+.stat-card-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.stat-card-purple h3 {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+}
+
+.stat-card-purple p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+/* Container filtri */
+.filters-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-select,
+.filter-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Badge stato timesheet */
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-da-fatturare {
+    background: #ffc107;
+    color: #000;
+}
+
+.status-proformato {
+    background: #17a2b8;
+    color: white;
+}
+
+.status-fatturato {
+    background: #28a745;
+    color: white;
+}
+
+.status-scalato {
+    background: #6c757d;
+    color: white;
+}
+
+/* Azioni timesheet (icone) */
+.timesheet-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.timesheet-action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.timesheet-action-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters-container {
+        padding: 15px;
+    }
+    
+    .stat-card-purple h3 {
+        font-size: 24px;
+    }
+    
+    #timesheet-list-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+        </style>
 </head>
 <body>
 
@@ -208,6 +313,9 @@
             </div>
             
             <input type="submit" id="submit-btn" value="Salva Timesheet">
+            <button type="button" class="btn-secondary" id="view-timesheet-list-btn" onclick="openTimesheetListModal()" style="margin-top: 15px; width: 100%;">
+                📋 Visualizza Elenco Timesheet
+            </button>
 
             <button type="button" class="btn-secondary" id="view-timesheet-list-btn" onclick="openTimesheetListModal()" style="margin-top: 15px; width: 100%;">
             📋 Visualizza Elenco Timesheet
@@ -1274,5 +1382,136 @@ function toggleOptionalFields() {
   <script type="module" src="version.js"></script>
   <script type="module" src="version-display.js"></script>
   <script src="sw-register.js"></script>
+
+<!-- ========================================= -->
+<!-- MODAL ELENCO TIMESHEET -->
+<!-- ========================================= -->
+
+<!-- Modal Elenco Timesheet -->
+<div id="timesheet-list-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 95%; width: 95%;">
+        <div class="modal-header">
+            <h2>📋 Elenco Timesheet</h2>
+            <span class="close" onclick="closeTimesheetListModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            
+            <!-- Filtri -->
+            <div class="filters-container">
+                <h3 style="margin-bottom: 15px; color: #333;">🔍 Filtri di Ricerca</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    
+                    <div>
+                        <label for="filter-cliente">Cliente</label>
+                        <select id="filter-cliente" class="filter-select">
+                            <option value="">Tutti i clienti</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filter-data-inizio">Data Inizio</label>
+                        <input type="date" id="filter-data-inizio" class="filter-input">
+                    </div>
+                    
+                    <div>
+                        <label for="filter-data-fine">Data Fine</label>
+                        <input type="date" id="filter-data-fine" class="filter-input">
+                    </div>
+                    
+                    <div>
+                        <label for="filter-tipo">Tipo Intervento</label>
+                        <select id="filter-tipo" class="filter-select">
+                            <option value="">Tutti</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filter-mod-addebito">Modalità Addebito</label>
+                        <select id="filter-mod-addebito" class="filter-select">
+                            <option value="">Tutti</option>
+                            <option value="Da fatturare">Da fatturare</option>
+                            <option value="Scalato">Scalato</option>
+                            <option value="Proformato">Proformato</option>
+                            <option value="Fatturato">Fatturato</option>
+                        </select>
+                    </div>
+                    
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn-secondary" onclick="applyTimesheetFilters()" style="padding: 10px 20px; font-size: 14px;">
+                        🔍 Applica Filtri
+                    </button>
+                    <button class="btn-secondary" onclick="resetTimesheetFilters()" style="padding: 10px 20px; font-size: 14px; background-color: #6c757d;">
+                        🔄 Reset
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Statistiche -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0;">
+                <div class="stat-card-purple">
+                    <h3 id="stat-totale-ore">0</h3>
+                    <p>Ore Totali</p>
+                </div>
+                <div class="stat-card-purple">
+                    <h3 id="stat-interventi">0</h3>
+                    <p>Interventi</p>
+                </div>
+                <div class="stat-card-purple">
+                    <h3 id="stat-importo">€ 0,00</h3>
+                    <p>Importo Totale</p>
+                </div>
+            </div>
+            
+            <!-- Loading -->
+            <div id="timesheet-list-loading" style="display: none; text-align: center; padding: 20px;">
+                <p>⏳ Caricamento timesheet in corso...</p>
+            </div>
+            
+            <!-- Tabella -->
+            <div id="timesheet-list-table-container" style="overflow-x: auto; margin-top: 20px;">
+                <table id="timesheet-list-table" class="data-table" style="width: 100%; min-width: 1000px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Data</th>
+                            <th style="width: 200px;">Cliente</th>
+                            <th style="width: 150px;">Tipo</th>
+                            <th style="width: 120px;">Modalità</th>
+                            <th style="width: 80px; text-align: center;">Ore</th>
+                            <th style="width: 100px; text-align: right;">Importo</th>
+                            <th style="width: 120px;">Stato</th>
+                            <th style="width: auto;">Descrizione</th>
+                            <th style="width: 100px; text-align: center;">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timesheet-list-tbody">
+                        <!-- Righe inserite dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Messaggio nessun risultato -->
+            <div id="timesheet-list-empty" style="display: none; text-align: center; padding: 40px; color: #6c757d;">
+                <p style="font-size: 18px;">📋 Nessun timesheet trovato con i filtri selezionati</p>
+            </div>
+            
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="exportTimesheetCSV()" style="background-color: #28a745;">
+                📥 Esporta CSV
+            </button>
+            <button class="btn-secondary" onclick="closeTimesheetListModal()" style="background-color: #6c757d;">
+                ❌ Chiudi
+            </button>
+        </div>
+    </div>
+</div>
+
+
+    <script src="js/timesheet-list.js"></script>
 </body>
 </html>
