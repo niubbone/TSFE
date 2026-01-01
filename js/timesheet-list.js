@@ -19,7 +19,7 @@ async function openTimesheetListModal() {
     // Carica opzioni filtri
     await loadFilterOptions();
     
-    // Carica timesheet
+    // Carica timesheet (già ordinati per data DESC dal backend)
     await loadAllTimesheet();
 }
 
@@ -48,13 +48,15 @@ window.onclick = function(event) {
  */
 async function loadFilterOptions() {
     try {
-        // Carica clienti
-        const clientiSelect = document.getElementById('filter-cliente');
+        // Carica dati configurazione (clienti, tipi intervento, ecc)
         const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?action=get_data`);
         const data = await response.json();
         
+        // Popola select CLIENTI
         if (data.success && data.data.clienti) {
+            const clientiSelect = document.getElementById('filter-cliente');
             clientiSelect.innerHTML = '<option value="">Tutti i clienti</option>';
+            
             data.data.clienti.forEach(cliente => {
                 const option = document.createElement('option');
                 option.value = cliente.name;
@@ -63,10 +65,11 @@ async function loadFilterOptions() {
             });
         }
         
-        // Carica tipi intervento
+        // Popola select TIPO INTERVENTO
         if (data.success && data.data.tipoIntervento) {
             const tipoSelect = document.getElementById('filter-tipo');
             tipoSelect.innerHTML = '<option value="">Tutti</option>';
+            
             data.data.tipoIntervento.forEach(tipo => {
                 const option = document.createElement('option');
                 option.value = tipo;
@@ -82,6 +85,7 @@ async function loadFilterOptions() {
 
 /**
  * Carica tutti i timesheet dal backend
+ * I timesheet sono GIÀ ordinati per data DESC (più recenti prima) dal backend
  */
 async function loadAllTimesheet(filters = {}) {
     const loading = document.getElementById('timesheet-list-loading');
@@ -179,7 +183,7 @@ function renderTimesheetTable(timesheetList) {
             <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${ts.descrizione || '-'}</td>
             <td>
                 <div class="timesheet-actions">
-                    <button class="timesheet-action-btn" onclick="editTimesheetFromList('${ts.idIntervento}', ${ts.rowIndex})" title="Modifica">
+                    <button class="timesheet-action-btn" onclick="editTimesheetFromList(${ts.rowIndex})" title="Modifica">
                         ✏️
                     </button>
                     <button class="timesheet-action-btn" onclick="deleteTimesheetFromList('${ts.idIntervento}', ${ts.rowIndex})" title="Elimina" style="color: #dc3545;">
@@ -247,39 +251,78 @@ function resetTimesheetFilters() {
 // =======================================================================
 
 /**
- * Modifica timesheet (da implementare)
+ * Modifica timesheet - RICICLA logica da clienti.js
  */
-function editTimesheetFromList(idIntervento, rowIndex) {
-    alert(`🚧 Funzione in sviluppo\n\nModifica timesheet: ${idIntervento}\nRiga: ${rowIndex}`);
-    // TODO: Aprire modal modifica o redirect a form
+async function editTimesheetFromList(rowIndex) {
+    try {
+        // Carica i dati del timesheet da modificare
+        const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?action=get_timesheet_row&row=${rowIndex}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Errore caricamento timesheet');
+        }
+        
+        const ts = data.timesheet;
+        
+        // Chiudi modal elenco
+        closeTimesheetListModal();
+        
+        // Vai alla tab Timesheet
+        openTab('timesheet');
+        
+        // Popola il form con i dati esistenti
+        document.getElementById('date').value = ts.data || '';
+        document.getElementById('start_time').value = ts.startTime || '';
+        document.getElementById('stop_time').value = ts.stopTime || '';
+        document.getElementById('client_name').value = ts.cliente || '';
+        document.getElementById('tipo_intervento').value = ts.tipoIntervento || '';
+        document.getElementById('mod_esecuzione').value = ts.modEsecuzione || '';
+        document.getElementById('chiamata').value = ts.chiamata || '';
+        document.getElementById('mod_addebito').value = ts.modAddebito || '';
+        document.getElementById('description').value = ts.descrizione || '';
+        
+        // Cambia testo del pulsante submit
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.value = 'Aggiorna Timesheet';
+        submitBtn.dataset.editMode = 'true';
+        submitBtn.dataset.editRow = rowIndex;
+        
+        // Scroll in cima
+        window.scrollTo(0, 0);
+        
+        alert(`📝 Modifica il timesheet e clicca "Aggiorna Timesheet" per salvare le modifiche`);
+        
+    } catch (error) {
+        console.error('Errore caricamento timesheet per modifica:', error);
+        alert('❌ Errore durante il caricamento del timesheet da modificare');
+    }
 }
 
 /**
- * Elimina timesheet (da implementare)
+ * Elimina timesheet
  */
 async function deleteTimesheetFromList(idIntervento, rowIndex) {
     const confirm = window.confirm(`⚠️ Sei sicuro di voler eliminare il timesheet ${idIntervento}?\n\nQuesta operazione è irreversibile.`);
     
     if (!confirm) return;
     
-    alert(`🚧 Funzione in sviluppo\n\nElimina timesheet: ${idIntervento}\nRiga: ${rowIndex}`);
-    
-    // TODO: Chiamata backend per eliminazione
-    // try {
-    //     const url = `${CONFIG.APPS_SCRIPT_URL}?action=delete_timesheet&row=${rowIndex}`;
-    //     const response = await fetch(url);
-    //     const data = await response.json();
-    //     
-    //     if (data.success) {
-    //         alert('✅ Timesheet eliminato con successo');
-    //         await loadAllTimesheet();
-    //     } else {
-    //         throw new Error(data.error);
-    //     }
-    // } catch (error) {
-    //     console.error('Errore eliminazione:', error);
-    //     alert('❌ Errore durante l\'eliminazione del timesheet');
-    // }
+    try {
+        const url = `${CONFIG.APPS_SCRIPT_URL}?action=delete_timesheet&row=${rowIndex}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Timesheet eliminato con successo');
+            // Ricarica l'elenco
+            await loadAllTimesheet();
+        } else {
+            throw new Error(data.error || 'Errore eliminazione');
+        }
+    } catch (error) {
+        console.error('Errore eliminazione:', error);
+        alert('❌ Errore durante l\'eliminazione del timesheet');
+    }
 }
 
 // =======================================================================
