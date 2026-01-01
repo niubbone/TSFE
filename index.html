@@ -116,7 +116,9 @@
             border-bottom: 2px solid var(--primary-color);
         }
     
-/* Card statistiche viola - Timesheet List Modal */
+/* ========================================= */
+/* Timesheet List Modal - CSS */
+/* ========================================= */
 .stat-card-purple {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -181,15 +183,21 @@
     transition: transform 0.2s;
 }
 
-.timesheet-action-btn:hover { transform: scale(1.2); }
+.timesheet-action-btn:hover {
+    transform: scale(1.2);
+}
 
 @media (max-width: 768px) {
     .filters-container { padding: 15px; }
     .stat-card-purple h3 { font-size: 24px; }
-    #timesheet-list-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #timesheet-list-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
+/* ========================================= */
 
-    </style>
+</style>
 </head>
 <body>
 
@@ -1350,7 +1358,9 @@ function toggleOptionalFields() {
   <script type="module" src="version-display.js"></script>
   <script src="sw-register.js"></script>
 
+<!-- ========================================= -->
 <!-- Modal Elenco Timesheet -->
+<!-- ========================================= -->
 <div id="timesheet-list-modal" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 95%; width: 95%;">
         <div class="modal-header">
@@ -1361,32 +1371,19 @@ function toggleOptionalFields() {
             <div class="filters-container">
                 <h3 style="margin-bottom: 15px; color: #333;">🔍 Filtri di Ricerca</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                    <div>
-                        <label for="filter-cliente">Cliente</label>
-                        <select id="filter-cliente" class="filter-select"><option value="">Tutti i clienti</option></select>
-                    </div>
-                    <div>
-                        <label for="filter-data-inizio">Data Inizio</label>
-                        <input type="date" id="filter-data-inizio" class="filter-input">
-                    </div>
-                    <div>
-                        <label for="filter-data-fine">Data Fine</label>
-                        <input type="date" id="filter-data-fine" class="filter-input">
-                    </div>
-                    <div>
-                        <label for="filter-tipo">Tipo Intervento</label>
-                        <select id="filter-tipo" class="filter-select"><option value="">Tutti</option></select>
-                    </div>
-                    <div>
-                        <label for="filter-mod-addebito">Modalità Addebito</label>
-                        <select id="filter-mod-addebito" class="filter-select">
+                    <div><label for="filter-cliente">Cliente</label><select id="filter-cliente" class="filter-select"><option value="">Tutti i clienti</option></select></div>
+                    <div><label for="filter-data-inizio">Data Inizio</label><input type="date" id="filter-data-inizio" class="filter-input"></div>
+                    <div><label for="filter-data-fine">Data Fine</label><input type="date" id="filter-data-fine" class="filter-input"></div>
+                    <div><label for="filter-tipo">Tipo Intervento</label><select id="filter-tipo" class="filter-select"><option value="">Tutti</option></select></div>
+                    <div><label for="filter-mod-addebito">Modalità Addebito</label><select id="filter-mod-addebito" class="filter-select">
                             <option value="">Tutti</option>
                             <option value="Da fatturare">Da fatturare</option>
+                            <option value="Scala da pacchetto">Scala da pacchetto</option>
                             <option value="Scalato">Scalato</option>
                             <option value="Proformato">Proformato</option>
                             <option value="Fatturato">Fatturato</option>
-                        </select>
-                    </div>
+                            <option value="Errore Pacchetto">Errore Pacchetto</option>
+                        </select></div>
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn-secondary" onclick="applyTimesheetFilters()" style="padding: 10px 20px; font-size: 14px;">🔍 Applica Filtri</button>
@@ -1398,7 +1395,7 @@ function toggleOptionalFields() {
                 <div class="stat-card-purple"><h3 id="stat-interventi">0</h3><p>Interventi</p></div>
                 <div class="stat-card-purple"><h3 id="stat-importo">€ 0,00</h3><p>Importo Totale</p></div>
             </div>
-            <div id="timesheet-list-loading" style="display: none; text-align: center; padding: 20px;"><p>⏳ Caricamento...</p></div>
+            <div id="timesheet-list-loading" style="display: none; text-align: center; padding: 20px;"><p>⏳ Caricamento timesheet in corso...</p></div>
             <div id="timesheet-list-table-container" style="overflow-x: auto; margin-top: 20px;">
                 <table id="timesheet-list-table" class="data-table" style="width: 100%; min-width: 1000px;">
                     <thead><tr>
@@ -1416,7 +1413,7 @@ function toggleOptionalFields() {
                 </table>
             </div>
             <div id="timesheet-list-empty" style="display: none; text-align: center; padding: 40px; color: #6c757d;">
-                <p style="font-size: 18px;">📋 Nessun timesheet trovato</p>
+                <p style="font-size: 18px;">📋 Nessun timesheet trovato con i filtri selezionati</p>
             </div>
         </div>
         <div class="modal-footer">
