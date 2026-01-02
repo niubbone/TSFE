@@ -1,5 +1,6 @@
 // =======================================================================
 // === TIMESHEET LIST MODAL - Gestione Elenco Timesheet ===
+// === VERSIONE CORRETTA - Usa codice funzionante da clienti.js ===
 // =======================================================================
 
 let allTimesheetData = [];
@@ -16,10 +17,10 @@ async function openTimesheetListModal() {
     const modal = document.getElementById('timesheet-list-modal');
     modal.style.display = 'block';
     
-    // Carica opzioni filtri
-    await loadFilterOptions();
+    // Carica opzioni filtri (usa window.clients e window.config come nel form)
+    loadFilterOptions();
     
-    // Carica timesheet (già ordinati per data DESC dal backend)
+    // Carica timesheet
     await loadAllTimesheet();
 }
 
@@ -44,48 +45,41 @@ window.onclick = function(event) {
 // =======================================================================
 
 /**
- * Carica le opzioni per i filtri (clienti, tipi intervento)
+ * Carica le opzioni per i filtri - USA window.clients e window.config
+ * IDENTICO al form timesheet che funziona
  */
-async function loadFilterOptions() {
-    try {
-        // Carica dati configurazione (clienti, tipi intervento, ecc)
-        const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?action=get_data`);
-        const data = await response.json();
-        
-        // Popola select CLIENTI
-        if (data.success && data.data.clienti) {
-            const clientiSelect = document.getElementById('filter-cliente');
-            clientiSelect.innerHTML = '<option value="">Tutti i clienti</option>';
-            
-            data.data.clienti.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.name;
-                option.textContent = cliente.name;
-                clientiSelect.appendChild(option);
-            });
-        }
-        
-        // Popola select TIPO INTERVENTO
-        if (data.success && data.data.tipoIntervento) {
-            const tipoSelect = document.getElementById('filter-tipo');
-            tipoSelect.innerHTML = '<option value="">Tutti</option>';
-            
-            data.data.tipoIntervento.forEach(tipo => {
-                const option = document.createElement('option');
-                option.value = tipo;
-                option.textContent = tipo;
-                tipoSelect.appendChild(option);
-            });
-        }
-        
-    } catch (error) {
-        console.error('Errore caricamento opzioni filtri:', error);
+function loadFilterOptions() {
+    // Popola select CLIENTI (usa window.clients già caricato)
+    const clientiSelect = document.getElementById('filter-cliente');
+    clientiSelect.innerHTML = '<option value="">Tutti i clienti</option>';
+    
+    if (window.clients && Array.isArray(window.clients)) {
+        window.clients.forEach(client => {
+            const option = document.createElement('option');
+            option.value = client.name;
+            option.textContent = client.name;
+            clientiSelect.appendChild(option);
+        });
+        console.log(`✅ Caricati ${window.clients.length} clienti nei filtri`);
+    }
+    
+    // Popola select TIPO INTERVENTO (usa window.config già caricato)
+    const tipoSelect = document.getElementById('filter-tipo');
+    tipoSelect.innerHTML = '<option value="">Tutti</option>';
+    
+    if (window.config && window.config.tipoIntervento && Array.isArray(window.config.tipoIntervento)) {
+        window.config.tipoIntervento.forEach(tipo => {
+            const option = document.createElement('option');
+            option.value = tipo;
+            option.textContent = tipo;
+            tipoSelect.appendChild(option);
+        });
+        console.log(`✅ Caricati ${window.config.tipoIntervento.length} tipi intervento nei filtri`);
     }
 }
 
 /**
  * Carica tutti i timesheet dal backend
- * I timesheet sono GIÀ ordinati per data DESC (più recenti prima) dal backend
  */
 async function loadAllTimesheet(filters = {}) {
     const loading = document.getElementById('timesheet-list-loading');
@@ -150,6 +144,7 @@ async function loadAllTimesheet(filters = {}) {
 
 /**
  * Renderizza la tabella timesheet
+ * USA ts.data direttamente come in clienti.js (funziona!)
  */
 function renderTimesheetTable(timesheetList) {
     const tbody = document.getElementById('timesheet-list-tbody');
