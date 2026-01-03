@@ -1365,7 +1365,7 @@ function toggleOptionalFields() {
     <div class="modal-content" style="max-width: 95%; width: 95%;">
         <div class="modal-header">
             <h2>📋 Elenco Timesheet</h2>
-            <span class="close" onclick="closeTimesheetListModal()">&times;</span>
+            <span class="close" onclick="closeTimesheetListModal()" style="font-size: 32px; font-weight: bold; color: #999; cursor: pointer; position: absolute; right: 20px; top: 15px; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">&times;</span>
         </div>
         <div class="modal-body">
             <div class="filters-container">
@@ -1379,9 +1379,12 @@ function toggleOptionalFields() {
                             <option value="">Tutti</option>
                             <option value="Da fatturare">Da fatturare</option>
                             <option value="Scala da pacchetto">Scala da pacchetto</option>
+                            <option value="Incluso nel canone">Incluso nel canone</option>
+                            <option value="Startup Kleos">Startup Kleos</option>
                             <option value="Scalato">Scalato</option>
                             <option value="Proformato">Proformato</option>
                             <option value="Fatturato">Fatturato</option>
+                            <option value="Fatturato e pagato">Fatturato e pagato</option>
                             <option value="Errore Pacchetto">Errore Pacchetto</option>
                         </select></div>
                 </div>
