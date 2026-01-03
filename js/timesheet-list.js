@@ -49,18 +49,17 @@ window.onclick = function(event) {
  * IDENTICO al form timesheet che funziona
  */
 function loadFilterOptions() {
-    // Popola select CLIENTI (usa window.clients già caricato)
-    const clientiSelect = document.getElementById('filter-cliente');
-    clientiSelect.innerHTML = '<option value="">Tutti i clienti</option>';
+    // Popola DATALIST clienti (usa window.clients già caricato)
+    const clientiDatalist = document.getElementById('filter-cliente-list');
+    clientiDatalist.innerHTML = '';
     
     if (window.clients && Array.isArray(window.clients)) {
         window.clients.forEach(client => {
             const option = document.createElement('option');
             option.value = client.name;
-            option.textContent = client.name;
-            clientiSelect.appendChild(option);
+            clientiDatalist.appendChild(option);
         });
-        console.log(`✅ Caricati ${window.clients.length} clienti nei filtri`);
+        console.log(`✅ Caricati ${window.clients.length} clienti nel datalist filtri`);
     }
     
     // Popola select TIPO INTERVENTO (usa window.config già caricato)
