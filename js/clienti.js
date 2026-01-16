@@ -686,6 +686,13 @@ function renewProduct(prodottoId, tipoProdotto) {
     }
     
     // Prepara dati nel formato atteso da openRinnovoModal
+    console.log('DEBUG renewProduct:', {
+        prodottoId: prodottoId,
+        tipoProdotto: tipoProdotto,
+        currentClienteNome: window.currentClienteNome,
+        prodottoData: prodotto
+    });
+    
     window.currentProdottoRinnovo = {
         idCanone: tipoProdotto.toLowerCase().includes('canone') ? prodottoId : undefined,
         idFirma: tipoProdotto.toLowerCase().includes('firma') ? prodottoId : undefined,
