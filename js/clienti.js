@@ -462,7 +462,7 @@ async function loadClienteProdotti(clienteId) {
         if (data.success) {
             // ✅ Cache per renewProduct()
             window.currentClienteProdotti = data.prodotti;
-            window.currentClienteNome = clienteData.cliente.nome;
+            window.currentClienteNome = currentCliente?.nome || '';
             
             displayClienteProdotti(data.prodotti);
         } else {
