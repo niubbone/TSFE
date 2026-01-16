@@ -673,7 +673,7 @@ function renewProduct(prodottoId, tipoProdotto) {
     
     // Verifica che vendite.js sia caricato
     if (typeof openRinnovoModal !== 'function') {
-        alert('Errore: vendite.js non caricato. Verifica l'ordine degli script.');
+        alert('Errore: vendite.js non caricato. Verifica l\'ordine degli script.');
         return;
     }
     
