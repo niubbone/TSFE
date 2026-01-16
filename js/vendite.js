@@ -379,18 +379,24 @@ function openRinnovoModal(id, tipo) {
     if (rinnovoIdInput) rinnovoIdInput.value = id;
     if (rinnovoTipoInput) rinnovoTipoInput.value = tipo;
     
-    if (!scadenzeData || !scadenzeData.tutti) {
-        alert('⚠️ Dati scadenze non disponibili');
-        return;
+    // ✅ FIX MINIMO: cerca in scadenzeData O usa dati globali
+    let prodotto = null;
+    
+    if (scadenzeData && scadenzeData.tutti) {
+        // Chiamata da vendite.js (scadenze)
+        prodotto = scadenzeData.tutti.find(p => {
+            if (tipo === 'CANONE') {
+                return p.idCanone === id;
+            } else {
+                return p.idFirma === id;
+            }
+        });
     }
     
-    const prodotto = scadenzeData.tutti.find(p => {
-        if (tipo === 'CANONE') {
-            return p.idCanone === id;
-        } else {
-            return p.idFirma === id;
-        }
-    });
+    // Se non trovato, prova con dati globali (chiamata da clienti.js)
+    if (!prodotto && window.currentProdottoRinnovo) {
+        prodotto = window.currentProdottoRinnovo;
+    }
     
     if (!prodotto) {
         alert('⚠️ Prodotto non trovato');
