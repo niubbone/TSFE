@@ -460,6 +460,13 @@ async function submitRinnovo(e) {
         if (tipo === 'CANONE') {
             action = 'rinnova_canone';
             const descrizione = document.getElementById('rinnovoDescrizione').value;
+            console.log('DEBUG submitRinnovo CANONE:', {
+                id: id,
+                tipo: tipo,
+                descrizione: descrizione,
+                importo: importo,
+                currentProdottoRinnovo: window.currentProdottoRinnovo
+            });
             params = `canone_id=${encodeURIComponent(id)}`;
             if (descrizione) params += `&descrizione=${encodeURIComponent(descrizione)}`;
             if (importo) params += `&importo=${importo}`;
