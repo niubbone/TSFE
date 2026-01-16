@@ -460,6 +460,10 @@ async function loadClienteProdotti(clienteId) {
         const data = await response.json();
         
         if (data.success) {
+            // ✅ Salva in cache globale per renewProduct()
+            window.currentClienteProdotti = data.prodotti;
+            window.currentClienteNome = clienteData.cliente.nome;
+            
             displayClienteProdotti(data.prodotti);
         } else {
             contentDiv.innerHTML = '<p class="empty-state">Errore caricamento prodotti</p>';
@@ -664,9 +668,44 @@ function editTimesheet(rowIndex, idIntervento) {
 /**
  * Rinnova un prodotto
  */
-function renewProduct(productId, productType) {
-    // TODO: Integrare con la funzione di rinnovo esistente
-    alert('Funzione di rinnovo prodotto in arrivo!');
+function renewProduct(prodottoId, tipoProdotto) {
+    console.log(`🔄 Rinnovo ${tipoProdotto}: ${prodottoId}`);
+    
+    // Verifica che vendite.js sia caricato
+    if (typeof openRinnovoModal !== 'function') {
+        alert('Errore: sistema rinnovo non disponibile. Verifica che vendite.js sia caricato.');
+        console.error('openRinnovoModal() non trovata in vendite.js');
+        return;
+    }
+    
+    // Recupera dati prodotto dalla cache
+    const prodottoData = window.currentClienteProdotti?.find(p => p.id === prodottoId);
+    
+    if (!prodottoData) {
+        alert('Errore: dati prodotto non trovati');
+        console.error('Prodotto non trovato in cache');
+        return;
+    }
+    
+    // Determina il tipo per openRinnovoModal (CANONE o FIRMA)
+    // NOTA: Pacchetti non hanno rinnovo automatico
+    let tipoAPI = '';
+    if (tipoProdotto.toLowerCase().includes('canone')) {
+        tipoAPI = 'CANONE';
+    } else if (tipoProdotto.toLowerCase().includes('firma')) {
+        tipoAPI = 'FIRMA';
+    } else if (tipoProdotto.toLowerCase().includes('pacchetto')) {
+        alert('I pacchetti non hanno rinnovo automatico. Crea un nuovo pacchetto dalla tab Vendite.');
+        return;
+    } else {
+        alert('Tipo prodotto non supportato per rinnovo: ' + tipoProdotto);
+        return;
+    }
+    
+    console.log(`✅ Apertura modal rinnovo per ${tipoAPI}`);
+    
+    // Chiama la funzione esistente di vendite.js
+    openRinnovoModal(prodottoId, tipoAPI);
 }
 
 // =======================================================================
