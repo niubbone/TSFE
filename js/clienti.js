@@ -643,16 +643,6 @@ function renewProduct(prodottoId, tipoProdotto) {
         prodottoData: prodotto
     });
     
-    // window.currentProdottoRinnovo = {
-        idCanone: tipoProdotto.toLowerCase().includes('canone') ? prodottoId : undefined,
-        idFirma: tipoProdotto.toLowerCase().includes('firma') ? prodottoId : undefined,
-        nomeCliente: currentCliente?.nome || '',
-        descrizione: prodotto.descrizione || '',
-        dataScadenza: prodotto.dataScadenza,
-        importo: prodotto.importo || '',
-        tipo: prodotto.tipo || 'Token'
-    };
-    
     // Determina tipo API
     const tipoAPI = tipoProdotto.toLowerCase().includes('canone') ? 'CANONE' : 'FIRMA';
     
