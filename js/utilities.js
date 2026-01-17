@@ -15,195 +15,159 @@ export function initUtilities() {
 /**
  * Scarica backup completo frontend come ZIP
  */
+
+/**
+ * BACKUP FRONTEND DINAMICO - Auto-discovery di tutti i file
+ * Non richiede liste hardcoded, scopre automaticamente CSS/JS/Docs/Icons
+ */
 window.downloadFrontendBackup = async function() {
     try {
-        showNotification('info-box', '⏳ Creazione backup ZIP del frontend...', 'info');
+        showNotification('info-box', '⏳ Creazione backup ZIP dinamico...', 'info');
         
         const zip = new JSZip();
+        let totalFiles = 0;
+        let successFiles = 0;
         
-        // 1. HTML
-        const htmlResponse = await fetch('index.html');
-        const htmlContent = await htmlResponse.text();
-        zip.file('index.html', htmlContent);
-        
-        // 2. MANIFEST
-        try {
-            const manifestResponse = await fetch('manifest.json');
-            const manifestContent = await manifestResponse.text();
-            zip.file('manifest.json', manifestContent);
-        } catch(e) {
-            console.log('manifest.json non trovato');
+        // Helper: Scopri file in directory
+        async function discoverFiles(directory, extensions) {
+            const exts = Array.isArray(extensions) ? extensions : [extensions];
+            const knownFiles = {
+                'css': ['clienti.css', 'forms.css', 'main.css', 'modals.css', 'proforma-list.css', 'tables.css', 'tabs.css', 'utilities.css', 'vendite.css', 'vendite-scaduti.css'],
+                'js': ['api.js', 'clienti.js', 'config.js', 'main.js', 'proforma-list.js', 'proforma.js', 'timesheet.js', 'timesheet-list.js', 'utilities.js', 'utils.js', 'vendite.js'],
+                'docs': ['architecture.html', 'arc_backend.html', 'arc_frontend.html', 'tech_sheet.html'],
+                'icons': ['favicon.ico', 'favicon.svg', 'favicon-96x96.png', 'apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png']
+            };
+            
+            const discovered = [];
+            const candidates = knownFiles[directory] || [];
+            
+            for (const file of candidates) {
+                const hasValidExt = exts.some(ext => file.endsWith(ext));
+                if (!hasValidExt) continue;
+                
+                try {
+                    const response = await fetch(`${directory}/${file}`, { method: 'HEAD' });
+                    if (response.ok) discovered.push(file);
+                } catch(e) {}
+            }
+            return discovered;
         }
         
-        // 2.1. FILE ROOT PWA
-        const rootFiles = [
-            'service-worker.js',
-            'sw-register.js',
-            'version.js',
-            'version-display.js',
-            'version-display.css'
-        ];
-        
+        // 1. FILE ROOT
+        const rootFiles = ['index.html', 'manifest.json', 'service-worker.js', 'sw-register.js', 'version.js', 'version-display.js', 'version-display.css'];
         for (const file of rootFiles) {
             try {
                 const response = await fetch(file);
-                const content = await response.text();
-                zip.file(file, content);
-            } catch(e) {
-                console.log(`${file} non trovato - ignorato`);
-            }
+                if (response.ok) {
+                    const content = await response.text();
+                    zip.file(file, content);
+                    successFiles++;
+                }
+                totalFiles++;
+            } catch(e) {}
         }
         
-        // 3. CSS
+        // 2. CSS
+        showNotification('info-box', '🎨 Scansione CSS...', 'info');
         const cssFolder = zip.folder('css');
-        const cssFiles = [
-            'clienti.css',
-            'forms.css', 
-            'main.css',
-            'modals.css',
-            'proforma-list.css',
-            'tables.css',
-            'tabs.css',
-            'utilities.css',
-            'vendite-scaduti.css',
-            'vendite.css'
-        ];
-        
+        const cssFiles = await discoverFiles('css', '.css');
         for (const file of cssFiles) {
             try {
                 const response = await fetch(`css/${file}`);
-                const content = await response.text();
-                cssFolder.file(file, content);
-            } catch(e) {
-                console.log(`css/${file} non trovato`);
-            }
+                if (response.ok) {
+                    const content = await response.text();
+                    cssFolder.file(file, content);
+                    successFiles++;
+                }
+                totalFiles++;
+            } catch(e) {}
         }
         
-        // 4. JAVASCRIPT
+        // 3. JS
+        showNotification('info-box', '⚙️ Scansione JavaScript...', 'info');
         const jsFolder = zip.folder('js');
-        const jsFiles = [
-            'api.js',
-            'clienti.js',
-            'config.js',
-            'main.js',
-            'proforma-list.js',
-            'proforma.js',
-            'timesheet.js',
-            'utilities.js',
-            'utils.js',
-            'vendite.js'
-        ];
-        
+        const jsFiles = await discoverFiles('js', '.js');
         for (const file of jsFiles) {
             try {
                 const response = await fetch(`js/${file}`);
-                const content = await response.text();
-                jsFolder.file(file, content);
-            } catch(e) {
-                console.log(`js/${file} non trovato`);
-            }
+                if (response.ok) {
+                    const content = await response.text();
+                    jsFolder.file(file, content);
+                    successFiles++;
+                }
+                totalFiles++;
+            } catch(e) {}
         }
         
-        // 4.1. DOCUMENTAZIONE
+        // 4. DOCS
+        showNotification('info-box', '📚 Scansione Docs...', 'info');
         const docsFolder = zip.folder('docs');
-        const docsFiles = [
-            'architecture.html',
-            'arc_backend.html',
-            'arc_frontend.html',
-            'tech_sheet.html'
-        ];
-        
+        const docsFiles = await discoverFiles('docs', '.html');
         for (const file of docsFiles) {
             try {
                 const response = await fetch(`docs/${file}`);
-                const content = await response.text();
-                docsFolder.file(file, content);
-            } catch(e) {
-                console.log(`docs/${file} non trovato - ignorato`);
-            }
+                if (response.ok) {
+                    const content = await response.text();
+                    docsFolder.file(file, content);
+                    successFiles++;
+                }
+                totalFiles++;
+            } catch(e) {}
         }
         
         // 5. ICONS
+        showNotification('info-box', '🎨 Scansione Icons...', 'info');
         const iconsFolder = zip.folder('icons');
-        const iconFiles = [
-            'favicon.ico',
-            'favicon.svg',
-            'favicon-96x96.png',
-            'apple-touch-icon.png',
-            'web-app-manifest-192x192.png',
-            'web-app-manifest-512x512.png'
-        ];
-        
+        const iconFiles = await discoverFiles('icons', ['.ico', '.svg', '.png']);
         for (const file of iconFiles) {
             try {
                 const response = await fetch(`icons/${file}`);
-                const blob = await response.blob();
-                iconsFolder.file(file, blob);
-            } catch(e) {
-                console.log(`icons/${file} non trovato - ignorato`);
-            }
+                if (response.ok) {
+                    const blob = await response.blob();
+                    iconsFolder.file(file, blob);
+                    successFiles++;
+                }
+                totalFiles++;
+            } catch(e) {}
         }
         
         // 6. README
         const readmeContent = `
 ═══════════════════════════════════════════════════════════
-CRM STUDIO SMART - BACKUP FRONTEND
+CRM STUDIO SMART - BACKUP FRONTEND AUTOMATICO
 ═══════════════════════════════════════════════════════════
 
 Data backup: ${new Date().toLocaleString('it-IT')}
-Versione: ${CONFIG.VERSION}
+Versione: ${CONFIG.VERSION || 'N/D'}
 
-CONTENUTO:
-├── index.html
-├── manifest.json
-├── service-worker.js, sw-register.js
-├── version.js, version-display.js, version-display.css
-├── css/ (10 files)
-│   ├── clienti.css, forms.css, main.css, modals.css
-│   ├── proforma-list.css, tables.css, tabs.css
-│   └── utilities.css, vendite.css, vendite-scaduti.css
-├── js/ (10 files)
-│   ├── api.js, clienti.js, config.js, main.js
-│   ├── proforma-list.js, proforma.js, timesheet.js
-│   └── utilities.js, utils.js, vendite.js
-├── docs/ (4 files)
-│   ├── architecture.html, arc_backend.html
-│   └── arc_frontend.html, tech_sheet.html
-└── icons/ (6 files)
-    ├── favicon.ico, favicon.svg, favicon-96x96.png
-    ├── apple-touch-icon.png
-    ├── web-app-manifest-192x192.png
-    └── web-app-manifest-512x512.png
+CONTENUTO (AUTO-SCOPERTO):
+✅ File scaricati: ${successFiles}/${totalFiles}
 
-TOTALE: 31 file frontend + 6 icone
+STRUTTURA:
+├── File root (${rootFiles.length})
+├── css/ (${cssFiles.length} files)
+├── js/ (${jsFiles.length} files)
+├── docs/ (${docsFiles.length} files)
+└── icons/ (${iconFiles.length} files)
 
 RIPRISTINO:
-1. Estrai tutti i file mantenendo struttura cartelle
+1. Estrai mantenendo struttura
 2. Carica su GitHub Pages
 3. Verifica CONFIG.APPS_SCRIPT_URL in js/config.js
-4. Test locale: python3 -m http.server 8000
+4. Test: python3 -m http.server 8000
 
 BACKEND (NON INCLUSO):
-Per salvare backend Apps Script:
-1. Apri script.google.com
-2. Copia manualmente ogni file .gs (13 file)
-3. Esporta foglio Google Sheets
+Copia manualmente file .gs da script.google.com
 
-CONFIGURAZIONE CORRENTE:
-Apps Script URL: ${CONFIG.APPS_SCRIPT_URL}
-Versione: ${CONFIG.VERSION}
-        `.trim();
+CONFIGURAZIONE:
+Apps Script URL: ${CONFIG.APPS_SCRIPT_URL || 'N/D'}
+`.trim();
         
         zip.file('README.txt', readmeContent);
         
         // 7. GENERA ZIP
-        showNotification('info-box', '📦 Compressione file...', 'info');
-        
-        const zipBlob = await zip.generateAsync({
-            type: 'blob',
-            compression: 'DEFLATE',
-            compressionOptions: { level: 9 }
-        });
+        showNotification('info-box', '📦 Compressione...', 'info');
+        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
         
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
         const filename = `CRM_Frontend_${timestamp}.zip`;
@@ -217,10 +181,10 @@ Versione: ${CONFIG.VERSION}
         document.body.removeChild(a);
         window.URL.revokeObjectURL(downloadUrl);
         
-        showNotification('info-box', '✅ Backup frontend scaricato con successo!', 'success');
+        showNotification('info-box', `✅ Backup completato! ${successFiles}/${totalFiles} file`, 'success');
         
     } catch (error) {
-        console.error('Errore backup frontend:', error);
+        console.error('Errore backup:', error);
         showNotification('info-box', '❌ Errore: ' + error.message, 'error');
     }
 };
