@@ -1007,6 +1007,12 @@ export {
 
 // Mantieni window.* solo per funzioni chiamate da HTML onclick
 window.searchCliente = searchCliente;
+window.loadClienteDetail = loadClienteDetail;
+window.closeClienteDetail = closeClienteDetail;
+window.openNewClienteForm = openNewClienteForm;
 window.copyClientData = copyClientData;
 window.exportVCard = exportVCard;
 window.showExportDataModal = showExportDataModal;
+window.closeExportDataModal = closeExportDataModal;
+window.editTimesheet = editTimesheet;
+window.renewProduct = renewProduct;
