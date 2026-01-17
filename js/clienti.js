@@ -412,7 +412,7 @@ async function loadClienteProdotti(clienteId) {
         if (data.success) {
             // ✅ Cache per renewProduct()
             currentClienteProdotti = data.prodotti;
-            currentCliente?.nome || '' = currentCliente?.nome || '';
+            // Nome cliente disponibile in currentCliente (variabile locale)
             
             displayClienteProdotti(data.prodotti);
         } else {
@@ -646,7 +646,7 @@ function renewProduct(prodottoId, tipoProdotto) {
     // window.currentProdottoRinnovo = {
         idCanone: tipoProdotto.toLowerCase().includes('canone') ? prodottoId : undefined,
         idFirma: tipoProdotto.toLowerCase().includes('firma') ? prodottoId : undefined,
-        nomeCliente: currentCliente?.nome || '' || '',
+        nomeCliente: currentCliente?.nome || '',
         descrizione: prodotto.descrizione || '',
         dataScadenza: prodotto.dataScadenza,
         importo: prodotto.importo || '',
