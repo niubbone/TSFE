@@ -1,64 +1,14 @@
 // =======================================================================
 // === CLIENTI - GESTIONE COMPLETA ===
+// === VERSIONE REFACTORED - ES6 Modules ===
 // =======================================================================
 
-// Importa CONFIG dall'applicazione principale
-const CONFIG = window.CONFIG || { APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec' };
+// ✅ Import moduli ES6
+import { CONFIG } from './config.js';
+import { showNotification } from './utils.js';
 
 let currentCliente = null;
 let allClienti = [];
-
-// =======================================================================
-// === FUNZIONE HELPER PER NOTIFICHE ===
-// =======================================================================
-
-/**
- * Mostra una notifica nella info-box
- */
-function showNotification(elementId, message, type) {
-    const element = document.getElementById(elementId);
-    
-    if (!element) {
-        console.error('❌ Elemento non trovato:', elementId);
-        if (type === 'error') alert(message);
-        return;
-    }
-    
-    element.className = 'info-box';
-    
-    if (type === 'success') {
-        element.className = 'info-box success';
-        element.style.backgroundColor = '#d4edda';
-        element.style.borderColor = '#c3e6cb';
-        element.style.color = '#155724';
-    } else if (type === 'error') {
-        element.className = 'info-box error';
-        element.style.backgroundColor = '#f8d7da';
-        element.style.borderColor = '#f5c6cb';
-        element.style.color = '#721c24';
-    } else if (type === 'warning') {
-        element.className = 'info-box warning';
-        element.style.backgroundColor = '#fff3cd';
-        element.style.borderColor = '#ffeaa7';
-        element.style.color = '#856404';
-    } else {
-        element.style.backgroundColor = '#d1ecf1';
-        element.style.borderColor = '#bee5eb';
-        element.style.color = '#0c5460';
-    }
-    
-    element.innerHTML = '<p>' + message + '</p>';
-    
-    if (type === 'success') {
-        setTimeout(() => {
-            element.className = 'info-box';
-            element.style.backgroundColor = '';
-            element.style.borderColor = '';
-            element.style.color = '';
-            element.innerHTML = '<p>Cerca, visualizza e modifica i dati dei tuoi clienti</p>';
-        }, 5000);
-    }
-}
 
 // =======================================================================
 // === RICERCA CLIENTI ===
@@ -461,8 +411,8 @@ async function loadClienteProdotti(clienteId) {
         
         if (data.success) {
             // ✅ Cache per renewProduct()
-            window.currentClienteProdotti = data.prodotti;
-            window.currentClienteNome = currentCliente?.nome || '';
+            currentClienteProdotti = data.prodotti;
+            currentCliente?.nome || '' = currentCliente?.nome || '';
             
             displayClienteProdotti(data.prodotti);
         } else {
@@ -678,7 +628,7 @@ function renewProduct(prodottoId, tipoProdotto) {
     }
     
     // Recupera prodotto dalla cache
-    const prodotto = window.currentClienteProdotti?.find(p => p.id === prodottoId);
+    const prodotto = currentClienteProdotti?.find(p => p.id === prodottoId);
     
     if (!prodotto) {
         alert('Errore: dati prodotto non trovati');
@@ -689,14 +639,14 @@ function renewProduct(prodottoId, tipoProdotto) {
     console.log('DEBUG renewProduct:', {
         prodottoId: prodottoId,
         tipoProdotto: tipoProdotto,
-        currentClienteNome: window.currentClienteNome,
+        currentClienteNome: currentCliente?.nome || '',
         prodottoData: prodotto
     });
     
-    window.currentProdottoRinnovo = {
+    // window.currentProdottoRinnovo = {
         idCanone: tipoProdotto.toLowerCase().includes('canone') ? prodottoId : undefined,
         idFirma: tipoProdotto.toLowerCase().includes('firma') ? prodottoId : undefined,
-        nomeCliente: window.currentClienteNome || '',
+        nomeCliente: currentCliente?.nome || '' || '',
         descrizione: prodotto.descrizione || '',
         dataScadenza: prodotto.dataScadenza,
         importo: prodotto.importo || '',
@@ -941,10 +891,6 @@ function exportVCard() {
 console.log('✅ Clienti module caricato');
 
 // Esponi funzioni globalmente per onclick
-window.showExportDataModal = showExportDataModal;
-window.closeExportDataModal = closeExportDataModal;
-window.copyClientData = copyClientData;
-window.exportVCard = exportVCard;
 
 // =======================================================================
 // === MODAL MODIFICA TIMESHEET ===
@@ -1065,3 +1011,26 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', saveTimesheetChanges);
     }
 });
+
+// =======================================================================
+// === EXPORT MODULI ES6 ===
+// =======================================================================
+
+// Export per uso come modulo
+export {
+    searchCliente,
+    loadClienteDetail,
+    showClienteDetail,
+    closeClienteDetail,
+    openClienteEdit,
+    openNewClienteForm,
+    assignMissingClientIDs,
+    showExportDataModal,
+    closeExportDataModal
+};
+
+// Mantieni window.* solo per funzioni chiamate da HTML onclick
+window.searchCliente = searchCliente;
+window.copyClientData = copyClientData;
+window.exportVCard = exportVCard;
+window.showExportDataModal = showExportDataModal;
