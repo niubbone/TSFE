@@ -9,6 +9,7 @@ import { showNotification } from './utils.js';
 
 let currentCliente = null;
 let allClienti = [];
+let currentClienteProdotti = []; // Per cache prodotti cliente
 
 // =======================================================================
 // === RICERCA CLIENTI ===
