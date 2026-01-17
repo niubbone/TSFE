@@ -602,20 +602,6 @@ function displayClienteTimesheet(timesheet) {
 }
 
 /**
- * Modifica un timesheet (da implementare con modal)
- */
-function editTimesheet(rowIndex, idIntervento) {
-    // Redirect alla tab Timesheet
-    window.switchTab('timesheet');
-    
-    // TODO: Dopo il redirect, evidenziare/selezionare la riga del timesheet
-    // Per ora mostra un alert
-    setTimeout(() => {
-        alert(`Cerca l'intervento ID: ${idIntervento} nella tab Timesheet per modificarlo`);
-    }, 500);
-}
-
-/**
  * Rinnova un prodotto
  */
 function renewProduct(prodottoId, tipoProdotto) {
