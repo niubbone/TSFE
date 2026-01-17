@@ -30,8 +30,8 @@ export const VERSION = '4.2.1e';
 export const VERSION_INFO = {
   number: VERSION,
   name: 'Cleanup Edition',
-  date: '28 Dicembre 2024',
-  codename: 'Pulizia',
+  date: '17 Gennaio 2026',
+  codename: 'Refactor 2',
   
   // Changelog corrente versione
   changelog: [
