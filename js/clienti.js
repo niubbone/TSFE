@@ -621,13 +621,16 @@ function renewProduct(prodottoId, tipoProdotto) {
         return;
     }
     
-    // Recupera prodotto dalla cache
-    const prodotto = currentClienteProdotti?.find(p => p.id === prodottoId);
+    // 🔧 FIX: Recupera prodotto con confronto TYPE-SAFE (stringa vs numero)
+    const prodotto = currentClienteProdotti?.find(p => 
+        String(p.id).trim() === String(prodottoId).trim()
+    );
     
     console.log('DEBUG renewProduct - Search result:', {
         searchingFor: prodottoId,
         searchingForType: typeof prodottoId,
-        found: prodotto,
+        found: !!prodotto,
+        foundId: prodotto?.id,
         foundType: prodotto ? typeof prodotto.id : 'N/A'
     });
     
@@ -635,15 +638,18 @@ function renewProduct(prodottoId, tipoProdotto) {
         console.error('⚠️ Prodotto non trovato:', {
             prodottoId,
             tipoProdotto,
-            availableIds: currentClienteProdotti?.map(p => p.id)
+            availableIds: currentClienteProdotti?.map(p => p.id),
+            cacheLength: currentClienteProdotti?.length
         });
-        alert('⚠️ Prodotto non trovato');
+        
+        // Alert più dettagliato per debug
+        alert(`⚠️ Prodotto non trovato!\n\nCercato: ${prodottoId}\nDisponibili: ${currentClienteProdotti?.map(p => p.id).join(', ') || 'nessuno'}`);
         return;
     }
     
     // Prepara dati nel formato atteso da openRinnovoModal
-    console.log('DEBUG renewProduct:', {
-        prodottoId: prodottoId,
+    console.log('✅ Prodotto trovato:', {
+        prodottoId: prodotto.id,
         tipoProdotto: tipoProdotto,
         currentClienteNome: currentCliente?.nome || '',
         prodottoData: prodotto
@@ -653,7 +659,7 @@ function renewProduct(prodottoId, tipoProdotto) {
     const tipoAPI = tipoProdotto.toLowerCase().includes('canone') ? 'CANONE' : 'FIRMA';
     
     // Chiama la funzione esistente
-    openRinnovoModal(prodottoId, tipoAPI);
+    openRinnovoModal(prodotto.id, tipoAPI);
 }
 
 // =======================================================================
