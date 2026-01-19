@@ -608,6 +608,13 @@ function displayClienteTimesheet(timesheet) {
 function renewProduct(prodottoId, tipoProdotto) {
     console.log(`🔄 Rinnovo ${tipoProdotto}: ${prodottoId}`);
     
+    // 🔍 DEBUG: Stato cache
+    console.log('DEBUG renewProduct - Cache state:', {
+        currentClienteProdotti: currentClienteProdotti,
+        length: currentClienteProdotti?.length,
+        allIds: currentClienteProdotti?.map(p => ({ id: p.id, tipo: p.tipo }))
+    });
+    
     // Verifica che vendite.js sia caricato
     if (typeof openRinnovoModal !== 'function') {
         alert('Errore: vendite.js non caricato. Verifica l\'ordine degli script.');
@@ -617,8 +624,20 @@ function renewProduct(prodottoId, tipoProdotto) {
     // Recupera prodotto dalla cache
     const prodotto = currentClienteProdotti?.find(p => p.id === prodottoId);
     
+    console.log('DEBUG renewProduct - Search result:', {
+        searchingFor: prodottoId,
+        searchingForType: typeof prodottoId,
+        found: prodotto,
+        foundType: prodotto ? typeof prodotto.id : 'N/A'
+    });
+    
     if (!prodotto) {
-        alert('Errore: dati prodotto non trovati');
+        console.error('⚠️ Prodotto non trovato:', {
+            prodottoId,
+            tipoProdotto,
+            availableIds: currentClienteProdotti?.map(p => p.id)
+        });
+        alert('⚠️ Prodotto non trovato');
         return;
     }
     
