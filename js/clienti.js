@@ -658,6 +658,17 @@ function renewProduct(prodottoId, tipoProdotto) {
     // Determina tipo API
     const tipoAPI = tipoProdotto.toLowerCase().includes('canone') ? 'CANONE' : 'FIRMA';
     
+    // 🔧 FIX: Imposta dati globali per vendite.js (legacy)
+    window.currentProdottoRinnovo = {
+        idCanone: tipoAPI === 'CANONE' ? prodotto.id : undefined,
+        idFirma: tipoAPI === 'FIRMA' ? prodotto.id : undefined,
+        nomeCliente: currentCliente?.nome || '',
+        descrizione: prodotto.descrizione || '',
+        dataScadenza: prodotto.dataScadenza,
+        importo: prodotto.importo || '',
+        tipo: prodotto.tipo || 'Token'
+    };
+    
     // Chiama la funzione esistente
     openRinnovoModal(prodotto.id, tipoAPI);
 }
