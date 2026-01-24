@@ -113,3 +113,149 @@ export function setupTimesheetFormSubmit() {
   // Non serve modificare, manteniamo la logica esistente
   return true;
 }
+
+// =======================================================================
+// === CANONI - COSTANTI E FUNZIONI ===
+// =======================================================================
+
+/**
+ * Stati lifecycle canone
+ */
+export const CANONE_STATI = {
+  ATTIVO: 'ATTIVO',
+  SCADUTO: 'SCADUTO',
+  RINNOVATO: 'RINNOVATO',
+  DISDETTO: 'DISDETTO'
+};
+
+/**
+ * Stati fatturazione canone
+ */
+export const CANONE_FATTURAZIONE = {
+  DA_FATTURARE: 'Da fatturare',
+  PROFORMATO: 'Proformato',
+  FATTURATO: 'Fatturato'
+};
+
+/**
+ * Recupera lista canoni con filtri opzionali
+ * @param {object} filtri - { stato, fatturazione, cliente }
+ */
+export async function getCanoni(filtri = {}) {
+  const params = new URLSearchParams({ action: 'get_canoni' });
+  
+  if (filtri.stato) params.append('stato', filtri.stato);
+  if (filtri.fatturazione) params.append('fatturazione', filtri.fatturazione);
+  if (filtri.cliente) params.append('cliente', filtri.cliente);
+  
+  const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Errore caricamento canoni');
+  }
+  
+  return data.data || [];
+}
+
+/**
+ * Recupera solo canoni ATTIVI e Da fatturare
+ */
+export async function getCanoniDaFatturare() {
+  const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?action=get_canoni_da_fatturare`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Errore caricamento canoni da fatturare');
+  }
+  
+  return data.data || [];
+}
+
+/**
+ * Aggiorna stato fatturazione canone
+ * @param {string} canoneId - ID canone
+ * @param {string} fatturazione - Da fatturare|Proformato|Fatturato
+ * @param {string} nFattura - Numero fattura (opzionale)
+ */
+export async function updateFatturazioneCanone(canoneId, fatturazione, nFattura = '') {
+  const params = new URLSearchParams({
+    action: 'update_fatturazione_canone',
+    canone_id: canoneId,
+    fatturazione: fatturazione
+  });
+  
+  if (nFattura) {
+    params.append('n_fattura', nFattura);
+  }
+  
+  const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Errore aggiornamento fatturazione');
+  }
+  
+  return data;
+}
+
+/**
+ * Segna canone come fatturato
+ * @param {string} canoneId - ID canone
+ * @param {string} nFattura - Numero fattura completo (es. "N.23/A del 15/01/2026")
+ */
+export async function setCanoneFatturato(canoneId, nFattura) {
+  const params = new URLSearchParams({
+    action: 'set_canone_fatturato',
+    canone_id: canoneId,
+    n_fattura: nFattura
+  });
+  
+  const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Errore registrazione fattura');
+  }
+  
+  return data;
+}
+
+/**
+ * Disdici un canone
+ * @param {string} canoneId - ID canone
+ * @param {string} motivazione - Motivazione (opzionale)
+ */
+export async function disdiciCanone(canoneId, motivazione = '') {
+  const params = new URLSearchParams({
+    action: 'disdici_canone',
+    canone_id: canoneId
+  });
+  
+  if (motivazione) {
+    params.append('motivazione', motivazione);
+  }
+  
+  const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?${params.toString()}`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Errore disdetta canone');
+  }
+  
+  return data;
+}
+
+/**
+ * Statistiche canoni per dashboard
+ */
+export async function getCanoniStats() {
+  const response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?action=get_canoni_stats`);
+  const data = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || 'Errore caricamento statistiche');
+  }
+  
+  return data.data || {};
+}
