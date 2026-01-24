@@ -1,5 +1,6 @@
 // ========================================
 // VENDITE TAB - JavaScript  
+// Versione: 2.0 - Aggiunto supporto Fatturazione Canoni
 // ========================================
 
 const getAPIUrl = () => {
@@ -11,6 +12,13 @@ const getAPIUrl = () => {
 
 const API_URL = getAPIUrl();
 let scadenzeData = null;
+
+// Costanti fatturazione (sincronizzate con backend)
+const CANONE_FATTURAZIONE = {
+    DA_FATTURARE: 'Da fatturare',
+    PROFORMATO: 'Proformato',
+    FATTURATO: 'Fatturato'
+};
 
 function initVenditeTab() {
     loadVenditaClienti();
@@ -33,10 +41,9 @@ async function loadVenditaClienti() {
         
         if (!input || !datalist) return;
         
-        // Clear completo
         input.value = '';
         input.placeholder = 'Caricamento...';
-        datalist.innerHTML = '';  // Rimuove tutte le option precedenti
+        datalist.innerHTML = '';
         
         const response = await fetch(`${API_URL}?action=get_data`);
         const result = await response.json();
@@ -54,7 +61,6 @@ async function loadVenditaClienti() {
                 return nameA.localeCompare(nameB);
             });
             
-            // Clear di nuovo prima di aggiungere (paranoia)
             datalist.innerHTML = '';
             
             clientsList.forEach(cliente => {
@@ -123,6 +129,7 @@ function renderScadenze(data) {
     container.innerHTML = '';
     container.className = 'scadenze-list';
     
+    // Sezione Canoni da Rinnovare (scaduti)
     if (canoniScaduti.length > 0) {
         const sezioneCanoni = document.createElement('div');
         sezioneCanoni.style.marginBottom = '30px';
@@ -141,6 +148,7 @@ function renderScadenze(data) {
         container.appendChild(sezioneCanoni);
     }
     
+    // Sezione Prossime Scadenze
     if (altreScadenze.length > 0) {
         const sezioneScadenze = document.createElement('div');
         
@@ -201,6 +209,33 @@ function createScadenzaCard(prodotto, isCanoneScaduto = false) {
         giorniText = `${prodotto.giorniMancanti} giorni`;
     }
     
+    // 🆕 Badge fatturazione per canoni
+    let fatturazioneBadge = '';
+    if (prodotto.tipoProdotto === 'CANONE' && prodotto.fatturazione) {
+        const badgeClass = prodotto.fatturazione === CANONE_FATTURAZIONE.FATTURATO ? 'badge-success' :
+                          prodotto.fatturazione === CANONE_FATTURAZIONE.PROFORMATO ? 'badge-info' :
+                          'badge-warning';
+        fatturazioneBadge = `<span class="badge ${badgeClass}">${prodotto.fatturazione}</span>`;
+    }
+    
+    // 🆕 Pulsanti azione fatturazione
+    let actionButtons = '';
+    if (prodotto.tipoProdotto === 'CANONE') {
+        if (prodotto.fatturazione === CANONE_FATTURAZIONE.DA_FATTURARE) {
+            actionButtons = `
+                <button class="btn-small btn-proforma" onclick="openProformaCanoneModal('${id}')">
+                    📄 Proforma
+                </button>
+            `;
+        } else if (prodotto.fatturazione === CANONE_FATTURAZIONE.PROFORMATO) {
+            actionButtons = `
+                <button class="btn-small btn-fattura" onclick="openFatturaCanoneModal('${id}')">
+                    🧾 Fattura
+                </button>
+            `;
+        }
+    }
+    
     card.innerHTML = `
         <div class="scadenza-info">
             <div class="scadenza-id">
@@ -208,17 +243,25 @@ function createScadenzaCard(prodotto, isCanoneScaduto = false) {
                 <span class="scadenza-urgenza urgenza-${isCanoneScaduto ? 'scaduto' : prodotto.urgenza.toLowerCase()}">
                     ${giorniText}
                 </span>
+                ${fatturazioneBadge}
             </div>
             <div class="scadenza-cliente">${prodotto.nomeCliente}</div>
             <div class="scadenza-data">Scadenza: ${dataScadenza}${dettagli}</div>
         </div>
-        <button class="btn-rinnova" onclick="openRinnovoModal('${id}', '${prodotto.tipoProdotto}')">
-            Rinnova
-        </button>
+        <div class="scadenza-actions">
+            ${actionButtons}
+            <button class="btn-rinnova" onclick="openRinnovoModal('${id}', '${prodotto.tipoProdotto}')">
+                Rinnova
+            </button>
+        </div>
     `;
     
     return card;
 }
+
+// =======================================================================
+// === MODAL VENDITA ===
+// =======================================================================
 
 function openVenditaModal(tipo) {
     const modal = document.getElementById('venditaModal');
@@ -247,10 +290,7 @@ function openVenditaModal(tipo) {
         if (modalTitle) modalTitle.textContent = '📦 Nuovo Pacchetto Ore';
         if (tipoFirmaGroup) tipoFirmaGroup.style.display = 'none';
         if (oreGroup) oreGroup.style.display = 'block';
-        if (oreInput) {
-            oreInput.required = true;
-            oreInput.value = '';
-        }
+        if (oreInput) { oreInput.required = true; oreInput.value = ''; }
         if (durataGroup) durataGroup.style.display = 'none';
         if (descrizioneGroup) descrizioneGroup.style.display = 'block';
         if (descrizioneLabel) descrizioneLabel.textContent = 'Descrizione';
@@ -283,9 +323,7 @@ function openVenditaModal(tipo) {
 
 function closeVenditaModal() {
     const modal = document.getElementById('venditaModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    if (modal) modal.classList.remove('active');
 }
 
 async function submitVendita(e) {
@@ -299,7 +337,6 @@ async function submitVendita(e) {
     const durataAnni = document.getElementById('venditaDurataAnni').value;
     const oreTotali = document.getElementById('venditaOreTotali')?.value;
     
-    // ✅ Validazione robusta
     if (!cliente || cliente.trim() === '' || cliente === 'Seleziona cliente...') {
         alert('⚠️ Seleziona un cliente');
         return;
@@ -323,8 +360,6 @@ async function submitVendita(e) {
     try {
         let action = '';
         const nomeCliente = cliente.trim();
-        console.log('🔍 DEBUG Invio vendita:', { tipo, nomeCliente, importo, dataInizio });
-        // ✅ Doppio parametro per compatibilità backend
         let params = `cliente=${encodeURIComponent(nomeCliente)}&cliente_nome=${encodeURIComponent(nomeCliente)}&importo=${importo}&data_inizio=${dataInizio}`;
         
         if (tipo === 'pacchetto') {
@@ -340,10 +375,8 @@ async function submitVendita(e) {
             params += `&tipo=${tipoFirma}&durata_anni=${durataAnni}&note=${encodeURIComponent(note)}`;
         }
         
-        console.log('🔍 DEBUG URL chiamata:', `${API_URL}?action=${action}&${params}`);
         const response = await fetch(`${API_URL}?action=${action}&${params}`);
         const result = await response.json();
-        console.log('🔍 DEBUG Risposta backend:', result);
         
         if (result.success) {
             if (tipo === 'pacchetto') {
@@ -370,6 +403,194 @@ async function submitVendita(e) {
     }
 }
 
+// =======================================================================
+// === 🆕 MODAL PROFORMA CANONE ===
+// =======================================================================
+
+function openProformaCanoneModal(canoneId) {
+    const canone = scadenzeData?.tutti?.find(p => p.idCanone === canoneId);
+    
+    if (!canone) {
+        alert('⚠️ Canone non trovato');
+        return;
+    }
+    
+    const modalHTML = `
+        <div id="proformaCanoneModal" class="modal-vendite active">
+            <div class="modal-content-vendite" style="max-width: 500px;">
+                <div class="modal-header-vendite">
+                    <span>📄 Emetti Proforma Canone</span>
+                    <button class="modal-close-vendite" onclick="closeProformaCanoneModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="proforma-canone-id" value="${canoneId}">
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <div><strong>ID:</strong> ${canoneId}</div>
+                        <div><strong>Cliente:</strong> ${canone.nomeCliente}</div>
+                        <div><strong>Importo:</strong> € ${parseFloat(canone.importo).toFixed(2)}</div>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        Cliccando "Genera Proforma" il canone verrà marcato come <strong>Proformato</strong>.
+                    </p>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button class="btn-secondary" onclick="closeProformaCanoneModal()">Annulla</button>
+                        <button class="btn-primary" id="proforma-canone-submit" onclick="submitProformaCanone()">📄 Genera Proforma</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('proformaCanoneModal');
+    if (existingModal) existingModal.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeProformaCanoneModal() {
+    const modal = document.getElementById('proformaCanoneModal');
+    if (modal) modal.remove();
+}
+
+async function submitProformaCanone() {
+    const canoneId = document.getElementById('proforma-canone-id').value;
+    const submitBtn = document.getElementById('proforma-canone-submit');
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Elaborazione...';
+    
+    try {
+        const url = `${API_URL}?action=update_fatturazione_canone&canone_id=${encodeURIComponent(canoneId)}&fatturazione=${encodeURIComponent(CANONE_FATTURAZIONE.PROFORMATO)}`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Errore aggiornamento');
+        }
+        
+        alert(`✅ Canone ${canoneId} marcato come Proformato`);
+        closeProformaCanoneModal();
+        loadScadenze();
+        
+    } catch (error) {
+        console.error('Errore submitProformaCanone:', error);
+        alert('❌ Errore: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📄 Genera Proforma';
+    }
+}
+
+// =======================================================================
+// === 🆕 MODAL FATTURA CANONE ===
+// =======================================================================
+
+function openFatturaCanoneModal(canoneId) {
+    const canone = scadenzeData?.tutti?.find(p => p.idCanone === canoneId);
+    
+    if (!canone) {
+        alert('⚠️ Canone non trovato');
+        return;
+    }
+    
+    const oggi = new Date().toISOString().split('T')[0];
+    
+    const modalHTML = `
+        <div id="fatturaCanoneModal" class="modal-vendite active">
+            <div class="modal-content-vendite" style="max-width: 450px;">
+                <div class="modal-header-vendite">
+                    <span>🧾 Registra Fattura Canone</span>
+                    <button class="modal-close-vendite" onclick="closeFatturaCanoneModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="fattura-canone-id" value="${canoneId}">
+                    
+                    <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
+                        <strong>${canoneId}</strong> - ${canone.nomeCliente}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Numero Fattura *</label>
+                        <input type="text" id="fattura-canone-numero" placeholder="Es. N.23/A" 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <small style="color: #888;">Inserisci il numero fattura (es. N.23/A, 2026/001)</small>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>Data Fattura</label>
+                        <input type="date" id="fattura-canone-data" value="${oggi}"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button class="btn-secondary" onclick="closeFatturaCanoneModal()">Annulla</button>
+                        <button class="btn-primary" id="fattura-canone-submit" onclick="submitFatturaCanone()">🧾 Salva Fattura</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('fatturaCanoneModal');
+    if (existingModal) existingModal.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeFatturaCanoneModal() {
+    const modal = document.getElementById('fatturaCanoneModal');
+    if (modal) modal.remove();
+}
+
+async function submitFatturaCanone() {
+    const canoneId = document.getElementById('fattura-canone-id').value;
+    const numeroFattura = document.getElementById('fattura-canone-numero').value.trim();
+    const dataFattura = document.getElementById('fattura-canone-data').value;
+    
+    if (!numeroFattura) {
+        alert('⚠️ Inserisci il numero fattura');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('fattura-canone-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Salvataggio...';
+    
+    try {
+        // Formatta: "N.23/A del 15/01/2026"
+        const dataFormatted = new Date(dataFattura).toLocaleDateString('it-IT');
+        const nFatturaCompleto = `${numeroFattura} del ${dataFormatted}`;
+        
+        const url = `${API_URL}?action=set_canone_fatturato&canone_id=${encodeURIComponent(canoneId)}&n_fattura=${encodeURIComponent(nFatturaCompleto)}`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Errore salvataggio');
+        }
+        
+        alert(`✅ Fattura "${nFatturaCompleto}" registrata per canone ${canoneId}`);
+        closeFatturaCanoneModal();
+        loadScadenze();
+        
+    } catch (error) {
+        console.error('Errore submitFatturaCanone:', error);
+        alert('❌ Errore: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🧾 Salva Fattura';
+    }
+}
+
+// =======================================================================
+// === MODAL RINNOVO ===
+// =======================================================================
+
 function openRinnovoModal(id, tipo) {
     const modal = document.getElementById('rinnovoModal');
     if (!modal) return;
@@ -379,21 +600,15 @@ function openRinnovoModal(id, tipo) {
     if (rinnovoIdInput) rinnovoIdInput.value = id;
     if (rinnovoTipoInput) rinnovoTipoInput.value = tipo;
     
-    // ✅ FIX MINIMO: cerca in scadenzeData O usa dati globali
     let prodotto = null;
     
     if (scadenzeData && scadenzeData.tutti) {
-        // Chiamata da vendite.js (scadenze)
         prodotto = scadenzeData.tutti.find(p => {
-            if (tipo === 'CANONE') {
-                return p.idCanone === id;
-            } else {
-                return p.idFirma === id;
-            }
+            if (tipo === 'CANONE') return p.idCanone === id;
+            else return p.idFirma === id;
         });
     }
     
-    // Se non trovato, prova con dati globali (chiamata da clienti.js)
     if (!prodotto && window.currentProdottoRinnovo) {
         prodotto = window.currentProdottoRinnovo;
     }
@@ -436,9 +651,7 @@ function openRinnovoModal(id, tipo) {
 
 function closeRinnovoModal() {
     const modal = document.getElementById('rinnovoModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    if (modal) modal.classList.remove('active');
 }
 
 async function submitRinnovo(e) {
@@ -460,13 +673,6 @@ async function submitRinnovo(e) {
         if (tipo === 'CANONE') {
             action = 'rinnova_canone';
             const descrizione = document.getElementById('rinnovoDescrizione').value;
-            console.log('DEBUG submitRinnovo CANONE:', {
-                id: id,
-                tipo: tipo,
-                descrizione: descrizione,
-                importo: importo,
-                currentProdottoRinnovo: window.currentProdottoRinnovo
-            });
             params = `canone_id=${encodeURIComponent(id)}`;
             if (descrizione) params += `&descrizione=${encodeURIComponent(descrizione)}`;
             if (importo) params += `&importo=${importo}`;
@@ -500,7 +706,7 @@ async function submitRinnovo(e) {
 }
 
 // =======================================================================
-// === 🆕 GENERA PROFORMA DA PACCHETTO ===
+// === PROFORMA DA PACCHETTO ===
 // =======================================================================
 
 function showProformaFromPacchettoModal(pacchettoData) {
@@ -531,12 +737,8 @@ function showProformaFromPacchettoModal(pacchettoData) {
                     </div>
                     
                     <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                        <button class="btn-secondary" onclick="closeProformaFromPacchettoModal()">
-                            Salta
-                        </button>
-                        <button class="btn-primary" onclick="generateProformaFromPacchetto('${pacchettoData.id_pacchetto}')">
-                            📄 Genera Proforma
-                        </button>
+                        <button class="btn-secondary" onclick="closeProformaFromPacchettoModal()">Salta</button>
+                        <button class="btn-primary" onclick="generateProformaFromPacchetto('${pacchettoData.id_pacchetto}')">📄 Genera Proforma</button>
                     </div>
                 </div>
             </div>
@@ -544,52 +746,51 @@ function showProformaFromPacchettoModal(pacchettoData) {
     `;
     
     const existingModal = document.getElementById('proformaFromPacchettoModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
+    if (existingModal) existingModal.remove();
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
 function closeProformaFromPacchettoModal() {
     const modal = document.getElementById('proformaFromPacchettoModal');
-    if (modal) {
-        modal.remove();
-    }
+    if (modal) modal.remove();
 }
 
 async function generateProformaFromPacchetto(idPacchetto) {
     const applicaQuota = document.getElementById('applicaQuotaPacchetto')?.checked || false;
     
-    // Messaggio informativo all'utente
-    alert(`✅ Pacchetto ${idPacchetto} creato con successo!\n\n` +
-          `📋 Stato: ATTIVO\n` +
-          `💰 Quota 4%: ${applicaQuota ? 'Applicata' : 'Non applicata'}\n\n` +
-          `📄 Per generare la proforma:\n` +
-          `1. Vai al tab "Nuova Proforma"\n` +
-          `2. Seleziona il cliente\n` +
-          `3. Seleziona i timesheet del pacchetto\n` +
-          `4. Genera la proforma`);
-    
-    closeProformaFromPacchettoModal();
+    try {
+        const response = await fetch(`${API_URL}?action=generate_proforma_pacchetto&id_pacchetto=${encodeURIComponent(idPacchetto)}&applica_quota=${applicaQuota}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`✅ Proforma ${result.n_proforma} generata con successo!`);
+            closeProformaFromPacchettoModal();
+        } else {
+            throw new Error(result.error || 'Errore generazione proforma');
+        }
+    } catch (error) {
+        console.error('Errore generazione proforma pacchetto:', error);
+        alert('❌ Errore: ' + error.message);
+    }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const venditaModal = document.getElementById('venditaModal');
-    if (venditaModal) {
-        venditaModal.addEventListener('click', function(e) {
-            if (e.target === venditaModal) {
-                closeVenditaModal();
-            }
-        });
-    }
-    
-    const rinnovoModal = document.getElementById('rinnovoModal');
-    if (rinnovoModal) {
-        rinnovoModal.addEventListener('click', function(e) {
-            if (e.target === rinnovoModal) {
-                closeRinnovoModal();
-            }
-        });
-    }
-});
+// Esporta funzioni per uso globale
+if (typeof window !== 'undefined') {
+    window.initVenditeTab = initVenditeTab;
+    window.openVenditaModal = openVenditaModal;
+    window.closeVenditaModal = closeVenditaModal;
+    window.submitVendita = submitVendita;
+    window.openRinnovoModal = openRinnovoModal;
+    window.closeRinnovoModal = closeRinnovoModal;
+    window.submitRinnovo = submitRinnovo;
+    window.loadScadenze = loadScadenze;
+    window.openProformaCanoneModal = openProformaCanoneModal;
+    window.closeProformaCanoneModal = closeProformaCanoneModal;
+    window.submitProformaCanone = submitProformaCanone;
+    window.openFatturaCanoneModal = openFatturaCanoneModal;
+    window.closeFatturaCanoneModal = closeFatturaCanoneModal;
+    window.submitFatturaCanone = submitFatturaCanone;
+    window.closeProformaFromPacchettoModal = closeProformaFromPacchettoModal;
+    window.generateProformaFromPacchetto = generateProformaFromPacchetto;
+}
