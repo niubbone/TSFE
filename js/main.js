@@ -63,6 +63,14 @@ window.switchTab = function(tabName) {
       if (typeof showProformaStep === 'function') {
         showProformaStep(1);
       }
+      // 🆕 Carica automaticamente la lista proforma
+      if (typeof loadProformaList === 'function') {
+        loadProformaList();
+      }
+      // 🆕 Popola il filtro clienti
+      if (typeof populateProformaClientFilter === 'function') {
+        populateProformaClientFilter();
+      }
       break;
     case 'utilities':
       if (typeof initUtilities === 'function') {
