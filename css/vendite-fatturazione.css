@@ -1,0 +1,191 @@
+/* ========================================
+   VENDITE FATTURAZIONE - CSS Addons
+   Da aggiungere dopo vendite.css
+   ======================================== */
+
+/* Badge Fatturazione */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-info {
+    background: #cce5ff;
+    color: #004085;
+}
+
+/* Pulsanti azione piccoli */
+.btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    margin-right: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-proforma {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-proforma:hover {
+    background: #138496;
+}
+
+.btn-fattura {
+    background: #28a745;
+    color: white;
+}
+
+.btn-fattura:hover {
+    background: #218838;
+}
+
+/* Card scaduta (canone già scaduto) */
+.scadenza-card.scaduto {
+    border-left: 4px solid #dc3545;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+}
+
+.scadenza-card.scaduto .scadenza-urgenza {
+    background: #dc3545;
+    color: white;
+}
+
+.urgenza-scaduto {
+    background: #dc3545 !important;
+    color: white !important;
+}
+
+/* Layout azioni multiple */
+.scadenza-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .scadenza-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .scadenza-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 12px;
+    }
+    
+    .btn-small {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* Modal fatturazione overlay */
+.modal-vendite {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.modal-vendite.active {
+    display: flex;
+}
+
+.modal-content-vendite {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header-vendite {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.modal-close-vendite {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close-vendite:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Pulsanti modal */
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+}
