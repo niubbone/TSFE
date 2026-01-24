@@ -247,3 +247,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// 🆕 Esponi funzioni globalmente per main.js
+window.loadProformaList = loadProformaList;
+window.populateProformaClientFilter = populateProformaClientFilter;
+window.filterProformaList = filterProformaList;
+window.openFatturaModal = openFatturaModal;
+window.closeFatturaModal = closeFatturaModal;
+window.saveNumeroFattura = saveNumeroFattura;
