@@ -27,7 +27,6 @@
     <link rel="stylesheet" href="css/utilities.css">
     <link rel="stylesheet" href="version-display.css">
     <link rel="stylesheet" href="css/vendite.css">
-    <link rel="stylesheet" href="css/vendite-fatturazione.css">
     <link rel="stylesheet" href="css/clienti.css">
     <link rel="stylesheet" href="css/proforma-list.css">
     
@@ -302,84 +301,6 @@
 
 <!-- TAB PROFORMA -->
 <div id="proforma-tab" class="tab-content">
-
-    <!-- Sezione generazione proforma -->
-  <div class="section-card">
-    <h3>📋 Genera Proforma</h3>
-    
-    <div class="form-group">
-      <label>Cliente</label>
-      <select id="proforma-cliente" onchange="loadTimesheetForClient()">
-        <option value="">Seleziona cliente</option>
-      </select>
-    </div>
-    
-    <div id="timesheet-container" style="display: none;">
-      <h4>Timesheet e Canoni da fatturare</h4>
-      <div id="timesheet-list"></div>
-      
-      <div class="form-group">
-        <label>Causale proforma</label>
-        <input type="text" id="proforma-causale" placeholder="Es: Prestazioni professionali periodo...">
-      </div>
-      
-      <div class="form-group">
-        <label class="checkbox-label">
-          <input type="checkbox" id="proforma-quota">
-          Applica quota integrativa 4%
-        </label>
-      </div>
-      
-      <button id="generate-proforma-btn" class="btn btn-primary" onclick="submitProforma()">
-        📄 Genera Proforma
-      </button>
-    </div>
-  </div>
-
-  <!-- 🆕 Sezione lista proforma emesse -->
-  <div class="section-card">
-    <div class="section-header">
-      <h3>📄 Proforma Emesse</h3>
-      <div class="controls-row">
-        <select id="filter-cliente-proforma" onchange="filterProformaList()">
-          <option value="">Tutti i clienti</option>
-        </select>
-      </div>
-    </div>
-    
-    <!-- QUESTO CONTAINER MANCAVA! -->
-    <div id="proforma-list-container">
-      <div class="loading">⏳ Caricamento proforma...</div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Modal per inserimento numero fattura -->
-<div id="fatturaModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>📄 Emetti Fattura</h3>
-      <span class="close-modal" onclick="closeFatturaModal()">&times;</span>
-    </div>
-    
-    <form onsubmit="saveNumeroFattura(event)">
-      <p>Inserisci numero fattura per la proforma <strong id="fattura-proforma-number"></strong></p>
-      
-      <input type="hidden" id="fattura-n-proforma-hidden">
-      
-      <div class="form-group">
-        <label>Numero Fattura</label>
-        <input type="text" id="fattura-numero-input" placeholder="Es: 123/2025" required>
-      </div>
-      
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeFatturaModal()">Annulla</button>
-        <button type="submit" id="fattura-submit-btn" class="btn btn-primary">💾 Salva</button>
-      </div>
-    </form>
-  </div>
-</div>
     <div class="form-container">
         <h1>Genera Proforma</h1>
         
@@ -534,7 +455,7 @@
       <button class="btn-secondary" onclick="loadProformaList()">🔄 Aggiorna</button>
     </div>
     
-    <div id="proforma-lista-container">
+    <div id="proforma-list-container">
       <div class="loading">⏳ Caricamento proforma...</div>
     </div>
   </div>
