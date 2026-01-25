@@ -113,20 +113,33 @@ function populateFormFields() {
 }
 
 /**
- * Popola select clienti per proforma
+ * Popola datalist clienti per proforma (step-1 e filtro)
+ * NOTA: Per datalist si usa solo option.value, non textContent
  */
 function populateProformaClients() {
-  const clientSelect = document.getElementById('proforma_client_select');
-  if (!clientSelect) return;
+  // Popola datalist per step-1 (selezione cliente)
+  const clientDatalist = document.getElementById('proforma_client_list');
+  if (clientDatalist) {
+    clientDatalist.innerHTML = '';
+    window.clients.forEach(client => {
+      const option = document.createElement('option');
+      option.value = client.name;
+      clientDatalist.appendChild(option);
+    });
+    console.log(`✅ Popolato datalist proforma_client_list con ${window.clients.length} clienti`);
+  }
   
-  clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
-  
-  window.clients.forEach(client => {
-    const option = document.createElement('option');
-    option.value = client.name;
-    option.textContent = client.name;
-    clientSelect.appendChild(option);
-  });
+  // Popola anche il datalist per il filtro nella sezione gestione proforma
+  const filterDatalist = document.getElementById('filter-cliente-proforma-list');
+  if (filterDatalist) {
+    filterDatalist.innerHTML = '';
+    window.clients.forEach(client => {
+      const option = document.createElement('option');
+      option.value = client.name;
+      filterDatalist.appendChild(option);
+    });
+    console.log(`✅ Popolato datalist filtro proforma con ${window.clients.length} clienti`);
+  }
 }
 
 /**
