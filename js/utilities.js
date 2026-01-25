@@ -17,255 +17,155 @@ export function initUtilities() {
  */
 
 /**
- * BACKUP FRONTEND DINAMICO v2.0 - True Auto-Discovery
- * Scansiona index.html per trovare TUTTI i CSS/JS referenziati
- * Non richiede più liste hardcoded
+ * BACKUP FRONTEND v4.0 - GitHub API Auto-Discovery
+ * Usa l'API di GitHub per listare TUTTI i file del repository
+ * Nessuna lista hardcoded necessaria!
+ * 
+ * CONFIGURAZIONE: Imposta il tuo repository qui sotto
  */
+const GITHUB_CONFIG = {
+    owner: 'studiosmart',      // ← Cambia con il tuo username GitHub
+    repo: 'crm-frontend',      // ← Cambia con il nome del tuo repository
+    branch: 'main'             // ← Branch (main o master)
+};
+
 window.downloadFrontendBackup = async function() {
     try {
-        showNotification('info-box', '⏳ Creazione backup ZIP dinamico v2.0...', 'info');
+        showNotification('info-box', '⏳ Backup v4.0 - Scansione GitHub...', 'info');
         
         const zip = new JSZip();
-        let totalFiles = 0;
         let successFiles = 0;
-        const processedFiles = new Set();
+        const processedFiles = [];
         
-        // ===== FASE 1: Scarica e analizza index.html =====
-        showNotification('info-box', '📄 Analisi index.html...', 'info');
+        // ===== FASE 1: Ottieni lista file da GitHub API =====
+        showNotification('info-box', '🔍 Interrogazione GitHub API...', 'info');
         
-        let indexContent = '';
+        const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/git/trees/${GITHUB_CONFIG.branch}?recursive=1`;
+        
+        let allFiles = [];
+        
         try {
-            const indexResponse = await fetch('index.html');
-            if (indexResponse.ok) {
-                indexContent = await indexResponse.text();
-                zip.file('index.html', indexContent);
-                processedFiles.add('index.html');
+            const response = await fetch(apiUrl);
+            
+            if (response.ok) {
+                const data = await response.json();
+                // Filtra solo i file (non le cartelle)
+                allFiles = data.tree
+                    .filter(item => item.type === 'blob')
+                    .map(item => item.path);
+                
+                console.log(`📂 GitHub API: trovati ${allFiles.length} file`);
+            } else {
+                console.warn('GitHub API non disponibile, uso fallback locale');
+            }
+        } catch (e) {
+            console.warn('GitHub API fallita:', e.message);
+        }
+        
+        // ===== FASE 2: Se GitHub API fallisce, usa fallback locale =====
+        if (allFiles.length === 0) {
+            showNotification('info-box', '⚠️ GitHub API non disponibile, uso scansione locale...', 'warning');
+            
+            // Fallback: lista estesa di possibili file
+            allFiles = [
+                'index.html', 'manifest.json', 'service-worker.js', 'sw-register.js',
+                'version.js', 'version-display.js', 'version-display.css',
+                // CSS
+                'css/main.css', 'css/tabs.css', 'css/forms.css', 'css/tables.css',
+                'css/modals.css', 'css/utilities.css', 'css/vendite.css', 'css/clienti.css',
+                'css/proforma-list.css', 'css/proforma.css', 'css/timesheet.css',
+                'css/vendite-scaduti.css', 'css/vendite-fatturazione.css',
+                // JS
+                'js/main.js', 'js/api.js', 'js/config.js', 'js/utils.js', 'js/utilities.js',
+                'js/clienti.js', 'js/vendite.js', 'js/proforma.js', 'js/proforma-list.js',
+                'js/timesheet.js', 'js/timesheet-list.js',
+                // Docs
+                'docs/architecture.html', 'docs/arc_backend.html',
+                'docs/arc_frontend.html', 'docs/tech_sheet.html',
+                // Icons
+                'icons/favicon.ico', 'icons/favicon.svg', 'icons/favicon-96x96.png',
+                'icons/apple-touch-icon.png', 'icons/web-app-manifest-192x192.png',
+                'icons/web-app-manifest-512x512.png'
+            ];
+        }
+        
+        // ===== FASE 3: Scarica tutti i file =====
+        showNotification('info-box', `📥 Scaricamento ${allFiles.length} file...`, 'info');
+        
+        // Crea cartelle
+        const folders = {};
+        
+        for (const filePath of allFiles) {
+            // Salta file nascosti e non necessari
+            if (filePath.startsWith('.') || filePath.includes('/.')) continue;
+            if (filePath === 'README.md' || filePath === 'LICENSE') continue;
+            
+            try {
+                // Determina se è binario (immagini, icone)
+                const isBinary = /\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/i.test(filePath);
+                
+                const response = await fetch(filePath);
+                if (!response.ok) continue;
+                
+                const content = isBinary ? await response.blob() : await response.text();
+                
+                // Gestisci sottocartelle
+                if (filePath.includes('/')) {
+                    const folderName = filePath.split('/')[0];
+                    if (!folders[folderName]) {
+                        folders[folderName] = zip.folder(folderName);
+                    }
+                    const fileName = filePath.split('/').slice(1).join('/');
+                    folders[folderName].file(fileName, content);
+                } else {
+                    zip.file(filePath, content);
+                }
+                
+                processedFiles.push(filePath);
                 successFiles++;
-                totalFiles++;
-            }
-        } catch(e) {
-            console.error('Errore fetch index.html:', e);
-        }
-        
-        // ===== FASE 2: Estrai tutti i riferimenti da index.html =====
-        const cssFiles = new Set();
-        const jsFiles = new Set();
-        
-        // CSS: <link rel="stylesheet" href="...">
-        const cssRegex = /<link[^>]+rel=["']stylesheet["'][^>]+href=["']([^"']+)["']/gi;
-        let match;
-        while ((match = cssRegex.exec(indexContent)) !== null) {
-            const href = match[1];
-            if (!href.startsWith('http') && href.endsWith('.css')) {
-                cssFiles.add(href);
+                console.log(`✓ ${filePath}`);
+                
+            } catch (e) {
+                // File non esiste, skip silenzioso
             }
         }
         
-        // CSS alternativo: href prima di rel
-        const cssRegex2 = /<link[^>]+href=["']([^"']+\.css)["']/gi;
-        while ((match = cssRegex2.exec(indexContent)) !== null) {
-            const href = match[1];
-            if (!href.startsWith('http')) {
-                cssFiles.add(href);
-            }
-        }
-        
-        // JS: <script src="...">
-        const jsRegex = /<script[^>]+src=["']([^"']+)["']/gi;
-        while ((match = jsRegex.exec(indexContent)) !== null) {
-            const src = match[1];
-            if (!src.startsWith('http') && src.endsWith('.js')) {
-                jsFiles.add(src);
-            }
-        }
-        
-        console.log('CSS trovati:', [...cssFiles]);
-        console.log('JS trovati:', [...jsFiles]);
-        
-        // ===== FASE 3: Scarica CSS =====
-        showNotification('info-box', `🎨 Scaricamento ${cssFiles.size} file CSS...`, 'info');
-        const cssFolder = zip.folder('css');
-        
-        for (const cssPath of cssFiles) {
-            if (processedFiles.has(cssPath)) continue;
-            totalFiles++;
-            
-            try {
-                const response = await fetch(cssPath);
-                if (response.ok) {
-                    const content = await response.text();
-                    const fileName = cssPath.includes('/') ? cssPath.split('/').pop() : cssPath;
-                    
-                    if (cssPath.startsWith('css/')) {
-                        cssFolder.file(fileName, content);
-                    } else {
-                        zip.file(cssPath, content);
-                    }
-                    processedFiles.add(cssPath);
-                    successFiles++;
-                    console.log(`✓ CSS: ${cssPath}`);
-                }
-            } catch(e) {
-                console.warn(`✗ CSS: ${cssPath}`, e.message);
-            }
-        }
-        
-        // ===== FASE 4: Scarica JS =====
-        showNotification('info-box', `⚙️ Scaricamento ${jsFiles.size} file JS...`, 'info');
-        const jsFolder = zip.folder('js');
-        
-        for (const jsPath of jsFiles) {
-            if (processedFiles.has(jsPath)) continue;
-            totalFiles++;
-            
-            try {
-                const response = await fetch(jsPath);
-                if (response.ok) {
-                    const content = await response.text();
-                    const fileName = jsPath.includes('/') ? jsPath.split('/').pop() : jsPath;
-                    
-                    if (jsPath.startsWith('js/')) {
-                        jsFolder.file(fileName, content);
-                    } else {
-                        zip.file(jsPath, content);
-                    }
-                    processedFiles.add(jsPath);
-                    successFiles++;
-                    console.log(`✓ JS: ${jsPath}`);
-                }
-            } catch(e) {
-                console.warn(`✗ JS: ${jsPath}`, e.message);
-            }
-        }
-        
-        // ===== FASE 5: File root aggiuntivi =====
-        showNotification('info-box', '📁 File root aggiuntivi...', 'info');
-        const rootFiles = [
-            'manifest.json', 
-            'service-worker.js', 
-            'sw-register.js', 
-            'version.js', 
-            'version-display.js', 
-            'version-display.css'
-        ];
-        
-        for (const file of rootFiles) {
-            if (processedFiles.has(file)) continue;
-            totalFiles++;
-            
-            try {
-                const response = await fetch(file);
-                if (response.ok) {
-                    const content = await response.text();
-                    zip.file(file, content);
-                    processedFiles.add(file);
-                    successFiles++;
-                    console.log(`✓ Root: ${file}`);
-                }
-            } catch(e) {
-                console.warn(`✗ Root: ${file}`, e.message);
-            }
-        }
-        
-        // ===== FASE 6: Docs =====
-        showNotification('info-box', '📚 Scansione docs...', 'info');
-        const docsFolder = zip.folder('docs');
-        const knownDocs = [
-            'docs/architecture.html', 
-            'docs/arc_backend.html', 
-            'docs/arc_frontend.html', 
-            'docs/tech_sheet.html'
-        ];
-        
-        for (const docPath of knownDocs) {
-            if (processedFiles.has(docPath)) continue;
-            totalFiles++;
-            
-            try {
-                const response = await fetch(docPath);
-                if (response.ok) {
-                    const content = await response.text();
-                    const fileName = docPath.split('/').pop();
-                    docsFolder.file(fileName, content);
-                    processedFiles.add(docPath);
-                    successFiles++;
-                    console.log(`✓ Doc: ${docPath}`);
-                }
-            } catch(e) {}
-        }
-        
-        // ===== FASE 7: Icons =====
-        showNotification('info-box', '🎨 Scansione icons...', 'info');
-        const iconsFolder = zip.folder('icons');
-        const knownIcons = [
-            'icons/favicon.ico', 
-            'icons/favicon.svg', 
-            'icons/favicon-96x96.png', 
-            'icons/apple-touch-icon.png', 
-            'icons/web-app-manifest-192x192.png', 
-            'icons/web-app-manifest-512x512.png'
-        ];
-        
-        for (const iconPath of knownIcons) {
-            if (processedFiles.has(iconPath)) continue;
-            totalFiles++;
-            
-            try {
-                const response = await fetch(iconPath);
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const fileName = iconPath.split('/').pop();
-                    iconsFolder.file(fileName, blob);
-                    processedFiles.add(iconPath);
-                    successFiles++;
-                    console.log(`✓ Icon: ${iconPath}`);
-                }
-            } catch(e) {}
-        }
-        
-        // ===== FASE 8: README =====
-        const cssInZip = [...processedFiles].filter(f => f.endsWith('.css')).length;
-        const jsInZip = [...processedFiles].filter(f => f.endsWith('.js')).length;
+        // ===== FASE 4: README =====
+        const cssCount = processedFiles.filter(f => f.endsWith('.css')).length;
+        const jsCount = processedFiles.filter(f => f.endsWith('.js')).length;
         
         const readmeContent = `
 ═══════════════════════════════════════════════════════════
-CRM STUDIO SMART - BACKUP FRONTEND AUTOMATICO v2.0
+CRM STUDIO SMART - BACKUP FRONTEND v4.0 (GitHub Auto-Discovery)
 ═══════════════════════════════════════════════════════════
 
 Data backup: ${new Date().toLocaleString('it-IT')}
 Versione: ${CONFIG.VERSION || 'N/D'}
+Repository: ${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}
 
-CONTENUTO (AUTO-SCOPERTO DA index.html):
-✅ File scaricati: ${successFiles}/${totalFiles}
+✅ File scaricati: ${successFiles}
 
 STRUTTURA:
 ├── index.html
-├── File root PWA (manifest, service-worker, version)
-├── css/ (${cssInZip} files)
-├── js/ (${jsInZip} files)
+├── css/ (${cssCount} files)
+├── js/ (${jsCount} files)
 ├── docs/
 └── icons/
 
 FILE INCLUSI:
-${[...processedFiles].sort().map(f => `  • ${f}`).join('\n')}
+${processedFiles.sort().map(f => `  • ${f}`).join('\n')}
 
 RIPRISTINO:
 1. Estrai mantenendo struttura
 2. Carica su GitHub Pages
 3. Verifica CONFIG.APPS_SCRIPT_URL in js/config.js
-4. Test locale: python3 -m http.server 8000
 
-BACKEND:
-Per esportare il backend vai in Apps Script Editor:
-File > Download > Scarica come .zip
-
-CONFIGURAZIONE:
 Apps Script URL: ${CONFIG.APPS_SCRIPT_URL || 'N/D'}
 `.trim();
         
         zip.file('README.txt', readmeContent);
         
-        // ===== FASE 9: GENERA ZIP =====
+        // ===== FASE 5: GENERA ZIP =====
         showNotification('info-box', '📦 Compressione...', 'info');
         const zipBlob = await zip.generateAsync({ 
             type: 'blob', 
@@ -285,9 +185,9 @@ Apps Script URL: ${CONFIG.APPS_SCRIPT_URL || 'N/D'}
         document.body.removeChild(a);
         window.URL.revokeObjectURL(downloadUrl);
         
-        showNotification('info-box', `✅ Backup completato! ${successFiles}/${totalFiles} file`, 'success');
+        showNotification('info-box', `✅ Backup completato! ${successFiles} file`, 'success');
         console.log('=== BACKUP COMPLETATO ===');
-        console.log('File inclusi:', [...processedFiles].sort());
+        console.log('File inclusi:', processedFiles.sort());
         
     } catch (error) {
         console.error('Errore backup:', error);
