@@ -452,12 +452,18 @@
   
   <!-- Vista Lista Proforma -->
   <div id="proforma-lista-view" class="proforma-view active">
-    <div class="filters-row">
-      <input type="text" id="filter-cliente-proforma" list="filter-cliente-proforma-list" placeholder="Filtra per cliente..." onchange="filterProformaList()" autocomplete="off" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-      <datalist id="filter-cliente-proforma-list">
-        <option value="">Tutti i clienti</option>
-      </datalist>
-      <button class="btn-secondary" onclick="loadProformaList()">🔄 Aggiorna</button>
+    <div class="filters-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+      <div style="flex: 1; min-width: 200px;">
+        <input type="text" id="filter-cliente-proforma" list="filter-cliente-proforma-list" 
+               class="filter-input" placeholder="Filtra per cliente..." autocomplete="off"
+               style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
+        <datalist id="filter-cliente-proforma-list">
+          <!-- Popolato da JavaScript -->
+        </datalist>
+      </div>
+      <button class="btn-secondary" onclick="filterProformaList()" style="padding: 8px 16px;">🔍 Applica</button>
+      <button class="btn-secondary" onclick="resetProformaFilter()" style="padding: 8px 16px; background-color: #6c757d;">🔄 Reset</button>
+      <button class="btn-secondary" onclick="loadProformaList()" style="padding: 8px 16px;">🔄 Aggiorna</button>
     </div>
     
     <div id="proforma-list-container">
