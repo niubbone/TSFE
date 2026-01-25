@@ -317,10 +317,14 @@
                     <div class="step-number">1</div>
                 </div>
                 
-                <label for="proforma_client_select">Cliente:</label>
-                <select id="proforma_client_select">
-                    <option value="">Seleziona Cliente</option>
-                </select>
+                <div class="client-row">
+                    <div style="flex: 1;">
+                        <label for="proforma_client_select">Cliente:</label>
+                        <input type="text" id="proforma_client_select" list="proforma_client_list" placeholder="Cerca o seleziona un cliente" autocomplete="off">
+                        <datalist id="proforma_client_list">
+                        </datalist>
+                    </div>
+                </div>
                 
                 <div id="loading-timesheet" class="info-box" style="display: none; margin-top: 20px !important;">
                     <p>⏳ Caricamento timesheet...</p>
@@ -449,9 +453,10 @@
   <!-- Vista Lista Proforma -->
   <div id="proforma-lista-view" class="proforma-view active">
     <div class="filters-row">
-      <select id="filter-cliente-proforma" onchange="filterProformaList()">
+      <input type="text" id="filter-cliente-proforma" list="filter-cliente-proforma-list" placeholder="Filtra per cliente..." onchange="filterProformaList()" autocomplete="off" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+      <datalist id="filter-cliente-proforma-list">
         <option value="">Tutti i clienti</option>
-      </select>
+      </datalist>
       <button class="btn-secondary" onclick="loadProformaList()">🔄 Aggiorna</button>
     </div>
     
@@ -1036,6 +1041,15 @@
 
 <!-- Libreria JSZip per creare file ZIP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- 🔧 CONFIG globale - DEVE essere PRIMA degli altri script -->
+<script>
+  window.CONFIG = {
+    APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec",
+    APP_NAME: "Studio Smart Timesheet",
+    VERSION: "2.0.0"
+  };
+</script>
 
 <!-- JavaScript Modulare -->
 <script type="module" src="js/main.js"></script>
