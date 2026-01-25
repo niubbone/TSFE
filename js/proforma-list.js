@@ -18,8 +18,10 @@ async function loadProformaList(clientName = null) {
   
   try {
     const API_URL = window.CONFIG?.APPS_SCRIPT_URL || '';
+    console.log('📡 API_URL:', API_URL);
+    
     if (!API_URL) {
-      throw new Error('API URL non configurato');
+      throw new Error('API URL non configurato - window.CONFIG non disponibile');
     }
     
     const url = clientName 
@@ -47,6 +49,7 @@ async function loadProformaList(clientName = null) {
         <div class="error-icon">⚠️</div>
         <div>Errore caricamento proforma</div>
         <div style="font-size: 12px; margin-top: 8px; color: #999;">${error.message}</div>
+        <button onclick="loadProformaList()" style="margin-top: 10px;" class="btn-secondary">🔄 Riprova</button>
       </div>
     `;
   }
@@ -70,7 +73,8 @@ function renderProformaList(proformeList) {
   }
   
   container.innerHTML = proformeList.map(proforma => {
-    const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 'badge-warning';
+    const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 
+                       proforma.stato === 'Pagata' ? 'badge-success' : 'badge-warning';
     const dataFormatted = formatDateItalian(proforma.data);
     const importoFormatted = formatCurrency(proforma.importo);
     
@@ -93,6 +97,7 @@ function renderProformaList(proformeList) {
         </div>
         
         <div class="proforma-footer">
+          ${proforma.pdfUrl ? `<a href="${proforma.pdfUrl}" target="_blank" class="btn-small btn-secondary">📥 PDF</a>` : ''}
           ${proforma.nFattura 
             ? `<div class="fattura-info">
                  <strong>Fattura:</strong> ${proforma.nFattura}
@@ -183,14 +188,51 @@ async function saveNumeroFattura(event) {
 }
 
 /**
- * Filtra proforma per cliente
+ * Filtra proforma per cliente (chiamata dal pulsante Applica)
  */
 function filterProformaList() {
-  const selectCliente = document.getElementById('filter-cliente-proforma');
-  if (!selectCliente) return;
+  const inputCliente = document.getElementById('filter-cliente-proforma');
+  if (!inputCliente) return;
   
-  const clienteSelezionato = selectCliente.value;
+  const clienteSelezionato = inputCliente.value.trim();
+  console.log('🔍 Filtro cliente:', clienteSelezionato);
   loadProformaList(clienteSelezionato || null);
+}
+
+/**
+ * Reset filtro proforma
+ */
+function resetProformaFilter() {
+  const inputCliente = document.getElementById('filter-cliente-proforma');
+  if (inputCliente) {
+    inputCliente.value = '';
+  }
+  loadProformaList();
+}
+
+/**
+ * Popola datalist clienti per filtro proforma
+ * NOTA: Usa solo option.value per datalist (non textContent)
+ */
+function populateProformaClientFilter() {
+  const datalist = document.getElementById('filter-cliente-proforma-list');
+  if (!datalist) {
+    console.warn('⚠️ Datalist filter-cliente-proforma-list non trovato');
+    return;
+  }
+  
+  datalist.innerHTML = '';
+  
+  if (window.clients && Array.isArray(window.clients)) {
+    window.clients.forEach(cliente => {
+      const option = document.createElement('option');
+      option.value = typeof cliente === 'string' ? cliente : cliente.name;
+      datalist.appendChild(option);
+    });
+    console.log(`✅ Popolato datalist filtro proforma con ${window.clients.length} clienti`);
+  } else {
+    console.warn('⚠️ window.clients non disponibile per filtro proforma');
+  }
 }
 
 /**
@@ -228,30 +270,10 @@ function formatCurrency(value) {
   }).format(num);
 }
 
-/**
- * Popola filtro clienti (datalist)
- */
-function populateProformaClientFilter() {
-  const filterDatalist = document.getElementById('filter-cliente-proforma-list');
-  if (!filterDatalist || !window.clients) return;
-  
-  filterDatalist.innerHTML = '';
-  
-  // Opzione vuota per "tutti"
-  const emptyOption = document.createElement('option');
-  emptyOption.value = '';
-  emptyOption.textContent = 'Tutti i clienti';
-  filterDatalist.appendChild(emptyOption);
-  
-  window.clients.forEach(cliente => {
-    const option = document.createElement('option');
-    option.value = typeof cliente === 'string' ? cliente : cliente.name;
-    filterDatalist.appendChild(option);
-  });
-}
-
 // Inizializza al caricamento pagina
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('📄 proforma-list.js caricato');
+  
   // Event listener per chiudere modal cliccando fuori
   const fatturaModal = document.getElementById('fatturaModal');
   if (fatturaModal) {
@@ -263,10 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// 🆕 Esponi funzioni globalmente per main.js
+// Esponi funzioni globalmente
 window.loadProformaList = loadProformaList;
 window.populateProformaClientFilter = populateProformaClientFilter;
 window.filterProformaList = filterProformaList;
+window.resetProformaFilter = resetProformaFilter;
 window.openFatturaModal = openFatturaModal;
 window.closeFatturaModal = closeFatturaModal;
 window.saveNumeroFattura = saveNumeroFattura;
