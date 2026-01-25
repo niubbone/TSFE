@@ -6,8 +6,13 @@
  * Carica e mostra lista proforma
  */
 async function loadProformaList(clientName = null) {
+  console.log('🔄 loadProformaList chiamata, cliente:', clientName);
+  
   const container = document.getElementById('proforma-list-container');
-  if (!container) return;
+  if (!container) {
+    console.error('❌ Container proforma-list-container non trovato!');
+    return;
+  }
   
   container.innerHTML = '<div class="loading">⏳ Caricamento proforma...</div>';
   
@@ -20,18 +25,23 @@ async function loadProformaList(clientName = null) {
     const url = clientName 
       ? `${API_URL}?action=get_proforma_list&cliente=${encodeURIComponent(clientName)}`
       : `${API_URL}?action=get_proforma_list`;
-      
+    
+    console.log('📡 Chiamata API:', url);
+    
     const response = await fetch(url);
     const result = await response.json();
+    
+    console.log('📦 Risposta API:', result);
     
     if (!result.success) {
       throw new Error(result.error || 'Errore caricamento proforma');
     }
     
+    console.log('✅ Proforma ricevute:', result.data?.length || 0);
     renderProformaList(result.data || []);
     
   } catch (error) {
-    console.error('Errore loadProformaList:', error);
+    console.error('❌ Errore loadProformaList:', error);
     container.innerHTML = `
       <div class="error-state">
         <div class="error-icon">⚠️</div>
@@ -219,19 +229,24 @@ function formatCurrency(value) {
 }
 
 /**
- * Popola filtro clienti
+ * Popola filtro clienti (datalist)
  */
 function populateProformaClientFilter() {
-  const selectCliente = document.getElementById('filter-cliente-proforma');
-  if (!selectCliente || !window.clients) return;
+  const filterDatalist = document.getElementById('filter-cliente-proforma-list');
+  if (!filterDatalist || !window.clients) return;
   
-  selectCliente.innerHTML = '<option value="">Tutti i clienti</option>';
+  filterDatalist.innerHTML = '';
+  
+  // Opzione vuota per "tutti"
+  const emptyOption = document.createElement('option');
+  emptyOption.value = '';
+  emptyOption.textContent = 'Tutti i clienti';
+  filterDatalist.appendChild(emptyOption);
   
   window.clients.forEach(cliente => {
     const option = document.createElement('option');
     option.value = typeof cliente === 'string' ? cliente : cliente.name;
-    option.textContent = typeof cliente === 'string' ? cliente : cliente.name;
-    selectCliente.appendChild(option);
+    filterDatalist.appendChild(option);
   });
 }
 
