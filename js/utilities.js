@@ -17,147 +17,247 @@ export function initUtilities() {
  */
 
 /**
- * BACKUP FRONTEND DINAMICO - Auto-discovery di tutti i file
- * Non richiede liste hardcoded, scopre automaticamente CSS/JS/Docs/Icons
+ * BACKUP FRONTEND DINAMICO v2.0 - True Auto-Discovery
+ * Scansiona index.html per trovare TUTTI i CSS/JS referenziati
+ * Non richiede più liste hardcoded
  */
 window.downloadFrontendBackup = async function() {
     try {
-        showNotification('info-box', '⏳ Creazione backup ZIP dinamico...', 'info');
+        showNotification('info-box', '⏳ Creazione backup ZIP dinamico v2.0...', 'info');
         
         const zip = new JSZip();
         let totalFiles = 0;
         let successFiles = 0;
+        const processedFiles = new Set();
         
-        // Helper: Scopri file in directory
-        async function discoverFiles(directory, extensions) {
-            const exts = Array.isArray(extensions) ? extensions : [extensions];
-            const knownFiles = {
-                'css': ['clienti.css', 'forms.css', 'main.css', 'modals.css', 'proforma-list.css', 'tables.css', 'tabs.css', 'utilities.css', 'vendite.css', 'vendite-scaduti.css'],
-                'js': ['api.js', 'clienti.js', 'config.js', 'main.js', 'proforma-list.js', 'proforma.js', 'timesheet.js', 'timesheet-list.js', 'utilities.js', 'utils.js', 'vendite.js'],
-                'docs': ['architecture.html', 'arc_backend.html', 'arc_frontend.html', 'tech_sheet.html'],
-                'icons': ['favicon.ico', 'favicon.svg', 'favicon-96x96.png', 'apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png']
-            };
-            
-            const discovered = [];
-            const candidates = knownFiles[directory] || [];
-            
-            for (const file of candidates) {
-                const hasValidExt = exts.some(ext => file.endsWith(ext));
-                if (!hasValidExt) continue;
-                
-                try {
-                    const response = await fetch(`${directory}/${file}`, { method: 'HEAD' });
-                    if (response.ok) discovered.push(file);
-                } catch(e) {}
+        // ===== FASE 1: Scarica e analizza index.html =====
+        showNotification('info-box', '📄 Analisi index.html...', 'info');
+        
+        let indexContent = '';
+        try {
+            const indexResponse = await fetch('index.html');
+            if (indexResponse.ok) {
+                indexContent = await indexResponse.text();
+                zip.file('index.html', indexContent);
+                processedFiles.add('index.html');
+                successFiles++;
+                totalFiles++;
             }
-            return discovered;
+        } catch(e) {
+            console.error('Errore fetch index.html:', e);
         }
         
-        // 1. FILE ROOT
-        const rootFiles = ['index.html', 'manifest.json', 'service-worker.js', 'sw-register.js', 'version.js', 'version-display.js', 'version-display.css'];
+        // ===== FASE 2: Estrai tutti i riferimenti da index.html =====
+        const cssFiles = new Set();
+        const jsFiles = new Set();
+        
+        // CSS: <link rel="stylesheet" href="...">
+        const cssRegex = /<link[^>]+rel=["']stylesheet["'][^>]+href=["']([^"']+)["']/gi;
+        let match;
+        while ((match = cssRegex.exec(indexContent)) !== null) {
+            const href = match[1];
+            if (!href.startsWith('http') && href.endsWith('.css')) {
+                cssFiles.add(href);
+            }
+        }
+        
+        // CSS alternativo: href prima di rel
+        const cssRegex2 = /<link[^>]+href=["']([^"']+\.css)["']/gi;
+        while ((match = cssRegex2.exec(indexContent)) !== null) {
+            const href = match[1];
+            if (!href.startsWith('http')) {
+                cssFiles.add(href);
+            }
+        }
+        
+        // JS: <script src="...">
+        const jsRegex = /<script[^>]+src=["']([^"']+)["']/gi;
+        while ((match = jsRegex.exec(indexContent)) !== null) {
+            const src = match[1];
+            if (!src.startsWith('http') && src.endsWith('.js')) {
+                jsFiles.add(src);
+            }
+        }
+        
+        console.log('CSS trovati:', [...cssFiles]);
+        console.log('JS trovati:', [...jsFiles]);
+        
+        // ===== FASE 3: Scarica CSS =====
+        showNotification('info-box', `🎨 Scaricamento ${cssFiles.size} file CSS...`, 'info');
+        const cssFolder = zip.folder('css');
+        
+        for (const cssPath of cssFiles) {
+            if (processedFiles.has(cssPath)) continue;
+            totalFiles++;
+            
+            try {
+                const response = await fetch(cssPath);
+                if (response.ok) {
+                    const content = await response.text();
+                    const fileName = cssPath.includes('/') ? cssPath.split('/').pop() : cssPath;
+                    
+                    if (cssPath.startsWith('css/')) {
+                        cssFolder.file(fileName, content);
+                    } else {
+                        zip.file(cssPath, content);
+                    }
+                    processedFiles.add(cssPath);
+                    successFiles++;
+                    console.log(`✓ CSS: ${cssPath}`);
+                }
+            } catch(e) {
+                console.warn(`✗ CSS: ${cssPath}`, e.message);
+            }
+        }
+        
+        // ===== FASE 4: Scarica JS =====
+        showNotification('info-box', `⚙️ Scaricamento ${jsFiles.size} file JS...`, 'info');
+        const jsFolder = zip.folder('js');
+        
+        for (const jsPath of jsFiles) {
+            if (processedFiles.has(jsPath)) continue;
+            totalFiles++;
+            
+            try {
+                const response = await fetch(jsPath);
+                if (response.ok) {
+                    const content = await response.text();
+                    const fileName = jsPath.includes('/') ? jsPath.split('/').pop() : jsPath;
+                    
+                    if (jsPath.startsWith('js/')) {
+                        jsFolder.file(fileName, content);
+                    } else {
+                        zip.file(jsPath, content);
+                    }
+                    processedFiles.add(jsPath);
+                    successFiles++;
+                    console.log(`✓ JS: ${jsPath}`);
+                }
+            } catch(e) {
+                console.warn(`✗ JS: ${jsPath}`, e.message);
+            }
+        }
+        
+        // ===== FASE 5: File root aggiuntivi =====
+        showNotification('info-box', '📁 File root aggiuntivi...', 'info');
+        const rootFiles = [
+            'manifest.json', 
+            'service-worker.js', 
+            'sw-register.js', 
+            'version.js', 
+            'version-display.js', 
+            'version-display.css'
+        ];
+        
         for (const file of rootFiles) {
+            if (processedFiles.has(file)) continue;
+            totalFiles++;
+            
             try {
                 const response = await fetch(file);
                 if (response.ok) {
                     const content = await response.text();
                     zip.file(file, content);
+                    processedFiles.add(file);
                     successFiles++;
+                    console.log(`✓ Root: ${file}`);
                 }
-                totalFiles++;
-            } catch(e) {}
+            } catch(e) {
+                console.warn(`✗ Root: ${file}`, e.message);
+            }
         }
         
-        // 2. CSS
-        showNotification('info-box', '🎨 Scansione CSS...', 'info');
-        const cssFolder = zip.folder('css');
-        const cssFiles = await discoverFiles('css', '.css');
-        for (const file of cssFiles) {
-            try {
-                const response = await fetch(`css/${file}`);
-                if (response.ok) {
-                    const content = await response.text();
-                    cssFolder.file(file, content);
-                    successFiles++;
-                }
-                totalFiles++;
-            } catch(e) {}
-        }
-        
-        // 3. JS
-        showNotification('info-box', '⚙️ Scansione JavaScript...', 'info');
-        const jsFolder = zip.folder('js');
-        const jsFiles = await discoverFiles('js', '.js');
-        for (const file of jsFiles) {
-            try {
-                const response = await fetch(`js/${file}`);
-                if (response.ok) {
-                    const content = await response.text();
-                    jsFolder.file(file, content);
-                    successFiles++;
-                }
-                totalFiles++;
-            } catch(e) {}
-        }
-        
-        // 4. DOCS
-        showNotification('info-box', '📚 Scansione Docs...', 'info');
+        // ===== FASE 6: Docs =====
+        showNotification('info-box', '📚 Scansione docs...', 'info');
         const docsFolder = zip.folder('docs');
-        const docsFiles = await discoverFiles('docs', '.html');
-        for (const file of docsFiles) {
+        const knownDocs = [
+            'docs/architecture.html', 
+            'docs/arc_backend.html', 
+            'docs/arc_frontend.html', 
+            'docs/tech_sheet.html'
+        ];
+        
+        for (const docPath of knownDocs) {
+            if (processedFiles.has(docPath)) continue;
+            totalFiles++;
+            
             try {
-                const response = await fetch(`docs/${file}`);
+                const response = await fetch(docPath);
                 if (response.ok) {
                     const content = await response.text();
-                    docsFolder.file(file, content);
+                    const fileName = docPath.split('/').pop();
+                    docsFolder.file(fileName, content);
+                    processedFiles.add(docPath);
                     successFiles++;
+                    console.log(`✓ Doc: ${docPath}`);
                 }
-                totalFiles++;
             } catch(e) {}
         }
         
-        // 5. ICONS
-        showNotification('info-box', '🎨 Scansione Icons...', 'info');
+        // ===== FASE 7: Icons =====
+        showNotification('info-box', '🎨 Scansione icons...', 'info');
         const iconsFolder = zip.folder('icons');
-        const iconFiles = await discoverFiles('icons', ['.ico', '.svg', '.png']);
-        for (const file of iconFiles) {
+        const knownIcons = [
+            'icons/favicon.ico', 
+            'icons/favicon.svg', 
+            'icons/favicon-96x96.png', 
+            'icons/apple-touch-icon.png', 
+            'icons/web-app-manifest-192x192.png', 
+            'icons/web-app-manifest-512x512.png'
+        ];
+        
+        for (const iconPath of knownIcons) {
+            if (processedFiles.has(iconPath)) continue;
+            totalFiles++;
+            
             try {
-                const response = await fetch(`icons/${file}`);
+                const response = await fetch(iconPath);
                 if (response.ok) {
                     const blob = await response.blob();
-                    iconsFolder.file(file, blob);
+                    const fileName = iconPath.split('/').pop();
+                    iconsFolder.file(fileName, blob);
+                    processedFiles.add(iconPath);
                     successFiles++;
+                    console.log(`✓ Icon: ${iconPath}`);
                 }
-                totalFiles++;
             } catch(e) {}
         }
         
-        // 6. README
+        // ===== FASE 8: README =====
+        const cssInZip = [...processedFiles].filter(f => f.endsWith('.css')).length;
+        const jsInZip = [...processedFiles].filter(f => f.endsWith('.js')).length;
+        
         const readmeContent = `
 ═══════════════════════════════════════════════════════════
-CRM STUDIO SMART - BACKUP FRONTEND AUTOMATICO
+CRM STUDIO SMART - BACKUP FRONTEND AUTOMATICO v2.0
 ═══════════════════════════════════════════════════════════
 
 Data backup: ${new Date().toLocaleString('it-IT')}
 Versione: ${CONFIG.VERSION || 'N/D'}
 
-CONTENUTO (AUTO-SCOPERTO):
+CONTENUTO (AUTO-SCOPERTO DA index.html):
 ✅ File scaricati: ${successFiles}/${totalFiles}
 
 STRUTTURA:
-├── File root (${rootFiles.length})
-├── css/ (${cssFiles.length} files)
-├── js/ (${jsFiles.length} files)
-├── docs/ (${docsFiles.length} files)
-└── icons/ (${iconFiles.length} files)
+├── index.html
+├── File root PWA (manifest, service-worker, version)
+├── css/ (${cssInZip} files)
+├── js/ (${jsInZip} files)
+├── docs/
+└── icons/
+
+FILE INCLUSI:
+${[...processedFiles].sort().map(f => `  • ${f}`).join('\n')}
 
 RIPRISTINO:
 1. Estrai mantenendo struttura
 2. Carica su GitHub Pages
 3. Verifica CONFIG.APPS_SCRIPT_URL in js/config.js
-4. Test: python3 -m http.server 8000
+4. Test locale: python3 -m http.server 8000
 
-BACKEND (NON INCLUSO):
-Copia manualmente file .gs da script.google.com
+BACKEND:
+Per esportare il backend vai in Apps Script Editor:
+File > Download > Scarica come .zip
 
 CONFIGURAZIONE:
 Apps Script URL: ${CONFIG.APPS_SCRIPT_URL || 'N/D'}
@@ -165,9 +265,13 @@ Apps Script URL: ${CONFIG.APPS_SCRIPT_URL || 'N/D'}
         
         zip.file('README.txt', readmeContent);
         
-        // 7. GENERA ZIP
+        // ===== FASE 9: GENERA ZIP =====
         showNotification('info-box', '📦 Compressione...', 'info');
-        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
+        const zipBlob = await zip.generateAsync({ 
+            type: 'blob', 
+            compression: 'DEFLATE', 
+            compressionOptions: { level: 9 } 
+        });
         
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
         const filename = `CRM_Frontend_${timestamp}.zip`;
@@ -182,6 +286,8 @@ Apps Script URL: ${CONFIG.APPS_SCRIPT_URL || 'N/D'}
         window.URL.revokeObjectURL(downloadUrl);
         
         showNotification('info-box', `✅ Backup completato! ${successFiles}/${totalFiles} file`, 'success');
+        console.log('=== BACKUP COMPLETATO ===');
+        console.log('File inclusi:', [...processedFiles].sort());
         
     } catch (error) {
         console.error('Errore backup:', error);
