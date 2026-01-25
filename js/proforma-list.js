@@ -72,6 +72,8 @@ function renderProformaList(proformeList) {
     return;
   }
   
+  console.log('🎨 Rendering', proformeList.length, 'proforma');
+  
   container.innerHTML = proformeList.map(proforma => {
     const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 
                        proforma.stato === 'Pagata' ? 'badge-success' : 'badge-warning';
@@ -212,7 +214,6 @@ function resetProformaFilter() {
 
 /**
  * Popola datalist clienti per filtro proforma
- * NOTA: Usa solo option.value per datalist (non textContent)
  */
 function populateProformaClientFilter() {
   const datalist = document.getElementById('filter-cliente-proforma-list');
@@ -229,7 +230,7 @@ function populateProformaClientFilter() {
       option.value = typeof cliente === 'string' ? cliente : cliente.name;
       datalist.appendChild(option);
     });
-    console.log(`✅ Popolato datalist filtro proforma con ${window.clients.length} clienti`);
+    console.log('✅ Popolato datalist filtro proforma con ' + window.clients.length + ' clienti');
   } else {
     console.warn('⚠️ window.clients non disponibile per filtro proforma');
   }
