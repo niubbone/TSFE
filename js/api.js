@@ -50,7 +50,8 @@ export async function addClient(clientName, clientEmail = '') {
 }
 
 /**
- * Carica timesheet da fatturare per un cliente
+ * Carica timesheet E canoni da fatturare per un cliente
+ * @returns {object} - { timesheet: [], canoni: [] }
  */
 export async function getTimesheetDaFatturare(clientName) {
   const url = `${CONFIG.APPS_SCRIPT_URL}?action=get_timesheet_da_fatturare&client_name=${encodeURIComponent(clientName)}`;
@@ -62,8 +63,11 @@ export async function getTimesheetDaFatturare(clientName) {
     throw new Error(data.error || 'Impossibile caricare i timesheet');
   }
   
-  // ✅ FIX: Backend restituisce data.data dopo refactoring
-  return data.data || data.timesheet || [];
+  // ✅ AGGIORNATO: Backend restituisce { timesheet: [], canoni: [] }
+  return {
+    timesheet: data.timesheet || data.data || [],
+    canoni: data.canoni || []
+  };
 }
 
 /**
