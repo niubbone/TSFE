@@ -318,9 +318,9 @@
                 </div>
                 
                 <label for="proforma_client_select">Cliente:</label>
-                <input type="text" id="proforma_client_select" list="proforma_client_list" placeholder="Cerca cliente..." style="width: 100%; padding: 10px; font-size: 16px;">
-                <datalist id="proforma_client_list">
-                </datalist>
+                <select id="proforma_client_select">
+                    <option value="">Seleziona Cliente</option>
+                </select>
                 
                 <div id="loading-timesheet" class="info-box" style="display: none; margin-top: 20px !important;">
                     <p>⏳ Caricamento timesheet...</p>
@@ -448,12 +448,18 @@
   <!-- Vista Lista Proforma -->
   <div id="proforma-lista-view" class="proforma-view active">
     <div class="filters-row">
-      <input type="text" id="filter-cliente-proforma" list="filter-cliente-proforma-list" placeholder="Cerca cliente..." style="flex: 1; padding: 10px; font-size: 14px;">
-      <datalist id="filter-cliente-proforma-list">
-      </datalist>
-      <button class="btn-primary" onclick="filterProformaList()" style="margin-left: 10px;">🔍 Filtra</button>
-      <button class="btn-secondary" onclick="resetProformaFilter()" style="margin-left: 5px;">↺ Reset</button>
-      <button class="btn-secondary" onclick="loadProformaList()" style="margin-left: 5px;">🔄 Aggiorna</button>
+      <select id="filter-cliente-proforma" onchange="filterProformaList()" style="min-width: 200px;">
+        <option value="">Tutti i clienti</option>
+      </select>
+      <select id="filter-anno-proforma" onchange="filterProformaList()" style="min-width: 100px;">
+        <option value="">Tutti gli anni</option>
+      </select>
+      <select id="filter-stato-proforma" onchange="filterProformaList()" style="min-width: 140px;">
+        <option value="">Tutti gli stati</option>
+        <option value="non_fatturata">📋 Non fatturata</option>
+        <option value="fatturata">✅ Fatturata</option>
+      </select>
+      <button class="btn-secondary" onclick="resetProformaFilters()" title="Reimposta tutti i filtri">🔄 Reset</button>
     </div>
     
     <div id="proforma-list-container">
