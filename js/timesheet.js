@@ -117,20 +117,7 @@ function populateFormFields() {
  * NOTA: Per datalist si usa solo option.value, non textContent
  */
 function populateProformaClients() {
-  // ✅ Popola SELECT per step-1 (selezione cliente proforma)
-  const clientSelect = document.getElementById('proforma_client_select');
-  if (clientSelect) {
-    clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
-    window.clients.forEach(client => {
-      const option = document.createElement('option');
-      option.value = client.name;
-      option.textContent = client.name;
-      clientSelect.appendChild(option);
-    });
-    console.log(`✅ Popolato select proforma_client_select con ${window.clients.length} clienti`);
-  }
-  
-  // Popola datalist per step-1 (selezione cliente) - legacy
+  // ✅ Popola DATALIST per step-1 proforma (input con autocomplete)
   const clientDatalist = document.getElementById('proforma_client_list');
   if (clientDatalist) {
     clientDatalist.innerHTML = '';
@@ -142,7 +129,7 @@ function populateProformaClients() {
     console.log(`✅ Popolato datalist proforma_client_list con ${window.clients.length} clienti`);
   }
   
-  // Popola anche il datalist per il filtro nella sezione gestione proforma
+  // ✅ Popola DATALIST per filtro lista proforma
   const filterDatalist = document.getElementById('filter-cliente-proforma-list');
   if (filterDatalist) {
     filterDatalist.innerHTML = '';
@@ -151,7 +138,19 @@ function populateProformaClients() {
       option.value = client.name;
       filterDatalist.appendChild(option);
     });
-    console.log(`✅ Popolato datalist filtro proforma con ${window.clients.length} clienti`);
+    console.log(`✅ Popolato datalist filter-cliente-proforma-list con ${window.clients.length} clienti`);
+  }
+  
+  // ✅ Popola DATALIST per filtro lista timesheet (modal)
+  const timesheetFilterDatalist = document.getElementById('filter-cliente-list');
+  if (timesheetFilterDatalist) {
+    timesheetFilterDatalist.innerHTML = '';
+    window.clients.forEach(client => {
+      const option = document.createElement('option');
+      option.value = client.name;
+      timesheetFilterDatalist.appendChild(option);
+    });
+    console.log(`✅ Popolato datalist filter-cliente-list con ${window.clients.length} clienti`);
   }
 }
 
