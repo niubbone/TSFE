@@ -317,14 +317,10 @@
                     <div class="step-number">1</div>
                 </div>
                 
-                <div class="client-row">
-                    <div style="flex: 1;">
-                        <label for="proforma_client_select">Cliente:</label>
-                        <input type="text" id="proforma_client_select" list="proforma_client_list" placeholder="Cerca o seleziona un cliente" autocomplete="off">
-                        <datalist id="proforma_client_list">
-                        </datalist>
-                    </div>
-                </div>
+                <label for="proforma_client_select">Cliente:</label>
+                <select id="proforma_client_select">
+                    <option value="">Seleziona Cliente</option>
+                </select>
                 
                 <div id="loading-timesheet" class="info-box" style="display: none; margin-top: 20px !important;">
                     <p>⏳ Caricamento timesheet...</p>
@@ -352,12 +348,11 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">✓</th>
-                                <th>Data</th>
-                                <th>Tipo Intervento</th>
-                                <th>Modalità</th>
-                                <th>Ore</th>
-                                <th>Chiamata</th>
-                                <th>Costo</th>
+                                <th style="width: 100px;">Tipo</th>
+                                <th style="width: 100px;">Data</th>
+                                <th>Descrizione</th>
+                                <th style="width: 60px; text-align: center;">Ore</th>
+                                <th style="width: 100px; text-align: right;">Costo</th>
                             </tr>
                         </thead>
                         <tbody id="timesheet-tbody">
@@ -367,7 +362,7 @@
                 
                 <div id="selection-info" class="info-box" style="margin-top: 20px !important;">
                     <p>
-                        <strong>Selezionati:</strong> <span id="selected-count">0</span> timesheet<br>
+                        <strong>Selezionati:</strong> <span id="selected-count">0 elementi</span><br>
                         <strong>Subtotale:</strong> <span id="subtotale-preview">€ 0.00</span>
                     </p>
                 </div>
@@ -452,18 +447,11 @@
   
   <!-- Vista Lista Proforma -->
   <div id="proforma-lista-view" class="proforma-view active">
-    <div class="filters-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
-      <div style="flex: 1; min-width: 200px;">
-        <input type="text" id="filter-cliente-proforma" list="filter-cliente-proforma-list" 
-               class="filter-input" placeholder="Filtra per cliente..." autocomplete="off"
-               style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
-        <datalist id="filter-cliente-proforma-list">
-          <!-- Popolato da JavaScript -->
-        </datalist>
-      </div>
-      <button class="btn-secondary" onclick="filterProformaList()" style="padding: 8px 16px;">🔍 Applica</button>
-      <button class="btn-secondary" onclick="resetProformaFilter()" style="padding: 8px 16px; background-color: #6c757d;">🔄 Reset</button>
-      <button class="btn-secondary" onclick="loadProformaList()" style="padding: 8px 16px;">🔄 Aggiorna</button>
+    <div class="filters-row">
+      <select id="filter-cliente-proforma" onchange="filterProformaList()">
+        <option value="">Tutti i clienti</option>
+      </select>
+      <button class="btn-secondary" onclick="loadProformaList()">🔄 Aggiorna</button>
     </div>
     
     <div id="proforma-list-container">
@@ -1047,15 +1035,6 @@
 
 <!-- Libreria JSZip per creare file ZIP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-<!-- 🔧 CONFIG globale - DEVE essere PRIMA degli altri script -->
-<script>
-  window.CONFIG = {
-    APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec",
-    APP_NAME: "Studio Smart Timesheet",
-    VERSION: "2.0.0"
-  };
-</script>
 
 <!-- JavaScript Modulare -->
 <script type="module" src="js/main.js"></script>
