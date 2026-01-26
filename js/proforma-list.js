@@ -2,15 +2,24 @@
 // === LISTA PROFORMA EMESSE ===
 // =======================================================================
 
+// Variabile per memorizzare tutte le proforma caricate
+let allProformeData = [];
+
 /**
  * Carica e mostra lista proforma
  */
-async function loadProformaList(clientName = null) {
-  console.log('🔄 loadProformaList chiamata, cliente:', clientName);
+async function loadProformaList(forceReload = false) {
+  console.log('🔄 loadProformaList chiamata, forceReload:', forceReload);
   
   const container = document.getElementById('proforma-list-container');
   if (!container) {
     console.error('❌ Container proforma-list-container non trovato!');
+    return;
+  }
+  
+  // Se abbiamo già i dati e non è un reload forzato, usa i dati in memoria
+  if (allProformeData.length > 0 && !forceReload) {
+    filterAndRenderProforma();
     return;
   }
   
@@ -24,9 +33,7 @@ async function loadProformaList(clientName = null) {
       throw new Error('API URL non configurato - window.CONFIG non disponibile');
     }
     
-    const url = clientName 
-      ? `${API_URL}?action=get_proforma_list&cliente=${encodeURIComponent(clientName)}`
-      : `${API_URL}?action=get_proforma_list`;
+    const url = `${API_URL}?action=get_proforma_list`;
     
     console.log('📡 Chiamata API:', url);
     
@@ -39,8 +46,14 @@ async function loadProformaList(clientName = null) {
       throw new Error(result.error || 'Errore caricamento proforma');
     }
     
-    console.log('✅ Proforma ricevute:', result.data?.length || 0);
-    renderProformaList(result.data || []);
+    allProformeData = result.data || [];
+    console.log('✅ Proforma ricevute:', allProformeData.length);
+    
+    // Popola filtro anni
+    populateAnniFilter();
+    
+    // Applica filtri e renderizza
+    filterAndRenderProforma();
     
   } catch (error) {
     console.error('❌ Errore loadProformaList:', error);
@@ -49,10 +62,101 @@ async function loadProformaList(clientName = null) {
         <div class="error-icon">⚠️</div>
         <div>Errore caricamento proforma</div>
         <div style="font-size: 12px; margin-top: 8px; color: #999;">${error.message}</div>
-        <button onclick="loadProformaList()" style="margin-top: 10px;" class="btn-secondary">🔄 Riprova</button>
+        <button onclick="loadProformaList(true)" style="margin-top: 10px;" class="btn-secondary">🔄 Riprova</button>
       </div>
     `;
   }
+}
+
+/**
+ * Popola il filtro anni con gli anni presenti nelle proforma
+ */
+function populateAnniFilter() {
+  const selectAnno = document.getElementById('filter-anno-proforma');
+  if (!selectAnno) return;
+  
+  // Estrai anni unici dalle proforma
+  const anni = [...new Set(allProformeData.map(p => {
+    if (!p.data) return null;
+    const date = new Date(p.data);
+    return isNaN(date.getTime()) ? null : date.getFullYear();
+  }).filter(a => a !== null))].sort((a, b) => b - a); // Ordine decrescente
+  
+  selectAnno.innerHTML = '<option value="">Tutti gli anni</option>';
+  anni.forEach(anno => {
+    const option = document.createElement('option');
+    option.value = anno;
+    option.textContent = anno;
+    selectAnno.appendChild(option);
+  });
+  
+  console.log('✅ Popolato filtro anni:', anni);
+}
+
+/**
+ * Filtra e renderizza le proforma in base ai filtri selezionati
+ */
+function filterAndRenderProforma() {
+  const clienteFilter = document.getElementById('filter-cliente-proforma')?.value || '';
+  const annoFilter = document.getElementById('filter-anno-proforma')?.value || '';
+  const statoFilter = document.getElementById('filter-stato-proforma')?.value || '';
+  
+  console.log('🔍 Filtri:', { cliente: clienteFilter, anno: annoFilter, stato: statoFilter });
+  
+  let filtered = allProformeData;
+  
+  // Filtro cliente
+  if (clienteFilter) {
+    filtered = filtered.filter(p => p.cliente === clienteFilter);
+  }
+  
+  // Filtro anno
+  if (annoFilter) {
+    const annoNum = parseInt(annoFilter);
+    filtered = filtered.filter(p => {
+      if (!p.data) return false;
+      const date = new Date(p.data);
+      return date.getFullYear() === annoNum;
+    });
+  }
+  
+  // Filtro stato
+  if (statoFilter) {
+    if (statoFilter === 'fatturata') {
+      filtered = filtered.filter(p => p.nFattura || p.stato === 'Fatturata' || p.stato === 'Pagata');
+    } else if (statoFilter === 'non_fatturata') {
+      filtered = filtered.filter(p => !p.nFattura && p.stato !== 'Fatturata' && p.stato !== 'Pagata');
+    }
+  }
+  
+  console.log('📊 Proforma filtrate:', filtered.length, 'di', allProformeData.length);
+  renderProformaList(filtered);
+}
+
+/**
+ * Chiamata quando cambiano i filtri
+ */
+function filterProformaList() {
+  if (allProformeData.length === 0) {
+    loadProformaList(true);
+  } else {
+    filterAndRenderProforma();
+  }
+}
+
+/**
+ * Reset di tutti i filtri
+ */
+function resetProformaFilters() {
+  const filterCliente = document.getElementById('filter-cliente-proforma');
+  const filterAnno = document.getElementById('filter-anno-proforma');
+  const filterStato = document.getElementById('filter-stato-proforma');
+  
+  if (filterCliente) filterCliente.value = '';
+  if (filterAnno) filterAnno.value = '';
+  if (filterStato) filterStato.value = '';
+  
+  filterAndRenderProforma();
 }
 
 /**
@@ -190,29 +294,6 @@ async function saveNumeroFattura(event) {
 }
 
 /**
- * Filtra proforma per cliente (chiamata dal pulsante Applica)
- */
-function filterProformaList() {
-  const inputCliente = document.getElementById('filter-cliente-proforma');
-  if (!inputCliente) return;
-  
-  const clienteSelezionato = inputCliente.value.trim();
-  console.log('🔍 Filtro cliente:', clienteSelezionato);
-  loadProformaList(clienteSelezionato || null);
-}
-
-/**
- * Reset filtro proforma
- */
-function resetProformaFilter() {
-  const inputCliente = document.getElementById('filter-cliente-proforma');
-  if (inputCliente) {
-    inputCliente.value = '';
-  }
-  loadProformaList();
-}
-
-/**
  * Popola select clienti per filtro proforma
  */
 function populateProformaClientFilter() {
@@ -292,7 +373,8 @@ document.addEventListener('DOMContentLoaded', function() {
 window.loadProformaList = loadProformaList;
 window.populateProformaClientFilter = populateProformaClientFilter;
 window.filterProformaList = filterProformaList;
-window.resetProformaFilter = resetProformaFilter;
+window.resetProformaFilters = resetProformaFilters;
+window.filterAndRenderProforma = filterAndRenderProforma;
 window.openFatturaModal = openFatturaModal;
 window.closeFatturaModal = closeFatturaModal;
 window.saveNumeroFattura = saveNumeroFattura;
