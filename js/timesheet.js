@@ -117,7 +117,20 @@ function populateFormFields() {
  * NOTA: Per datalist si usa solo option.value, non textContent
  */
 function populateProformaClients() {
-  // Popola datalist per step-1 (selezione cliente)
+  // ✅ Popola SELECT per step-1 (selezione cliente proforma)
+  const clientSelect = document.getElementById('proforma_client_select');
+  if (clientSelect) {
+    clientSelect.innerHTML = '<option value="">Seleziona Cliente</option>';
+    window.clients.forEach(client => {
+      const option = document.createElement('option');
+      option.value = client.name;
+      option.textContent = client.name;
+      clientSelect.appendChild(option);
+    });
+    console.log(`✅ Popolato select proforma_client_select con ${window.clients.length} clienti`);
+  }
+  
+  // Popola datalist per step-1 (selezione cliente) - legacy
   const clientDatalist = document.getElementById('proforma_client_list');
   if (clientDatalist) {
     clientDatalist.innerHTML = '';
