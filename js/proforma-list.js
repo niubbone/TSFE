@@ -213,24 +213,26 @@ function resetProformaFilter() {
 }
 
 /**
- * Popola datalist clienti per filtro proforma
+ * Popola select clienti per filtro proforma
  */
 function populateProformaClientFilter() {
-  const datalist = document.getElementById('filter-cliente-proforma-list');
-  if (!datalist) {
-    console.warn('⚠️ Datalist filter-cliente-proforma-list non trovato');
+  const filterSelect = document.getElementById('filter-cliente-proforma');
+  if (!filterSelect) {
+    console.warn('⚠️ Select filter-cliente-proforma non trovato');
     return;
   }
   
-  datalist.innerHTML = '';
+  filterSelect.innerHTML = '<option value="">Tutti i clienti</option>';
   
   if (window.clients && Array.isArray(window.clients)) {
     window.clients.forEach(cliente => {
       const option = document.createElement('option');
-      option.value = typeof cliente === 'string' ? cliente : cliente.name;
-      datalist.appendChild(option);
+      const name = typeof cliente === 'string' ? cliente : cliente.name;
+      option.value = name;
+      option.textContent = name;
+      filterSelect.appendChild(option);
     });
-    console.log('✅ Popolato datalist filtro proforma con ' + window.clients.length + ' clienti');
+    console.log('✅ Popolato select filtro proforma con ' + window.clients.length + ' clienti');
   } else {
     console.warn('⚠️ window.clients non disponibile per filtro proforma');
   }
