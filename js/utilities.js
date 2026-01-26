@@ -24,9 +24,9 @@ export function initUtilities() {
  * CONFIGURAZIONE: Imposta il tuo repository qui sotto
  */
 const GITHUB_CONFIG = {
-    owner: 'studiosmart',      // ← Cambia con il tuo username GitHub
-    repo: 'crm-frontend',      // ← Cambia con il nome del tuo repository
-    branch: 'main'             // ← Branch (main o master)
+    owner: 'niubbone',      // ← Il tuo username GitHub
+    repo: 'TSFE',           // ← Il tuo repository
+    branch: 'main'          // ← Branch
 };
 
 window.downloadFrontendBackup = async function() {
