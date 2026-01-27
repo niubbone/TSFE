@@ -1053,3 +1053,5 @@ window.showExportDataModal = showExportDataModal;
 window.closeExportDataModal = closeExportDataModal;
 window.editTimesheet = editTimesheet;
 window.renewProduct = renewProduct;
+window.closeEditTimesheetModal = closeEditTimesheetModal;
+window.saveTimesheetChanges = saveTimesheetChanges;
