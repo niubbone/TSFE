@@ -119,3 +119,14 @@
         width: 100%;
     }
 }
+
+/* =======================================================================
+   FIX: Modal Edit Timesheet sopra altri modal
+   ======================================================================= */
+#edit-timesheet-modal {
+    z-index: 2000;
+}
+
+#edit-timesheet-modal .modal-content {
+    max-width: 500px;
+}
