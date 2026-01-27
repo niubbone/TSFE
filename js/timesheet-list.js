@@ -49,19 +49,18 @@ window.onclick = function(event) {
  * IDENTICO al form timesheet che funziona
  */
 function loadFilterOptions() {
-    // ✅ Popola DATALIST per filtro cliente (input con autocomplete)
-    const clienteDatalist = document.getElementById('filter-cliente-list');
-    if (clienteDatalist) {
-        clienteDatalist.innerHTML = '';
-        
-        if (window.clients && Array.isArray(window.clients)) {
-            window.clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.name;
-                clienteDatalist.appendChild(option);
-            });
-            console.log(`✅ Caricati ${window.clients.length} clienti nel datalist filtri`);
-        }
+    // Popola select CLIENTI (usa window.clients già caricato)
+    const clientiSelect = document.getElementById('filter-cliente');
+    clientiSelect.innerHTML = '<option value="">Tutti i clienti</option>';
+    
+    if (window.clients && Array.isArray(window.clients)) {
+        window.clients.forEach(client => {
+            const option = document.createElement('option');
+            option.value = client.name;
+            option.textContent = client.name;
+            clientiSelect.appendChild(option);
+        });
+        console.log(`✅ Caricati ${window.clients.length} clienti nei filtri`);
     }
     
     // Popola select TIPO INTERVENTO (usa window.config già caricato)
@@ -179,7 +178,7 @@ function renderTimesheetTable(timesheetList) {
             <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${ts.descrizione || '-'}</td>
             <td>
                 <div class="timesheet-actions">
-                    <button class="timesheet-action-btn" onclick="editTimesheetFromList(${ts.rowIndex})" title="Modifica">
+                    <button class="timesheet-action-btn" onclick="editTimesheet(${ts.rowIndex}, '${ts.idIntervento}')" title="Modifica">
                         ✏️
                     </button>
                     <button class="timesheet-action-btn" onclick="deleteTimesheetFromList('${ts.idIntervento}', ${ts.rowIndex})" title="Elimina" style="color: #dc3545;">
@@ -247,8 +246,10 @@ function resetTimesheetFilters() {
 // =======================================================================
 
 /**
+ * DEPRECATA - Ora usa editTimesheet() da clienti.js
  * Modifica timesheet - RICICLA logica da clienti.js
  */
+/*
 async function editTimesheetFromList(rowIndex) {
     try {
         // Carica i dati del timesheet da modificare
@@ -294,6 +295,7 @@ async function editTimesheetFromList(rowIndex) {
         alert('❌ Errore durante il caricamento del timesheet da modificare');
     }
 }
+*/
 
 /**
  * Elimina timesheet
