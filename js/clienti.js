@@ -70,17 +70,31 @@ function displaySearchResults(clienti) {
         const statusText = isAttivo ? '✅ Attivo' : '❌ Non Attivo';
         
         html += `
-            <div class="cliente-card" onclick="loadClienteDetail('${cliente.id}')">
-                <div class="cliente-card-header">
+            <div class="cliente-card">
+                <div class="cliente-card-header" onclick="loadClienteDetail('${cliente.id}')" style="cursor: pointer;">
                     <span class="cliente-card-name">${cliente.nome}</span>
                     <span class="cliente-card-status ${statusClass}">${statusText}</span>
                 </div>
-                <div class="cliente-card-body">
+                <div class="cliente-card-body" onclick="loadClienteDetail('${cliente.id}')" style="cursor: pointer;">
                     ${cliente.id ? `<div class="cliente-card-info">🆔 ${cliente.id}</div>` : ''}
                     ${cliente.email ? `<div class="cliente-card-info">📧 ${cliente.email}</div>` : ''}
                     ${cliente.piva ? `<div class="cliente-card-info">🏢 P.IVA: ${cliente.piva}</div>` : ''}
                     ${cliente.cf ? `<div class="cliente-card-info">📄 CF: ${cliente.cf}</div>` : ''}
                     ${cliente.citta ? `<div class="cliente-card-info">📍 ${cliente.citta}</div>` : ''}
+                </div>
+                <div class="cliente-card-actions" style="display: flex; gap: 8px; padding: 10px 15px; border-top: 1px solid #eee; justify-content: flex-end;">
+                    <button class="btn-small btn-secondary" onclick="event.stopPropagation(); quickViewCliente('${cliente.id}')" title="Visualizza dettagli">
+                        👁️
+                    </button>
+                    <button class="btn-small btn-secondary" onclick="event.stopPropagation(); quickEditCliente('${cliente.id}')" title="Modifica cliente">
+                        ✏️
+                    </button>
+                    <button class="btn-small btn-secondary" onclick="event.stopPropagation(); quickCopyCliente(${JSON.stringify(cliente).replace(/"/g, '&quot;')})" title="Copia dati">
+                        📋
+                    </button>
+                    <button class="btn-small btn-secondary" onclick="event.stopPropagation(); quickExportVCard(${JSON.stringify(cliente).replace(/"/g, '&quot;')})" title="Esporta vCard">
+                        📇
+                    </button>
                 </div>
             </div>
         `;
@@ -1029,6 +1043,100 @@ document.addEventListener('DOMContentLoaded', function() {
 // === EXPORT MODULI ES6 ===
 // =======================================================================
 
+// =======================================================================
+// === AZIONI RAPIDE DALLA CARD CLIENTE ===
+// =======================================================================
+
+/**
+ * Visualizza rapidamente il dettaglio cliente in un alert
+ */
+function quickViewCliente(clienteId) {
+    const cliente = allClienti.find(c => c.id === clienteId);
+    if (!cliente) {
+        alert('Cliente non trovato');
+        return;
+    }
+    
+    const info = `
+📋 DETTAGLIO CLIENTE
+
+🆔 ID: ${cliente.id || 'N/D'}
+👤 Nome: ${cliente.nome || 'N/D'}
+📧 Email: ${cliente.email || 'N/D'}
+📱 Cellulare: ${cliente.cellulare || 'N/D'}
+☎️ Telefono: ${cliente.telefono || 'N/D'}
+🏢 P.IVA: ${cliente.piva || 'N/D'}
+📄 CF: ${cliente.cf || 'N/D'}
+🏛️ SDI: ${cliente.sdi || 'N/D'}
+📍 Indirizzo: ${cliente.indirizzo || 'N/D'}
+🏙️ CAP/Città: ${cliente.cap || ''} ${cliente.citta || 'N/D'}
+👤 Referente: ${cliente.referente || 'N/D'}
+    `.trim();
+    
+    alert(info);
+}
+
+/**
+ * Apre form modifica cliente rapidamente
+ */
+function quickEditCliente(clienteId) {
+    const cliente = allClienti.find(c => c.id === clienteId);
+    if (!cliente) {
+        alert('Cliente non trovato');
+        return;
+    }
+    
+    // Imposta currentCliente e apri modal modifica
+    currentCliente = cliente;
+    openClienteEdit();
+}
+
+/**
+ * Copia dati cliente rapidamente
+ */
+function quickCopyCliente(cliente) {
+    const datiCliente = `${cliente.nome || ''}
+${cliente.indirizzo || ''}
+${cliente.cap || ''} ${cliente.citta || ''}
+P.IVA: ${cliente.piva || 'N/D'}
+CF: ${cliente.cf || 'N/D'}
+SDI: ${cliente.sdi || 'N/D'}
+Email: ${cliente.email || 'N/D'}`;
+    
+    navigator.clipboard.writeText(datiCliente).then(() => {
+        alert('✅ Dati cliente copiati negli appunti!');
+    }).catch(err => {
+        console.error('Errore copia:', err);
+        alert('❌ Errore durante la copia');
+    });
+}
+
+/**
+ * Esporta vCard rapidamente
+ */
+function quickExportVCard(cliente) {
+    const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${cliente.nome || ''}
+ORG:${cliente.nome || ''}
+TEL;TYPE=CELL:${cliente.cellulare || ''}
+TEL;TYPE=WORK:${cliente.telefono || ''}
+EMAIL:${cliente.email || ''}
+ADR;TYPE=WORK:;;${cliente.indirizzo || ''};${cliente.citta || ''};;${cliente.cap || ''};Italy
+NOTE:P.IVA: ${cliente.piva || ''} - CF: ${cliente.cf || ''} - SDI: ${cliente.sdi || ''}
+END:VCARD`;
+    
+    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${cliente.nome || 'cliente'}.vcf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
 // Export per uso come modulo
 export {
     searchCliente,
@@ -1054,4 +1162,9 @@ window.closeExportDataModal = closeExportDataModal;
 window.editTimesheet = editTimesheet;
 window.renewProduct = renewProduct;
 window.closeEditTimesheetModal = closeEditTimesheetModal;
+window.saveTimesheetChanges = saveTimesheetChanges;
+window.quickViewCliente = quickViewCliente;
+window.quickEditCliente = quickEditCliente;
+window.quickCopyCliente = quickCopyCliente;
+window.quickExportVCard = quickExportVCard;
 window.saveTimesheetChanges = saveTimesheetChanges;

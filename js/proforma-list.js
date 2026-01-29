@@ -179,8 +179,19 @@ function renderProformaList(proformeList) {
   console.log('🎨 Rendering', proformeList.length, 'proforma');
   
   container.innerHTML = proformeList.map(proforma => {
-    const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 
-                       proforma.stato === 'Pagata' ? 'badge-success' : 'badge-warning';
+    // Badge con icone per stato
+    let badgeClass, badgeText;
+    if (proforma.stato === 'Pagata') {
+      badgeClass = 'badge-success';
+      badgeText = '💰 Fatturata e pagata';
+    } else if (proforma.stato === 'Fatturata') {
+      badgeClass = 'badge-info';
+      badgeText = '📄 Fatturata';
+    } else {
+      badgeClass = 'badge-warning';
+      badgeText = '⏳ Proforma';
+    }
+    
     const dataFormatted = formatDateItalian(proforma.data);
     const importoFormatted = formatCurrency(proforma.importo);
     
@@ -190,7 +201,7 @@ function renderProformaList(proformeList) {
           <div class="proforma-number">
             ${proforma.nProforma}
             <span class="badge ${badgeClass}">
-              ${proforma.stato}
+              ${badgeText}
             </span>
           </div>
           <div class="proforma-amount">${importoFormatted}</div>
@@ -231,6 +242,14 @@ function openFatturaModal(nProforma) {
   document.getElementById('fattura-proforma-number').textContent = nProforma;
   document.getElementById('fattura-n-proforma-hidden').value = nProforma;
   document.getElementById('fattura-numero-input').value = '';
+  
+  // Imposta data di oggi come default
+  const oggi = new Date().toISOString().split('T')[0];
+  document.getElementById('fattura-data-input').value = oggi;
+  
+  // Reset checkbox pagato
+  document.getElementById('fattura-pagato-checkbox').checked = false;
+  
   document.getElementById('fattura-numero-input').focus();
   
   modal.classList.add('active');
@@ -254,9 +273,16 @@ async function saveNumeroFattura(event) {
   
   const nProforma = document.getElementById('fattura-n-proforma-hidden').value;
   const numeroFattura = document.getElementById('fattura-numero-input').value.trim();
+  const dataFattura = document.getElementById('fattura-data-input').value;
+  const pagato = document.getElementById('fattura-pagato-checkbox').checked;
   
   if (!numeroFattura) {
     alert('⚠️ Inserisci il numero fattura');
+    return;
+  }
+  
+  if (!dataFattura) {
+    alert('⚠️ Inserisci la data fattura');
     return;
   }
   
@@ -271,7 +297,7 @@ async function saveNumeroFattura(event) {
       throw new Error('API URL non configurato');
     }
     
-    const url = `${API_URL}?action=update_numero_fattura&n_proforma=${encodeURIComponent(nProforma)}&numero_fattura=${encodeURIComponent(numeroFattura)}`;
+    const url = `${API_URL}?action=update_numero_fattura&n_proforma=${encodeURIComponent(nProforma)}&numero_fattura=${encodeURIComponent(numeroFattura)}&data_fattura=${encodeURIComponent(dataFattura)}&pagato=${pagato}`;
     
     const response = await fetch(url);
     const result = await response.json();
