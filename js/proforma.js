@@ -82,6 +82,7 @@ function displayTimesheetTable(items) {
   const tbody = document.getElementById('timesheet-tbody');
   tbody.innerHTML = '';
   window.selectedTimesheet = [];
+  window.selectedCanoni = []; // 🆕 Reset anche selectedCanoni
   
   if (items.length === 0) {
     document.getElementById('timesheet-table-container').innerHTML = `
@@ -208,8 +209,10 @@ export function updateSelection() {
  * Procede allo step 3 (configurazione proforma)
  */
 export function proceedToStep3() {
-  if (window.selectedTimesheet.length === 0) {
-    alert('Seleziona almeno un timesheet');
+  // 🆕 Controlla sia timesheet che canoni
+  const totalSelected = (window.selectedTimesheet?.length || 0) + (window.selectedCanoni?.length || 0);
+  if (totalSelected === 0) {
+    alert('Seleziona almeno un timesheet o canone');
     return;
   }
   
