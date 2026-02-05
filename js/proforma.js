@@ -55,9 +55,17 @@ export async function loadTimesheetForClient() {
   loadingBox.style.display = 'block';
   
   try {
-    const timesheet = await getTimesheetDaFatturare(clientName);
-    window.currentTimesheetData = timesheet;
-    displayTimesheetTable(timesheet);
+    // ✅ Backend restituisce { timesheet: [], canoni: [] }
+    const data = await getTimesheetDaFatturare(clientName);
+    
+    // ✅ Salva separatamente timesheet e canoni
+    window.currentTimesheetData = data.timesheet || [];
+    window.currentCanoniData = data.canoni || [];
+    
+    // ✅ Unisci timesheet + canoni per visualizzazione
+    const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
+    
+    displayTimesheetTable(allItems);
     showProformaStep(2);
   } catch (error) {
     console.error('Errore:', error);
@@ -70,17 +78,17 @@ export async function loadTimesheetForClient() {
 /**
  * Mostra la tabella dei timesheet
  */
-function displayTimesheetTable(timesheet) {
+function displayTimesheetTable(items) {
   const tbody = document.getElementById('timesheet-tbody');
   tbody.innerHTML = '';
   window.selectedTimesheet = [];
   
-  if (timesheet.length === 0) {
+  if (items.length === 0) {
     document.getElementById('timesheet-table-container').innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">🔭</div>
-        <p><strong>Nessun timesheet da fatturare</strong></p>
-        <p>Non ci sono timesheet con modalità addebito "Da fatturare" per questo cliente</p>
+        <p><strong>Nessun timesheet o canone da fatturare</strong></p>
+        <p>Non ci sono elementi con modalità addebito "Da fatturare" per questo cliente</p>
       </div>
     `;
     const selectionInfo = document.getElementById('selection-info');
@@ -100,18 +108,39 @@ function displayTimesheetTable(timesheet) {
     selectionInfo.style.display = 'block';
   }
   
-  timesheet.forEach((row, index) => {
-    const dataFormatted = formatDate(row.dataItaliana || row.data);
+  items.forEach((row, index) => {
+    // ✅ Gestione diversa per CANONE vs TIMESHEET
+    const isCanone = row.tipo === 'CANONE';
+    
+    let dataFormatted, tipo, modalita, ore, chiamata, costo;
+    
+    if (isCanone) {
+      // CANONE: usa campi specifici
+      dataFormatted = formatDate(row.dataScadenza || row.data);
+      tipo = '📅 CANONE';
+      modalita = row.descrizione || 'Canone';
+      ore = '-';
+      chiamata = 0;
+      costo = row.importo || 0;
+    } else {
+      // TIMESHEET: usa campi standard
+      dataFormatted = formatDate(row.dataItaliana || row.data);
+      tipo = row.tipo || '';
+      modalita = row.modalita || '';
+      ore = row.ore || 0;
+      chiamata = row.chiamata || 0;
+      costo = row.costo || 0;
+    }
     
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><input type="checkbox" class="timesheet-checkbox" data-index="${index}" data-row="${row.rowIndex}" data-date="${row.data}" onchange="window.updateSelection()"></td>
+      <td><input type="checkbox" class="timesheet-checkbox" data-index="${index}" data-row="${row.rowIndex}" data-date="${row.data || row.dataScadenza}" onchange="window.updateSelection()"></td>
       <td>${dataFormatted}</td>
-      <td>${row.tipo}</td>
-      <td>${row.modalita}</td>
-      <td>${row.ore}</td>
-      <td>${formatCurrency(row.chiamata || 0)}</td>
-      <td><strong>${formatCurrency(row.costo || 0)}</strong></td>
+      <td>${tipo}</td>
+      <td>${modalita}</td>
+      <td>${ore}</td>
+      <td>${formatCurrency(chiamata)}</td>
+      <td><strong>${formatCurrency(costo)}</strong></td>
     `;
     tbody.appendChild(tr);
   });
@@ -146,11 +175,20 @@ export function updateSelection() {
   window.selectedTimesheet = [];
   let subtotale = 0;
   
+  // ✅ Unisci timesheet + canoni per accesso univoco
+  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
+  
   document.querySelectorAll('.timesheet-checkbox:checked').forEach(checkbox => {
     const index = parseInt(checkbox.dataset.index);
     const rowIndex = parseInt(checkbox.dataset.row);
     window.selectedTimesheet.push(rowIndex);
-    subtotale += parseFloat(window.currentTimesheetData[index].costo) || 0;
+    
+    // ✅ Calcola costo sia da timesheet che da canoni
+    const item = allItems[index];
+    if (item) {
+      const costo = parseFloat(item.costo || item.importo || 0);
+      subtotale += costo;
+    }
   });
   
   document.getElementById('selected-count').textContent = window.selectedTimesheet.length;
@@ -196,9 +234,13 @@ export function proceedToStep3() {
 export function updateProformaTotals() {
   let subtotale = 0;
   
-  window.currentTimesheetData.forEach((row, index) => {
+  // ✅ Unisci timesheet + canoni
+  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
+  
+  allItems.forEach((row) => {
     if (window.selectedTimesheet.includes(row.rowIndex)) {
-      subtotale += parseFloat(row.costo) || 0;
+      const costo = parseFloat(row.costo || row.importo || 0);
+      subtotale += costo;
     }
   });
   
@@ -529,17 +571,20 @@ window.submitEmettiFattura = submitEmettiFattura;
  */
 function openFatturaDirettaModal() {
   if (!window.selectedTimesheet || window.selectedTimesheet.length === 0) {
-    alert('⚠️ Seleziona almeno un timesheet');
+    alert('⚠️ Seleziona almeno un timesheet o canone');
     return;
   }
   
   const clientName = document.getElementById('proforma_client_select').value;
   
-  // Calcola subtotale
+  // ✅ Calcola subtotale da timesheet + canoni
   let subtotale = 0;
-  window.currentTimesheetData.forEach((row, index) => {
+  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
+  
+  allItems.forEach((row) => {
     if (window.selectedTimesheet.includes(row.rowIndex)) {
-      subtotale += parseFloat(row.costo) || 0;
+      const costo = parseFloat(row.costo || row.importo || 0);
+      subtotale += costo;
     }
   });
   
@@ -577,9 +622,14 @@ function closeFatturaDirettaModal() {
  */
 function updateFatturaDirettaTotals() {
   let subtotale = 0;
-  window.currentTimesheetData.forEach((row, index) => {
+  
+  // ✅ Unisci timesheet + canoni
+  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
+  
+  allItems.forEach((row) => {
     if (window.selectedTimesheet.includes(row.rowIndex)) {
-      subtotale += parseFloat(row.costo) || 0;
+      const costo = parseFloat(row.costo || row.importo || 0);
+      subtotale += costo;
     }
   });
   
