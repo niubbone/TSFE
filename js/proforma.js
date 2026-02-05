@@ -41,7 +41,7 @@ export function showProformaStep(stepNumber) {
 }
 
 /**
- * Carica i timesheet e canoni da fatturare per un cliente
+ * Carica i timesheet da fatturare per un cliente
  */
 export async function loadTimesheetForClient() {
   const clientName = document.getElementById('proforma_client_select').value;
@@ -55,20 +55,9 @@ export async function loadTimesheetForClient() {
   loadingBox.style.display = 'block';
   
   try {
-    // ✅ AGGIORNATO: getTimesheetDaFatturare ora restituisce { timesheet, canoni }
-    const result = await getTimesheetDaFatturare(clientName);
-    
-    // Combina timesheet e canoni in un unico array per la tabella
-    // I canoni hanno già tipo: 'CANONE' dal backend
-    const allItems = [
-      ...result.timesheet.map(t => ({ ...t, tipo: t.tipo || 'Intervento', itemType: 'TIMESHEET' })),
-      ...result.canoni.map(c => ({ ...c, itemType: 'CANONE' }))
-    ];
-    
-    window.currentTimesheetData = allItems;
-    window.currentCanoniData = result.canoni; // Salva canoni separatamente per riferimento
-    
-    displayTimesheetTable(allItems);
+    const timesheet = await getTimesheetDaFatturare(clientName);
+    window.currentTimesheetData = timesheet;
+    displayTimesheetTable(timesheet);
     showProformaStep(2);
   } catch (error) {
     console.error('Errore:', error);
@@ -79,60 +68,49 @@ export async function loadTimesheetForClient() {
 }
 
 /**
- * Mostra la tabella dei timesheet e canoni
+ * Mostra la tabella dei timesheet
  */
-function displayTimesheetTable(items) {
+function displayTimesheetTable(timesheet) {
   const tbody = document.getElementById('timesheet-tbody');
   tbody.innerHTML = '';
   window.selectedTimesheet = [];
-  window.selectedCanoni = [];
   
-  if (items.length === 0) {
+  if (timesheet.length === 0) {
     document.getElementById('timesheet-table-container').innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">🔭</div>
-        <p><strong>Nessun elemento da fatturare</strong></p>
-        <p>Non ci sono timesheet o canoni "Da fatturare" per questo cliente</p>
+        <p><strong>Nessun timesheet da fatturare</strong></p>
+        <p>Non ci sono timesheet con modalità addebito "Da fatturare" per questo cliente</p>
       </div>
     `;
-    document.getElementById('selection-info').style.display = 'none';
+    const selectionInfo = document.getElementById('selection-info');
+    if (selectionInfo) {
+      selectionInfo.style.display = 'none';
+    }
     return;
   }
   
-  document.getElementById('timesheet-table-container').style.display = 'block';
-  document.getElementById('selection-info').style.display = 'block';
+  const timesheetContainer = document.getElementById('timesheet-table-container');
+  const selectionInfo = document.getElementById('selection-info');
   
-  items.forEach((row, index) => {
-    const isCanone = row.itemType === 'CANONE';
+  if (timesheetContainer) {
+    timesheetContainer.style.display = 'block';
+  }
+  if (selectionInfo) {
+    selectionInfo.style.display = 'block';
+  }
+  
+  timesheet.forEach((row, index) => {
     const dataFormatted = formatDate(row.dataItaliana || row.data);
     
-    // Badge distintivo per tipo
-    const tipoBadge = isCanone 
-      ? `<span class="badge badge-canone" style="background:#9b59b6;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">📋 CANONE</span>`
-      : `<span class="badge badge-timesheet" style="background:#3498db;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">⏱️ Intervento</span>`;
-    
-    // Descrizione: per canoni mostra descrizione, per timesheet mostra tipo intervento
-    const descrizione = isCanone 
-      ? (row.descrizione || 'Canone')
-      : (row.tipo || 'Intervento');
-    
     const tr = document.createElement('tr');
-    tr.style.backgroundColor = isCanone ? '#f8f4fc' : ''; // Sfondo leggermente viola per canoni
-    
     tr.innerHTML = `
-      <td>
-        <input type="checkbox" class="timesheet-checkbox" 
-               data-index="${index}" 
-               data-row="${row.rowIndex}" 
-               data-date="${row.data}"
-               data-item-type="${row.itemType}"
-               ${isCanone ? `data-canone-id="${row.idCanone}"` : ''}
-               onchange="window.updateSelection()" checked>
-      </td>
-      <td>${tipoBadge}</td>
+      <td><input type="checkbox" class="timesheet-checkbox" data-index="${index}" data-row="${row.rowIndex}" data-date="${row.data}" onchange="window.updateSelection()"></td>
       <td>${dataFormatted}</td>
-      <td>${descrizione}</td>
-      <td style="text-align:center;">${isCanone ? '-' : row.ore}</td>
+      <td>${row.tipo}</td>
+      <td>${row.modalita}</td>
+      <td>${row.ore}</td>
+      <td>${formatCurrency(row.chiamata || 0)}</td>
       <td><strong>${formatCurrency(row.costo || 0)}</strong></td>
     `;
     tbody.appendChild(tr);
@@ -162,57 +140,31 @@ export function deselectAllTimesheet() {
 }
 
 /**
- * Aggiorna la selezione dei timesheet e canoni
+ * Aggiorna la selezione dei timesheet
  */
 export function updateSelection() {
   window.selectedTimesheet = [];
-  window.selectedCanoni = [];
   let subtotale = 0;
-  let countTimesheet = 0;
-  let countCanoni = 0;
   
   document.querySelectorAll('.timesheet-checkbox:checked').forEach(checkbox => {
     const index = parseInt(checkbox.dataset.index);
     const rowIndex = parseInt(checkbox.dataset.row);
-    const itemType = checkbox.dataset.itemType;
-    const item = window.currentTimesheetData[index];
-    
-    if (itemType === 'CANONE') {
-      // Per i canoni salva l'ID canone
-      window.selectedCanoni.push({
-        rowIndex: rowIndex,
-        idCanone: checkbox.dataset.canoneId,
-        importo: item.costo
-      });
-      countCanoni++;
-    } else {
-      // Per i timesheet salva il rowIndex
-      window.selectedTimesheet.push(rowIndex);
-      countTimesheet++;
-    }
-    
-    subtotale += parseFloat(item.costo) || 0;
+    window.selectedTimesheet.push(rowIndex);
+    subtotale += parseFloat(window.currentTimesheetData[index].costo) || 0;
   });
   
-  const totalCount = countTimesheet + countCanoni;
-  const countText = [];
-  if (countTimesheet > 0) countText.push(`${countTimesheet} timesheet`);
-  if (countCanoni > 0) countText.push(`${countCanoni} canoni`);
-  
-  document.getElementById('selected-count').textContent = countText.join(' + ') || '0 elementi';
+  document.getElementById('selected-count').textContent = window.selectedTimesheet.length;
   document.getElementById('subtotale-preview').textContent = formatCurrency(subtotale);
   
-  document.getElementById('proceed-to-step3-btn').disabled = totalCount === 0;
+  document.getElementById('proceed-to-step3-btn').disabled = window.selectedTimesheet.length === 0;
 }
 
 /**
  * Procede allo step 3 (configurazione proforma)
  */
 export function proceedToStep3() {
-  const totalSelected = window.selectedTimesheet.length + window.selectedCanoni.length;
-  
-  if (totalSelected === 0) {
-    alert('Seleziona almeno un elemento (timesheet o canone)');
+  if (window.selectedTimesheet.length === 0) {
+    alert('Seleziona almeno un timesheet');
     return;
   }
   
@@ -342,6 +294,156 @@ function switchProformaView(view) {
 }
 
 
+/**
+ * Popola il filtro clienti nel tab lista proforma
+ */
+function populateProformaClientFilter() {
+  const select = document.getElementById('proforma-filtro-cliente');
+  if (!select) return;
+  
+  select.innerHTML = '<option value="">Tutti i clienti</option>';
+  
+  // Usa lista clienti globale
+  const clientsList = window.clients || [];
+  
+  clientsList.forEach(cliente => {
+    const option = document.createElement('option');
+    if (typeof cliente === 'string') {
+      option.value = cliente;
+      option.textContent = cliente;
+    } else if (cliente && cliente.name) {
+      option.value = cliente.name;
+      option.textContent = cliente.name;
+    }
+    select.appendChild(option);
+  });
+}
+
+/**
+ * Carica lista proforma da backend
+ */
+async function loadProformaList() {
+  const container = document.getElementById('proforma-lista-container');
+  const filtroCliente = document.getElementById('proforma-filtro-cliente')?.value || '';
+  
+  if (!container) return;
+  
+  container.innerHTML = '<div class="loading">Caricamento proforma...</div>';
+  
+  try {
+    // Costruisci URL con filtro cliente opzionale
+    let url = `${API_URL}?action=get_proforma_list`;
+    if (filtroCliente) {
+      url += `&cliente=${encodeURIComponent(filtroCliente)}`;
+    }
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Errore caricamento proforma');
+    }
+    
+    const proformaList = result.data || [];
+    
+    // Render lista
+    if (proformaList.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📄</div>
+          <p><strong>Nessuna proforma trovata</strong></p>
+          <p>Non ci sono proforma${filtroCliente ? ' per questo cliente' : ' nel sistema'}</p>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = proformaList.map(proforma => {
+      // Determina stato e badge
+      let statoBadge = '';
+      let statoClass = '';
+      
+      if (proforma.stato === 'Pagata') {
+        statoBadge = '✅ Pagata';
+        statoClass = 'badge-success';
+      } else if (proforma.stato === 'Fatturata') {
+        statoBadge = '📋 Fatturata';
+        statoClass = 'badge-warning';
+      } else {
+        statoBadge = '📄 Proforma';
+        statoClass = 'badge-info';
+      }
+      
+      // Pulsante azione
+      let actionBtn = '';
+      if (proforma.stato === 'Proforma') {
+        actionBtn = `
+          <button class="btn-primary" onclick="openEmettiFatturaModal('${proforma.nProforma}', '${proforma.cliente}', ${proforma.importo})">
+            Emetti Fattura
+          </button>
+        `;
+      }
+      
+      return `
+        <div class="proforma-card">
+          <div class="proforma-header">
+            <div>
+              <h3>Proforma ${proforma.nProforma}</h3>
+              <p class="proforma-cliente">${proforma.cliente}</p>
+            </div>
+            <span class="badge ${statoClass}">${statoBadge}</span>
+          </div>
+          <div class="proforma-body">
+            <div class="proforma-row">
+              <span>Data emissione:</span>
+              <strong>${proforma.data || 'N/D'}</strong>
+            </div>
+            <div class="proforma-row">
+              <span>Importo:</span>
+              <strong>${formatCurrency(proforma.importo)}</strong>
+            </div>
+            <div class="proforma-row">
+              <span>Causale:</span>
+              <strong>${proforma.causale || 'N/D'}</strong>
+            </div>
+            ${proforma.nFattura ? `
+              <div class="proforma-row">
+                <span>N. Fattura:</span>
+                <strong>${proforma.nFattura}</strong>
+              </div>
+            ` : ''}
+            ${proforma.pagato === 'SI' ? `
+              <div class="proforma-row">
+                <span>Pagamento:</span>
+                <strong style="color: var(--success-color);">✅ Incassato</strong>
+              </div>
+            ` : ''}
+          </div>
+          <div class="proforma-footer">
+            <a href="${proforma.pdfUrl}" target="_blank" class="btn-secondary">
+              📄 Visualizza PDF
+            </a>
+            ${actionBtn}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+  } catch (error) {
+    console.error('Errore loadProformaList:', error);
+    container.innerHTML = `
+      <div class="error-state">
+        <p style="color: var(--error-color);">❌ Errore: ${error.message}</p>
+        <button class="btn-secondary" onclick="loadProformaList()">Riprova</button>
+      </div>
+    `;
+  }
+}
 
 /**
  * Apre modal per emettere fattura da proforma
@@ -417,6 +519,8 @@ async function submitEmettiFattura(e) {
 }
 
 // Esponi funzioni globalmente
+window.populateProformaClientFilter = populateProformaClientFilter;
+window.loadProformaList = loadProformaList;
 window.openEmettiFatturaModal = openEmettiFatturaModal;
 window.closeEmettiFatturaModal = closeEmettiFatturaModal;
 window.submitEmettiFattura = submitEmettiFattura;
@@ -578,6 +682,8 @@ window.closeFatturaDirettaModal = closeFatturaDirettaModal;
 window.generateFatturaDirettaFinal = generateFatturaDirettaFinal;
 
 // Esponi funzioni lista proforma globalmente per onclick HTML
+window.populateProformaClientFilter = populateProformaClientFilter;
+window.loadProformaList = loadProformaList;
 window.openEmettiFatturaModal = openEmettiFatturaModal;
 window.closeEmettiFatturaModal = closeEmettiFatturaModal;
 window.submitEmettiFattura = submitEmettiFattura;
