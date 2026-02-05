@@ -72,11 +72,23 @@ export async function getTimesheetDaFatturare(clientName) {
 
 /**
  * Genera e invia proforma
+ * @param {string} clientName - Nome cliente
+ * @param {array} timesheetIds - Array rowIndex timesheet
+ * @param {string} causale - Causale proforma
+ * @param {boolean} applicaQuota - Applica quota integrativa 4%
+ * @param {array} canoniIds - Array rowIndex canoni (opzionale)
  */
-export async function generateProforma(clientName, timesheetIds, causale, applicaQuota) {
+export async function generateProforma(clientName, timesheetIds, causale, applicaQuota, canoniIds = []) {
   const timesheetIdsStr = timesheetIds.join(',');
-  // ✅ FIX: Backend usa 'cliente' non 'client_name'
-  const url = `${CONFIG.APPS_SCRIPT_URL}?action=generate_proforma&cliente=${encodeURIComponent(clientName)}&timesheet_ids=${timesheetIdsStr}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
+  const canoniIdsStr = canoniIds.join(',');
+  
+  // ✅ Backend usa 'cliente' non 'client_name'
+  let url = `${CONFIG.APPS_SCRIPT_URL}?action=generate_proforma&cliente=${encodeURIComponent(clientName)}&timesheet_ids=${timesheetIdsStr}&causale=${encodeURIComponent(causale)}&applica_quota=${applicaQuota}`;
+  
+  // 🆕 Aggiungi canoni_ids se presenti
+  if (canoniIds.length > 0) {
+    url += `&canoni_ids=${canoniIdsStr}`;
+  }
   
   const response = await fetch(url, { method: 'GET' });
   const data = await response.json();

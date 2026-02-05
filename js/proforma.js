@@ -173,6 +173,7 @@ export function deselectAllTimesheet() {
  */
 export function updateSelection() {
   window.selectedTimesheet = [];
+  window.selectedCanoni = []; // 🆕 Array separato per canoni
   let subtotale = 0;
   
   // ✅ Unisci timesheet + canoni per accesso univoco
@@ -181,20 +182,26 @@ export function updateSelection() {
   document.querySelectorAll('.timesheet-checkbox:checked').forEach(checkbox => {
     const index = parseInt(checkbox.dataset.index);
     const rowIndex = parseInt(checkbox.dataset.row);
-    window.selectedTimesheet.push(rowIndex);
     
-    // ✅ Calcola costo sia da timesheet che da canoni
     const item = allItems[index];
     if (item) {
+      // 🆕 Distingui tra timesheet e canone
+      if (item.tipo === 'CANONE' || item.idCanone) {
+        window.selectedCanoni.push(rowIndex);
+      } else {
+        window.selectedTimesheet.push(rowIndex);
+      }
+      
       const costo = parseFloat(item.costo || item.importo || 0);
       subtotale += costo;
     }
   });
   
-  document.getElementById('selected-count').textContent = window.selectedTimesheet.length;
+  const totalSelected = window.selectedTimesheet.length + window.selectedCanoni.length;
+  document.getElementById('selected-count').textContent = totalSelected;
   document.getElementById('subtotale-preview').textContent = formatCurrency(subtotale);
   
-  document.getElementById('proceed-to-step3-btn').disabled = window.selectedTimesheet.length === 0;
+  document.getElementById('proceed-to-step3-btn').disabled = totalSelected === 0;
 }
 
 /**
@@ -234,13 +241,19 @@ export function proceedToStep3() {
 export function updateProformaTotals() {
   let subtotale = 0;
   
-  // ✅ Unisci timesheet + canoni
-  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
-  
-  allItems.forEach((row) => {
-    if (window.selectedTimesheet.includes(row.rowIndex)) {
-      const costo = parseFloat(row.costo || row.importo || 0);
+  // ✅ Calcola da timesheet selezionati
+  window.currentTimesheetData.forEach((row) => {
+    if (window.selectedTimesheet?.includes(row.rowIndex)) {
+      const costo = parseFloat(row.costo || 0);
       subtotale += costo;
+    }
+  });
+  
+  // ✅ Calcola da canoni selezionati
+  window.currentCanoniData.forEach((row) => {
+    if (window.selectedCanoni?.includes(row.rowIndex)) {
+      const importo = parseFloat(row.importo || row.costo || 0);
+      subtotale += importo;
     }
   });
   
@@ -275,8 +288,9 @@ export async function generateProformaFinal() {
     return;
   }
   
-  if (window.selectedTimesheet.length === 0) {
-    alert('Nessun timesheet selezionato');
+  const totalSelected = (window.selectedTimesheet?.length || 0) + (window.selectedCanoni?.length || 0);
+  if (totalSelected === 0) {
+    alert('Nessun timesheet o canone selezionato');
     return;
   }
   
@@ -288,12 +302,19 @@ export async function generateProformaFinal() {
   proformaInfoBox.innerHTML = '<p>⏳ Generazione proforma in corso...</p>';
   
   try {
-    const data = await generateProforma(clientName, window.selectedTimesheet, causale, applicaQuota);
+    // 🆕 Passa sia timesheet che canoni
+    const data = await generateProforma(
+      clientName, 
+      window.selectedTimesheet || [], 
+      causale, 
+      applicaQuota,
+      window.selectedCanoni || []
+    );
     
     proformaInfoBox.innerHTML = `
       <p style="color: #155724; background: #d4edda; padding: 15px !important; border-radius: 4px;">
         ✅ Proforma <strong>${data.proforma_number}</strong> generata e inviata!<br>
-        Timesheet inclusi: ${data.timesheet_count}<br>
+        Elementi inclusi: ${data.timesheet_count || totalSelected}<br>
         Totale: € ${data.totale}
       </p>
     `;
@@ -570,7 +591,8 @@ window.submitEmettiFattura = submitEmettiFattura;
  * Apre modal fattura diretta
  */
 function openFatturaDirettaModal() {
-  if (!window.selectedTimesheet || window.selectedTimesheet.length === 0) {
+  const totalSelected = (window.selectedTimesheet?.length || 0) + (window.selectedCanoni?.length || 0);
+  if (totalSelected === 0) {
     alert('⚠️ Seleziona almeno un timesheet o canone');
     return;
   }
@@ -579,18 +601,24 @@ function openFatturaDirettaModal() {
   
   // ✅ Calcola subtotale da timesheet + canoni
   let subtotale = 0;
-  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
   
-  allItems.forEach((row) => {
-    if (window.selectedTimesheet.includes(row.rowIndex)) {
-      const costo = parseFloat(row.costo || row.importo || 0);
+  window.currentTimesheetData.forEach((row) => {
+    if (window.selectedTimesheet?.includes(row.rowIndex)) {
+      const costo = parseFloat(row.costo || 0);
       subtotale += costo;
+    }
+  });
+  
+  window.currentCanoniData.forEach((row) => {
+    if (window.selectedCanoni?.includes(row.rowIndex)) {
+      const importo = parseFloat(row.importo || row.costo || 0);
+      subtotale += importo;
     }
   });
   
   // Popola modal
   document.getElementById('fattura-diretta-cliente').textContent = clientName;
-  document.getElementById('fattura-diretta-count').textContent = window.selectedTimesheet.length;
+  document.getElementById('fattura-diretta-count').textContent = totalSelected;
   document.getElementById('fattura-diretta-subtotale').textContent = formatCurrency(subtotale);
   
   // Imposta causale default
@@ -623,13 +651,19 @@ function closeFatturaDirettaModal() {
 function updateFatturaDirettaTotals() {
   let subtotale = 0;
   
-  // ✅ Unisci timesheet + canoni
-  const allItems = [...window.currentTimesheetData, ...window.currentCanoniData];
-  
-  allItems.forEach((row) => {
-    if (window.selectedTimesheet.includes(row.rowIndex)) {
-      const costo = parseFloat(row.costo || row.importo || 0);
+  // ✅ Calcola da timesheet selezionati
+  window.currentTimesheetData.forEach((row) => {
+    if (window.selectedTimesheet?.includes(row.rowIndex)) {
+      const costo = parseFloat(row.costo || 0);
       subtotale += costo;
+    }
+  });
+  
+  // ✅ Calcola da canoni selezionati
+  window.currentCanoniData.forEach((row) => {
+    if (window.selectedCanoni?.includes(row.rowIndex)) {
+      const importo = parseFloat(row.importo || row.costo || 0);
+      subtotale += importo;
     }
   });
   
