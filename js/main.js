@@ -1,161 +1,109 @@
 // =======================================================================
-// === MAIN - INIZIALIZZAZIONE APPLICAZIONE ===
+// === MAIN.JS - GESTIONE TAB E INIZIALIZZAZIONE ===
 // =======================================================================
-import { initGlobalState } from './config.js';
-import { initTimesheet, openAddClientModal, closeAddClientModal, saveNewClient } from './timesheet.js';
-import { 
-  initProforma, 
-  showProformaStep, 
-  loadTimesheetForClient, 
-  selectAllTimesheet, 
-  deselectAllTimesheet,
-  updateSelection,
-  proceedToStep3,
-  generateProformaFinal
-} from './proforma.js';
-import { initUtilities } from './utilities.js';
 
 /**
- * Cambia tab attivo - ESPOSTA GLOBALMENTE SUBITO
- * VERSIONE CORRETTA con protezione undefined e controlli null
+ * Switch tra i tab con caricamento automatico dei contenuti
  */
-window.switchTab = function(tabName) {
-  // 🛡️ PROTEZIONE: Previeni errori se chiamata senza parametro valido
-  if (!tabName || tabName === 'undefined') {
-    console.warn('⚠️ switchTab chiamata senza parametro valido - operazione ignorata');
-    return;
-  }
+function switchTab(tabName) {
+  console.log('🔄 Switch tab:', tabName);
   
-  // Nascondi tutte le tab - CON CONTROLLO NULL
+  // Nasconde tutti i tab
   document.querySelectorAll('.tab-content').forEach(tab => {
-    if (tab && tab.classList) {
-      tab.classList.remove('active');
+    tab.classList.remove('active');
+  });
+  
+  // Rimuove active dai pulsanti
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  // Mostra tab selezionato
+  const selectedTab = document.getElementById(tabName + '-tab');
+  if (selectedTab) {
+    selectedTab.classList.add('active');
+  }
+  
+  // Attiva pulsante corrispondente
+  const buttons = document.querySelectorAll('.tab-button');
+  buttons.forEach(button => {
+    if (button.textContent.toLowerCase().includes(getTabEmoji(tabName))) {
+      button.classList.add('active');
     }
   });
   
-  // Disattiva tutti i pulsanti - CON CONTROLLO NULL
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    if (btn && btn.classList) {
-      btn.classList.remove('active');
-    }
-  });
-  
-  // Attiva la tab selezionata - CON CONTROLLO NULL
-  const targetTab = document.getElementById(tabName + '-tab');
-  if (targetTab && targetTab.classList) {
-    targetTab.classList.add('active');
-  } else {
-    console.error('❌ Tab non trovata:', tabName + '-tab');
-    return;
-  }
-  
-  // Attiva il pulsante corrispondente
-  const activeBtn = Array.from(document.querySelectorAll('.tab-button'))
-    .find(btn => btn && btn.textContent && btn.textContent.toLowerCase().includes(tabName));
-  
-  if (activeBtn && activeBtn.classList) {
-    activeBtn.classList.add('active');
-  }
-  
-  // Inizializza il contenuto specifico della tab
+  // 🎯 CARICAMENTO AUTOMATICO CONTENUTI PER OGNI TAB
   switch(tabName) {
     case 'proforma':
-      if (typeof showProformaStep === 'function') {
-        showProformaStep(1);
-      }
-      // 🆕 Carica automaticamente la lista proforma
-      if (typeof loadProformaList === 'function') {
-        loadProformaList();
-      }
-      // 🆕 Popola il filtro clienti
-      if (typeof populateProformaClientFilter === 'function') {
-        populateProformaClientFilter();
-      }
+      console.log('📄 Tab Proforma - caricamento automatico lista');
+      // Ritarda di 100ms per dare tempo al DOM di aggiornare
+      setTimeout(() => {
+        if (typeof window.loadProformaList === 'function') {
+          window.loadProformaList();
+        } else {
+          console.error('❌ loadProformaList non disponibile!');
+        }
+      }, 100);
       break;
-    case 'utilities':
-      if (typeof initUtilities === 'function') {
-        initUtilities();
-      }
-      break;
+      
     case 'vendite':
-      if (typeof initVenditeTab === 'function') {
-        initVenditeTab();
-      }
+      console.log('🛒 Tab Vendite');
+      // Qui puoi aggiungere caricamento vendite se necessario
+      break;
+      
+    case 'clienti':
+      console.log('👥 Tab Clienti');
+      // Qui puoi aggiungere caricamento clienti se necessario
+      break;
+      
+    case 'utilities':
+      console.log('⚙️ Tab Utilities');
+      break;
+      
+    case 'timesheet':
+    default:
+      console.log('⏱️ Tab Timesheet');
       break;
   }
-};
+}
 
 /**
- * Inizializzazione applicazione
+ * Helper per ottenere emoji del tab
  */
-window.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 Inizializzazione Studio Smart Timesheet...');
+function getTabEmoji(tabName) {
+  const emojiMap = {
+    'timesheet': '⏱️',
+    'proforma': '📄',
+    'vendite': '🛒',
+    'clienti': '👥',
+    'utilities': '⚙️'
+  };
+  return emojiMap[tabName] || '';
+}
+
+// Espone switchTab globalmente
+window.switchTab = switchTab;
+
+console.log('✅ main.js caricato - switchTab disponibile');
+
+// =======================================================================
+// === INIZIALIZZAZIONE AL CARICAMENTO PAGINA ===
+// =======================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 DOMContentLoaded - inizializzazione main.js');
   
-  // Inizializza stato globale
-  initGlobalState();
+  // Verifica che CONFIG sia presente
+  if (window.CONFIG && window.CONFIG.APPS_SCRIPT_URL) {
+    console.log('✅ CONFIG disponibile:', window.CONFIG.APPS_SCRIPT_URL.substring(0, 50) + '...');
+  } else {
+    console.error('❌ CONFIG non trovato! Verifica config.js');
+  }
   
-  // Setup tab switching
-  setupTabs();
-  
-  // Inizializza moduli essenziali
-  await initTimesheet();
-  initProforma();
-  
-  // Esponi funzioni globali per onclick HTML
-  exposeGlobalFunctions();
-  
-  console.log('✅ Applicazione inizializzata con successo!');
+  // Verifica che le funzioni proforma siano disponibili
+  if (typeof window.loadProformaList === 'function') {
+    console.log('✅ loadProformaList disponibile');
+  } else {
+    console.warn('⚠️ loadProformaList non ancora disponibile (verrà caricata da proforma-list.js)');
+  }
 });
-
-/**
- * Setup navigazione tab
- * VERSIONE CORRETTA con caso Clienti aggiunto
- */
-function setupTabs() {
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      let tabName;
-      
-      if (btn.textContent.includes('Timesheet')) {
-        tabName = 'timesheet';
-      } else if (btn.textContent.includes('Proforma')) {
-        tabName = 'proforma';
-      } else if (btn.textContent.includes('Vendite')) {
-        tabName = 'vendite';
-      } else if (btn.textContent.includes('Clienti')) {  // ✅ FIX: AGGIUNTO CASO CLIENTI
-        tabName = 'clienti';
-      } else if (btn.textContent.includes('Utilities')) {
-        tabName = 'utilities';
-      }
-      
-      // ✅ FIX: Chiama switchTab solo se tabName è definito
-      if (tabName) {
-        window.switchTab(tabName);
-      } else {
-        console.warn('⚠️ Pulsante tab non riconosciuto:', btn.textContent);
-      }
-    });
-  });
-}
-
-/**
- * Espone funzioni globali per onclick HTML
- */
-function exposeGlobalFunctions() {
-  // Timesheet
-  window.openAddClientModal = openAddClientModal;
-  window.closeAddClientModal = closeAddClientModal;
-  window.saveNewClient = saveNewClient;
-  
-  // Proforma
-  window.showProformaStep = showProformaStep;
-  window.loadTimesheetForClient = loadTimesheetForClient;
-  window.selectAllTimesheet = selectAllTimesheet;
-  window.deselectAllTimesheet = deselectAllTimesheet;
-  window.updateSelection = updateSelection;
-  window.proceedToStep3 = proceedToStep3;
-  window.generateProformaFinal = generateProformaFinal;
-  
-  // switchTab è già esposta all'inizio del file come window.switchTab
-  // downloadFrontendBackup viene esposta in utilities.js (caricato subito ora)
-}
