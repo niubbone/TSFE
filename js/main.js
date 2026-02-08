@@ -35,13 +35,21 @@ function switchTab(tabName) {
   // 🎯 CARICAMENTO AUTOMATICO CONTENUTI PER OGNI TAB
   switch(tabName) {
     case 'proforma':
-      console.log('📄 Tab Proforma - caricamento automatico lista');
+      console.log('📄 Tab Proforma - caricamento automatico');
       // Ritarda di 100ms per dare tempo al DOM di aggiornare
       setTimeout(() => {
+        // Carica lista proforma
         if (typeof window.loadProformaList === 'function') {
           window.loadProformaList();
         } else {
           console.error('❌ loadProformaList non disponibile!');
+        }
+        
+        // Carica dropdown clienti
+        if (typeof window.populateClientDropdown === 'function') {
+          window.populateClientDropdown();
+        } else {
+          console.error('❌ populateClientDropdown non disponibile!');
         }
       }, 100);
       break;

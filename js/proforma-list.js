@@ -225,22 +225,54 @@ function filterProformaList() {
 }
 
 /**
- * Formatta data in italiano
+ * Formatta data in italiano in modo robusto
  */
 function formatDateItalian(dateStr) {
   if (!dateStr) return 'Data non disponibile';
   
   try {
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
+    // Se già in formato dd/MM/yyyy, restituisci così com'è
+    if (typeof dateStr === 'string' && dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      return dateStr;
+    }
     
+    // Se in formato ISO yyyy-MM-dd, converti
+    if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+      const parts = dateStr.split('T')[0].split('-');
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    
+    // Prova conversione generica a Date
+    const date = new Date(dateStr);
+    
+    // Verifica che sia una data valida
+    if (isNaN(date.getTime())) {
+      // Se la conversione fallisce, prova a estrarre la data dal formato verbose
+      // Es: "Thu Jan 01 2026 00:00:00 GMT+0100"
+      const match = dateStr.toString().match(/(\w{3})\s+(\w{3})\s+(\d{2})\s+(\d{4})/);
+      if (match) {
+        const months = {
+          'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+          'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+          'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+        };
+        const day = match[3];
+        const month = months[match[2]];
+        const year = match[4];
+        return `${day}/${month}/${year}`;
+      }
+      return 'Data non valida';
+    }
+    
+    // Formatta in italiano
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
   } catch(e) {
-    return dateStr;
+    console.error('Errore formattazione data:', e);
+    return 'Data non valida';
   }
 }
 
