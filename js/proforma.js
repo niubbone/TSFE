@@ -11,6 +11,52 @@ const API_URL = (typeof CONFIG !== 'undefined' && CONFIG.APPS_SCRIPT_URL)
   : 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec';
 
 /**
+ * Popola il dropdown clienti nel tab proforma
+ */
+async function populateClientDropdown() {
+  console.log('🔄 populateClientDropdown() chiamato');
+  
+  const selectElement = document.getElementById('proforma_client_select');
+  if (!selectElement) {
+    console.error('❌ Elemento proforma_client_select non trovato');
+    return;
+  }
+  
+  try {
+    // Chiama API per ottenere clienti
+    const response = await fetch(`${API_URL}?action=get_data&timestamp=${Date.now()}`);
+    const data = await response.json();
+    
+    if (!data.success || !data.data || !data.data.clienti) {
+      console.error('❌ Errore caricamento clienti:', data.error);
+      return;
+    }
+    
+    const clienti = data.data.clienti;
+    console.log(`✅ Caricati ${clienti.length} clienti`);
+    
+    // Svuota dropdown
+    selectElement.innerHTML = '<option value="">-- Seleziona Cliente --</option>';
+    
+    // Popola dropdown
+    clienti.forEach(cliente => {
+      const option = document.createElement('option');
+      option.value = cliente.Nome_Cliente || cliente.nome;
+      option.textContent = cliente.Nome_Cliente || cliente.nome;
+      selectElement.appendChild(option);
+    });
+    
+    console.log('✅ Dropdown clienti popolato');
+    
+  } catch (error) {
+    console.error('❌ Errore populateClientDropdown:', error);
+  }
+}
+
+// Espone la funzione globalmente
+window.populateClientDropdown = populateClientDropdown;
+
+/**
  * Inizializza il tab proforma
  */
 export function initProforma() {

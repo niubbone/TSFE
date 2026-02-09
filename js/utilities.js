@@ -25,7 +25,7 @@ export function initUtilities() {
  */
 const GITHUB_CONFIG = {
     owner: 'niubbone',      // ← Il tuo username GitHub
-    repo: 'TSFE',           // ← Il tuo repository
+    repo: 'CRM',            // ← Il tuo repository (aggiornato da TSFE)
     branch: 'main'          // ← Branch
 };
 
