@@ -1,5 +1,9 @@
 // =======================================================================
 // === LISTA PROFORMA EMESSE (VERSIONE ROBUSTA) ===
+// === VERSIONE: 3.0 FINALE ===
+// === Data: 10 Febbraio 2026 - Ore 15:30 ===
+// === Container: 'proforma-list-container' (NON 'proforma-lista-container') ===
+// === 7 Protezioni Anti-Stuck + Retry + Safety Timeout ===
 // =======================================================================
 
 /**

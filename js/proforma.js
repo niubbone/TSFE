@@ -1,5 +1,8 @@
 // =======================================================================
 // === PROFORMA - GESTIONE TAB PROFORMA ===
+// === VERSIONE: 3.0 FINALE ===
+// === Data: 10 Febbraio 2026 - Ore 15:30 ===
+// === FIX: Delega loadProformaList a proforma-list.js ===
 // =======================================================================
 
 import { getTimesheetDaFatturare, generateProforma } from './api.js';
@@ -400,8 +403,13 @@ function switchProformaView(view) {
   document.getElementById('fattura-diretta-view').style.display = view === 'fattura-diretta' ? 'block' : 'none';
   
   if (view === 'lista') {
-    populateProformaClientFilter();
-    loadProformaList();
+    // Usa funzioni da proforma-list.js
+    if (typeof window.populateProformaClientFilter === 'function') {
+      window.populateProformaClientFilter();
+    }
+    if (typeof window.loadProformaList === 'function') {
+      window.loadProformaList();
+    }
   }
 }
 
@@ -619,7 +627,11 @@ async function submitEmettiFattura(e) {
     
     alert('✅ Fattura emessa con successo!');
     closeEmettiFatturaModal();
-    loadProformaList(); // Refresh lista
+    
+    // Refresh lista usando funzione da proforma-list.js
+    if (typeof window.loadProformaList === 'function') {
+      window.loadProformaList();
+    }
     
   } catch (error) {
     console.error('Errore emissione fattura:', error);
@@ -630,9 +642,9 @@ async function submitEmettiFattura(e) {
   }
 }
 
-// Esponi funzioni globalmente
-window.populateProformaClientFilter = populateProformaClientFilter;
-window.loadProformaList = loadProformaList;
+// Esponi funzioni globalmente (funzioni lista gestite da proforma-list.js)
+// window.populateProformaClientFilter = populateProformaClientFilter; // RIMOSSO - gestito da proforma-list.js
+// window.loadProformaList = loadProformaList; // RIMOSSO - gestito da proforma-list.js
 window.openEmettiFatturaModal = openEmettiFatturaModal;
 window.closeEmettiFatturaModal = closeEmettiFatturaModal;
 window.submitEmettiFattura = submitEmettiFattura;
@@ -814,9 +826,9 @@ window.openFatturaDirettaModal = openFatturaDirettaModal;
 window.closeFatturaDirettaModal = closeFatturaDirettaModal;
 window.generateFatturaDirettaFinal = generateFatturaDirettaFinal;
 
-// Esponi funzioni lista proforma globalmente per onclick HTML
-window.populateProformaClientFilter = populateProformaClientFilter;
-window.loadProformaList = loadProformaList;
+// Esponi funzioni lista proforma globalmente per onclick HTML (gestite da proforma-list.js)
+// window.populateProformaClientFilter = populateProformaClientFilter; // RIMOSSO - gestito da proforma-list.js
+// window.loadProformaList = loadProformaList; // RIMOSSO - gestito da proforma-list.js
 window.openEmettiFatturaModal = openEmettiFatturaModal;
 window.closeEmettiFatturaModal = closeEmettiFatturaModal;
 window.submitEmettiFattura = submitEmettiFattura;
