@@ -4,72 +4,167 @@
 
 /**
  * Carica e mostra lista proforma con retry automatico
+ * VERSIONE ROBUSTA con protezioni multiple
  */
 async function loadProformaList(clientName = null, retryCount = 0) {
+  console.log('🔄 loadProformaList() chiamata', { 
+    clientName, 
+    retryCount,
+    timestamp: new Date().toISOString() 
+  });
+  
+  // PROTEZIONE 1: Verifica container
   const container = document.getElementById('proforma-list-container');
   if (!container) {
-    console.warn('⚠️ Container proforma-list-container non trovato');
+    console.error('❌ CRITICO: Container proforma-list-container non trovato nel DOM');
+    console.log('📋 Containers disponibili:', 
+      Array.from(document.querySelectorAll('[id*="proforma"]')).map(el => el.id)
+    );
     return;
   }
   
-  console.log('🔄 loadProformaList() chiamata', { clientName, retryCount });
-  
   container.innerHTML = '<div class="loading">⏳ Caricamento proforma...</div>';
   
+  // PROTEZIONE 6: Safety timeout assoluto - dopo 20s mostra sempre qualcosa
+  const safetyTimeoutId = setTimeout(() => {
+    console.error('🚨 SAFETY TIMEOUT: loadProformaList non completata dopo 20 secondi');
+    if (container.innerHTML.includes('loading')) {
+      container.innerHTML = `
+        <div class="error-state" style="padding: 20px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 12px;">⏱️</div>
+          <div style="font-weight: bold; margin-bottom: 8px;">Timeout caricamento</div>
+          <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Il caricamento sta impiegando troppo tempo</div>
+          <div style="font-size: 12px; color: #999; margin-bottom: 16px;">
+            Possibili cause: server lento, connessione instabile, backend sovraccarico
+          </div>
+          <button class="btn-primary btn-small" onclick="loadProformaList()" style="margin-top: 12px;">
+            🔄 Riprova
+          </button>
+        </div>
+      `;
+    }
+  }, 20000);
+  
   try {
-    const API_URL = window.CONFIG?.APPS_SCRIPT_URL || '';
-    if (!API_URL) {
-      throw new Error('API URL non configurato in window.CONFIG');
+    // PROTEZIONE 2: Verifica CONFIG con fallback multipli
+    let API_URL = null;
+    
+    // Tentativo 1: window.CONFIG
+    if (window.CONFIG && window.CONFIG.APPS_SCRIPT_URL) {
+      API_URL = window.CONFIG.APPS_SCRIPT_URL;
+      console.log('✅ API URL da window.CONFIG');
+    }
+    // Tentativo 2: CONFIG globale
+    else if (typeof CONFIG !== 'undefined' && CONFIG.APPS_SCRIPT_URL) {
+      API_URL = CONFIG.APPS_SCRIPT_URL;
+      console.log('✅ API URL da CONFIG globale');
+    }
+    // Tentativo 3: Hardcoded fallback
+    else {
+      API_URL = 'https://script.google.com/macros/s/AKfycbxrpkmfBlraaYihYYtJB0uvg8K60sPM-9uLmybcqoiVM6rSabZe6QK_-00L9CGAFwdo/exec';
+      console.warn('⚠️ Uso API URL fallback hardcoded');
     }
     
+    if (!API_URL || API_URL.trim() === '') {
+      clearTimeout(safetyTimeoutId);
+      throw new Error('API URL non disponibile - CONFIG non caricato');
+    }
+    
+    // Costruisci URL completo
     const url = clientName 
       ? `${API_URL}?action=get_proforma_list&cliente=${encodeURIComponent(clientName)}`
       : `${API_URL}?action=get_proforma_list`;
     
-    console.log('📡 Chiamata API:', url);
+    console.log('📡 Chiamata API:', url.substring(0, 100) + '...');
+    console.log('🔗 Parametri:', { action: 'get_proforma_list', cliente: clientName || 'tutti' });
     
-    // Timeout di 10 secondi
+    // PROTEZIONE 3: Timeout di 15 secondi (aumentato da 10)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => {
+      console.warn('⏱️ Timeout raggiunto dopo 15 secondi');
+      controller.abort();
+    }, 15000);
     
-    const response = await fetch(url, { signal: controller.signal });
+    const fetchStartTime = Date.now();
+    const response = await fetch(url, { 
+      signal: controller.signal,
+      cache: 'no-cache' // Evita cache problematiche
+    });
     clearTimeout(timeoutId);
+    clearTimeout(safetyTimeoutId); // Cancella safety timeout se fetch completa
     
-    console.log('📥 Risposta ricevuta:', response.status, response.statusText);
+    const fetchDuration = Date.now() - fetchStartTime;
+    console.log(`📥 Risposta ricevuta in ${fetchDuration}ms:`, response.status, response.statusText);
     
-    const result = await response.json();
-    console.log('📦 Dati JSON:', result);
-    
-    if (!result.success) {
-      throw new Error(result.error || 'Errore caricamento proforma');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
+    // Parse JSON
+    const result = await response.json();
+    console.log('📦 Dati JSON ricevuti:', {
+      success: result.success,
+      dataLength: result.data?.length,
+      hasError: !!result.error
+    });
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Errore caricamento proforma (success=false)');
+    }
+    
+    // SUCCESSO: Renderizza lista
     renderProformaList(result.data || []);
-    console.log('✅ Lista proforma renderizzata con successo');
+    console.log('✅ Lista proforma renderizzata con successo:', result.data?.length || 0, 'elementi');
     
   } catch (error) {
-    console.error('❌ Errore loadProformaList:', error);
+    clearTimeout(safetyTimeoutId); // Cancella safety timeout su errore
+    console.error('❌ Errore loadProformaList:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack?.substring(0, 200)
+    });
     
-    // Retry automatico (max 2 tentativi)
+    // PROTEZIONE 4: Retry automatico (max 2 tentativi)
+    // Ma NON su timeout (AbortError) per evitare loop
     if (retryCount < 2 && error.name !== 'AbortError') {
-      console.log(`🔁 Retry ${retryCount + 1}/2...`);
-      setTimeout(() => loadProformaList(clientName, retryCount + 1), 2000);
+      const retryDelay = 2000 * (retryCount + 1); // Delay progressivo: 2s, 4s
+      console.log(`🔁 Retry ${retryCount + 1}/2 tra ${retryDelay}ms...`);
+      
+      container.innerHTML = `
+        <div class="loading">
+          ⏳ Tentativo ${retryCount + 2}/3...
+        </div>
+      `;
+      
+      setTimeout(() => loadProformaList(clientName, retryCount + 1), retryDelay);
       return;
     }
     
-    // Mostra errore dettagliato
+    // PROTEZIONE 5: Mostra errore user-friendly con diagnostica
     let errorMessage = error.message;
+    let suggestion = 'Verifica la connessione internet e riprova.';
+    
     if (error.name === 'AbortError') {
-      errorMessage = 'Timeout - il server non risponde entro 10 secondi';
+      errorMessage = 'Timeout - il server non risponde entro 15 secondi';
+      suggestion = 'Il backend potrebbe essere lento o non disponibile. Riprova tra qualche minuto.';
+    } else if (error.message.includes('CONFIG')) {
+      errorMessage = 'Configurazione mancante';
+      suggestion = 'Ricarica la pagina (CTRL+F5) per ricaricare la configurazione.';
+    } else if (error.message.includes('HTTP')) {
+      suggestion = 'Errore del server. Controlla i log di Google Apps Script.';
     }
     
     container.innerHTML = `
-      <div class="error-state">
-        <div class="error-icon">⚠️</div>
-        <div>Errore caricamento proforma</div>
-        <div style="font-size: 12px; margin-top: 8px; color: #999;">${errorMessage}</div>
-        <button class="btn-small" onclick="loadProformaList()" style="margin-top: 12px;">
+      <div class="error-state" style="padding: 20px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+        <div style="font-weight: bold; margin-bottom: 8px;">Errore caricamento proforma</div>
+        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">${errorMessage}</div>
+        <div style="font-size: 12px; color: #999; margin-bottom: 16px;">${suggestion}</div>
+        <button class="btn-primary btn-small" onclick="loadProformaList()" style="margin-top: 12px;">
           🔄 Riprova
+        </button>
+        <button class="btn-secondary btn-small" onclick="console.log('Debug info:', window.CONFIG)" style="margin-top: 12px; margin-left: 8px;">
+          🐛 Debug Console
         </button>
       </div>
     `;
@@ -78,57 +173,114 @@ async function loadProformaList(clientName = null, retryCount = 0) {
 
 /**
  * Renderizza lista proforma
+ * VERSIONE ROBUSTA con protezioni contro errori di rendering
  */
 function renderProformaList(proformeList) {
-  const container = document.getElementById('proforma-list-container');
+  console.log('🎨 renderProformaList() chiamata', {
+    isArray: Array.isArray(proformeList),
+    length: proformeList?.length,
+    firstItem: proformeList?.[0]
+  });
   
+  const container = document.getElementById('proforma-list-container');
+  if (!container) {
+    console.error('❌ CRITICO: Container proforma-list-container non trovato in renderProformaList');
+    return;
+  }
+  
+  // PROTEZIONE 1: Verifica array vuoto o null
   if (!proformeList || proformeList.length === 0) {
+    console.log('ℹ️ Nessuna proforma da mostrare');
     container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">📄</div>
-        <p><strong>Nessuna proforma emessa</strong></p>
-        <p>Le proforma generate appariranno qui</p>
+      <div class="empty-state" style="padding: 40px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+        <p style="font-weight: bold; margin-bottom: 8px;">Nessuna proforma emessa</p>
+        <p style="color: #666;">Le proforma generate appariranno qui</p>
       </div>
     `;
     return;
   }
   
-  container.innerHTML = proformeList.map(proforma => {
-    const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 'badge-warning';
-    const dataFormatted = formatDateItalian(proforma.data);
-    const importoFormatted = formatCurrency(proforma.importo);
-    
-    return `
-      <div class="proforma-card">
-        <div class="proforma-header">
-          <div class="proforma-number">
-            ${proforma.nProforma}
-            <span class="badge ${badgeClass}">
-              ${proforma.stato}
-            </span>
+  try {
+    // PROTEZIONE 2: Rendering con try-catch per ogni card
+    const html = proformeList.map((proforma, index) => {
+      try {
+        const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 'badge-warning';
+        const dataFormatted = formatDateItalian(proforma.data);
+        const importoFormatted = formatCurrency(proforma.importo);
+        
+        return `
+          <div class="proforma-card">
+            <div class="proforma-header">
+              <div class="proforma-number">
+                ${proforma.nProforma || 'N/A'}
+                <span class="badge ${badgeClass}">
+                  ${proforma.stato || 'Sconosciuto'}
+                </span>
+              </div>
+              <div class="proforma-date">${dataFormatted}</div>
+              <div class="proforma-amount">${importoFormatted}</div>
+            </div>
+            
+            <div class="proforma-body">
+              <div class="proforma-info">
+                <span class="info-icon">👤</span>
+                <span>${proforma.cliente || 'Cliente non specificato'}</span>
+              </div>
+              ${proforma.descrizione ? `
+                <div class="proforma-info">
+                  <span class="info-icon">📝</span>
+                  <span>${proforma.descrizione}</span>
+                </div>
+              ` : ''}
+            </div>
+            
+            ${proforma.stato !== 'Fatturata' ? `
+              <div class="proforma-actions">
+                <button class="btn-primary btn-small" onclick="openFatturaModal('${proforma.nProforma}')">
+                  📄 Emetti Fattura
+                </button>
+              </div>
+            ` : `
+              <div class="proforma-footer">
+                <span class="info-label">Fattura:</span>
+                <span class="info-value">${proforma.numeroFattura || 'N/A'}</span>
+                ${proforma.dataFattura ? `
+                  <span class="info-label" style="margin-left: 16px;">Data:</span>
+                  <span class="info-value">${formatDateItalian(proforma.dataFattura)}</span>
+                ` : ''}
+              </div>
+            `}
           </div>
-          <div class="proforma-amount">${importoFormatted}</div>
-        </div>
-        
-        <div class="proforma-body">
-          <div class="proforma-cliente">👤 ${proforma.cliente}</div>
-          <div class="proforma-causale">${proforma.causale || 'Nessuna causale'}</div>
-          <div class="proforma-data">📅 ${dataFormatted}</div>
-        </div>
-        
-        <div class="proforma-footer">
-          ${proforma.nFattura 
-            ? `<div class="fattura-info">
-                 <strong>Fattura:</strong> ${proforma.nFattura}
-               </div>`
-            : `<button class="btn-small btn-primary" onclick="openFatturaModal('${proforma.nProforma}')">
-                 📄 Emetti Fattura
-               </button>`
-          }
-        </div>
+        `;
+      } catch (cardError) {
+        console.error(`❌ Errore rendering card ${index}:`, cardError, proforma);
+        return `
+          <div class="proforma-card" style="border-left: 3px solid #dc3545;">
+            <div class="proforma-body">
+              <div style="color: #dc3545;">⚠️ Errore rendering proforma: ${proforma.nProforma || index}</div>
+            </div>
+          </div>
+        `;
+      }
+    }).join('');
+    
+    container.innerHTML = html;
+    console.log('✅ Rendering completato:', proformeList.length, 'proforma renderizzate');
+    
+  } catch (error) {
+    console.error('❌ ERRORE CRITICO in renderProformaList:', error);
+    container.innerHTML = `
+      <div class="error-state" style="padding: 20px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+        <div style="font-weight: bold; margin-bottom: 8px;">Errore rendering lista proforma</div>
+        <div style="font-size: 12px; color: #999; margin-bottom: 16px;">${error.message}</div>
+        <button class="btn-primary btn-small" onclick="loadProformaList()">
+          🔄 Ricarica
+        </button>
       </div>
     `;
-  }).join('');
+  }
 }
 
 /**
@@ -319,6 +471,31 @@ window.closeFatturaModal = closeFatturaModal;
 window.saveNumeroFattura = saveNumeroFattura;
 window.filterProformaList = filterProformaList;
 window.populateProformaClientFilter = populateProformaClientFilter;
+
+/**
+ * Resetta tutti i filtri proforma e ricarica lista completa
+ */
+function resetProformaFilters() {
+  console.log('🔄 Reset filtri proforma');
+  
+  // Reset dropdown clienti
+  const clienteFilter = document.getElementById('filter-cliente-proforma');
+  if (clienteFilter) clienteFilter.value = '';
+  
+  // Reset dropdown anno
+  const annoFilter = document.getElementById('filter-anno-proforma');
+  if (annoFilter) annoFilter.value = '';
+  
+  // Reset dropdown stato
+  const statoFilter = document.getElementById('filter-stato-proforma');
+  if (statoFilter) statoFilter.value = '';
+  
+  // Ricarica lista completa
+  filterProformaList();
+}
+
+// Espone resetProformaFilters globalmente
+window.resetProformaFilters = resetProformaFilters;
 
 console.log('✅ proforma-list.js caricato - funzioni esposte su window');
 
