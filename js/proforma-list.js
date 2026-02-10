@@ -1,7 +1,8 @@
 // =======================================================================
 // === LISTA PROFORMA EMESSE (VERSIONE ROBUSTA) ===
-// === VERSIONE: 3.0 FINALE ===
-// === Data: 10 Febbraio 2026 - Ore 15:30 ===
+// === VERSIONE: 3.1 FINALE ===
+// === Data: 10 Febbraio 2026 - Ore 16:00 ===
+// === FIX: formatDateItalian migliorato per date verbose GMT ===
 // === Container: 'proforma-list-container' (NON 'proforma-lista-container') ===
 // === 7 Protezioni Anti-Stuck + Retry + Safety Timeout ===
 // =======================================================================
@@ -382,41 +383,46 @@ function filterProformaList() {
 
 /**
  * Formatta data in italiano in modo robusto
+ * VERSIONE 3.1 - Gestione migliorata date verbose con timezone
  */
 function formatDateItalian(dateStr) {
   if (!dateStr) return 'Data non disponibile';
   
   try {
-    // Se già in formato dd/MM/yyyy, restituisci così com'è
+    // CASO 1: Se già in formato dd/MM/yyyy, restituisci così com'è
     if (typeof dateStr === 'string' && dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
       return dateStr;
     }
     
-    // Se in formato ISO yyyy-MM-dd, converti
+    // CASO 2: Se in formato ISO yyyy-MM-dd, converti
     if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
       const parts = dateStr.split('T')[0].split('-');
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
     
-    // Prova conversione generica a Date
-    const date = new Date(dateStr);
-    
-    // Verifica che sia una data valida
-    if (isNaN(date.getTime())) {
-      // Se la conversione fallisce, prova a estrarre la data dal formato verbose
-      // Es: "Thu Jan 01 2026 00:00:00 GMT+0100"
-      const match = dateStr.toString().match(/(\w{3})\s+(\w{3})\s+(\d{2})\s+(\d{4})/);
+    // CASO 3: Formato verbose con timezone (es: "Thu Jan 01 2026 00:00:00 GMT+0100 (Ora standard...)")
+    // Questo è il problema principale - estraiamo PRIMA con regex
+    if (typeof dateStr === 'string' && dateStr.includes('GMT')) {
+      const match = dateStr.match(/(\w{3})\s+(\w{3})\s+(\d{1,2})\s+(\d{4})/);
       if (match) {
         const months = {
           'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
           'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
           'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
         };
-        const day = match[3];
+        const day = match[3].padStart(2, '0'); // Assicura 2 cifre
         const month = months[match[2]];
         const year = match[4];
         return `${day}/${month}/${year}`;
       }
+    }
+    
+    // CASO 4: Prova conversione generica a Date object
+    const date = new Date(dateStr);
+    
+    // Verifica che sia una data valida
+    if (isNaN(date.getTime())) {
+      console.warn('⚠️ Data non valida:', dateStr);
       return 'Data non valida';
     }
     
@@ -427,8 +433,8 @@ function formatDateItalian(dateStr) {
       year: 'numeric'
     });
   } catch(e) {
-    console.error('Errore formattazione data:', e);
-    return 'Data non valida';
+    console.error('❌ Errore formattazione data:', e, dateStr);
+    return 'Errore data';
   }
 }
 
