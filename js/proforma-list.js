@@ -1,8 +1,8 @@
 // =======================================================================
 // === LISTA PROFORMA EMESSE (VERSIONE ROBUSTA) ===
-// === VERSIONE: 3.2 FINALE ===
-// === Data: 10 Febbraio 2026 - Ore 17:00 ===
-// === FIX: Layout compatto + Gestione numeri proforma convertiti in date ===
+// === VERSIONE: 3.3 FINALE ===
+// === Data: 10 Febbraio 2026 - Ore 18:00 ===
+// === FIX: Sorting cronologico + Filtri anno dinamici ===
 // === Container: 'proforma-list-container' (NON 'proforma-lista-container') ===
 // === 7 Protezioni Anti-Stuck + Retry + Safety Timeout ===
 // =======================================================================
@@ -179,6 +179,7 @@ async function loadProformaList(clientName = null, retryCount = 0) {
 /**
  * Renderizza lista proforma
  * VERSIONE ROBUSTA con protezioni contro errori di rendering
+ * ✅ v3.2: Salva dati globali e popola filtro anno
  */
 function renderProformaList(proformeList) {
   console.log('🎨 renderProformaList() chiamata', {
@@ -193,14 +194,23 @@ function renderProformaList(proformeList) {
     return;
   }
   
+  // ✅ v3.2: Salva dati globali per filtri locali
+  window.allProformeData = proformeList || [];
+  
+  // ✅ v3.2: Popola dropdown anni DOPO aver salvato i dati
+  populateAnnoFilter();
+  
+  // Applica filtri locali (anno e stato)
+  const filteredList = applyLocalFilters(window.allProformeData);
+  
   // PROTEZIONE 1: Verifica array vuoto o null
-  if (!proformeList || proformeList.length === 0) {
-    console.log('ℹ️ Nessuna proforma da mostrare');
+  if (!filteredList || filteredList.length === 0) {
+    console.log('ℹ️ Nessuna proforma da mostrare (dopo filtri)');
     container.innerHTML = `
       <div class="empty-state" style="padding: 40px; text-align: center;">
         <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
-        <p style="font-weight: bold; margin-bottom: 8px;">Nessuna proforma emessa</p>
-        <p style="color: #666;">Le proforma generate appariranno qui</p>
+        <p style="font-weight: bold; margin-bottom: 8px;">Nessuna proforma trovata</p>
+        <p style="color: #666;">Prova a modificare i filtri</p>
       </div>
     `;
     return;
@@ -208,7 +218,7 @@ function renderProformaList(proformeList) {
   
   try {
     // PROTEZIONE 2: Rendering con try-catch per ogni card
-    const html = proformeList.map((proforma, index) => {
+    const html = filteredList.map((proforma, index) => {
       try {
         const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 
                           proforma.stato === 'Pagata' ? 'badge-success' : 'badge-warning';
@@ -367,13 +377,107 @@ async function saveNumeroFattura(event) {
 /**
  * Filtra proforma per cliente
  */
+/**
+ * ✅ v3.2: Popola dropdown anni con anni disponibili nelle proforma
+ */
+function populateAnnoFilter() {
+  const annoFilter = document.getElementById('filter-anno-proforma');
+  if (!annoFilter) {
+    console.warn('⚠️ Dropdown filter-anno-proforma non trovato');
+    return;
+  }
+  
+  const proformeList = window.allProformeData || [];
+  
+  // Estrai anni unici dalle proforma (formato "N/YYYY")
+  const anniSet = new Set();
+  proformeList.forEach(p => {
+    if (p.nProforma && p.nProforma.includes('/')) {
+      const anno = p.nProforma.split('/')[1];
+      if (anno && !isNaN(anno)) {
+        anniSet.add(parseInt(anno));
+      }
+    }
+  });
+  
+  // Ordina anni decrescente
+  const anniOrdinati = Array.from(anniSet).sort((a, b) => b - a);
+  
+  console.log('📅 Anni disponibili:', anniOrdinati);
+  
+  // Popola dropdown
+  const currentValue = annoFilter.value; // Salva selezione corrente
+  
+  annoFilter.innerHTML = '<option value="">Tutti gli anni</option>';
+  anniOrdinati.forEach(anno => {
+    const option = document.createElement('option');
+    option.value = anno;
+    option.textContent = anno;
+    annoFilter.appendChild(option);
+  });
+  
+  // Ripristina selezione se possibile
+  if (currentValue && anniOrdinati.includes(parseInt(currentValue))) {
+    annoFilter.value = currentValue;
+  }
+  
+  console.log(`✅ Dropdown anni popolato: ${anniOrdinati.length} anni`);
+}
+
+/**
+ * ✅ v3.2: Applica filtri locali (anno e stato) alla lista proforma
+ */
+function applyLocalFilters(proformeList) {
+  if (!proformeList || proformeList.length === 0) return [];
+  
+  const annoFilter = document.getElementById('filter-anno-proforma');
+  const statoFilter = document.getElementById('filter-stato-proforma');
+  
+  const annoSelezionato = annoFilter ? annoFilter.value : '';
+  const statoSelezionato = statoFilter ? statoFilter.value : '';
+  
+  console.log('🔍 Filtri locali:', {
+    anno: annoSelezionato || 'tutti',
+    stato: statoSelezionato || 'tutti',
+    totaleProforma: proformeList.length
+  });
+  
+  let filtered = proformeList;
+  
+  // Filtra per anno
+  if (annoSelezionato && annoSelezionato.trim() !== '') {
+    filtered = filtered.filter(p => {
+      if (!p.nProforma || !p.nProforma.includes('/')) return false;
+      const anno = p.nProforma.split('/')[1];
+      return anno === annoSelezionato;
+    });
+    console.log(`  → Dopo filtro anno ${annoSelezionato}: ${filtered.length} proforma`);
+  }
+  
+  // Filtra per stato
+  if (statoSelezionato && statoSelezionato.trim() !== '') {
+    filtered = filtered.filter(p => p.stato === statoSelezionato);
+    console.log(`  → Dopo filtro stato ${statoSelezionato}: ${filtered.length} proforma`);
+  }
+  
+  return filtered;
+}
+
+/**
+ * Filtra lista proforma
+ * ✅ v3.2: Gestisce filtri cliente (server), anno e stato (locali)
+ */
 function filterProformaList() {
   const selectCliente = document.getElementById('filter-cliente-proforma');
   if (!selectCliente) return;
   
   const clienteSelezionato = selectCliente.value;
   console.log('🔍 Filtro proforma per cliente:', clienteSelezionato || 'TUTTI');
+  
+  // Ricarica da server con filtro cliente (questo popola window.allProformeData)
   loadProformaList(clienteSelezionato || null);
+  
+  // I filtri anno/stato vengono applicati automaticamente in renderProformaList()
 }
 
 /**
@@ -522,5 +626,30 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Event listener modal fattura configurato');
   } else {
     console.warn('⚠️ Modal fattura non trovato in DOM');
+  }
+  
+  // ✅ v3.2: Event listeners per filtri anno e stato (filtri locali)
+  const annoFilter = document.getElementById('filter-anno-proforma');
+  if (annoFilter) {
+    annoFilter.addEventListener('change', function() {
+      console.log('📅 Cambio filtro anno:', this.value || 'tutti');
+      // Ri-renderizza con filtri applicati (non ricarica da server)
+      if (window.allProformeData) {
+        renderProformaList(window.allProformeData);
+      }
+    });
+    console.log('✅ Event listener filtro anno configurato');
+  }
+  
+  const statoFilter = document.getElementById('filter-stato-proforma');
+  if (statoFilter) {
+    statoFilter.addEventListener('change', function() {
+      console.log('🏷️ Cambio filtro stato:', this.value || 'tutti');
+      // Ri-renderizza con filtri applicati (non ricarica da server)
+      if (window.allProformeData) {
+        renderProformaList(window.allProformeData);
+      }
+    });
+    console.log('✅ Event listener filtro stato configurato');
   }
 });
