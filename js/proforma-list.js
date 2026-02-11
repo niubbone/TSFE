@@ -1,8 +1,8 @@
 // =======================================================================
 // === LISTA PROFORMA EMESSE (VERSIONE ROBUSTA) ===
-// === VERSIONE: 3.1 FINALE ===
-// === Data: 10 Febbraio 2026 - Ore 16:00 ===
-// === FIX: formatDateItalian migliorato per date verbose GMT ===
+// === VERSIONE: 3.2 FINALE ===
+// === Data: 10 Febbraio 2026 - Ore 17:00 ===
+// === FIX: Layout compatto + Gestione numeri proforma convertiti in date ===
 // === Container: 'proforma-list-container' (NON 'proforma-lista-container') ===
 // === 7 Protezioni Anti-Stuck + Retry + Safety Timeout ===
 // =======================================================================
@@ -210,52 +210,47 @@ function renderProformaList(proformeList) {
     // PROTEZIONE 2: Rendering con try-catch per ogni card
     const html = proformeList.map((proforma, index) => {
       try {
-        const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 'badge-warning';
+        const badgeClass = proforma.stato === 'Fatturata' ? 'badge-success' : 
+                          proforma.stato === 'Pagata' ? 'badge-success' : 'badge-warning';
+        
         const dataFormatted = formatDateItalian(proforma.data);
         const importoFormatted = formatCurrency(proforma.importo);
         
+        // ✅ v3.2: Layout compatto come Cattura2.png
         return `
           <div class="proforma-card">
-            <div class="proforma-header">
-              <div class="proforma-number">
-                ${proforma.nProforma || 'N/A'}
-                <span class="badge ${badgeClass}">
-                  ${proforma.stato || 'Sconosciuto'}
-                </span>
+            <div class="proforma-header" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e9ecef;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-weight: bold; font-size: 16px;">${proforma.nProforma || 'N/A'}</span>
+                <span class="badge ${badgeClass}">${proforma.stato || 'Proforma'}</span>
               </div>
-              <div class="proforma-date">${dataFormatted}</div>
-              <div class="proforma-amount">${importoFormatted}</div>
+              <div style="text-align: right;">
+                <div style="font-size: 14px; color: #6c757d; margin-bottom: 4px;">${dataFormatted}</div>
+                <div style="font-weight: bold; font-size: 18px; color: #28a745;">${importoFormatted}</div>
+              </div>
             </div>
             
-            <div class="proforma-body">
-              <div class="proforma-info">
-                <span class="info-icon">👤</span>
-                <span>${proforma.cliente || 'Cliente non specificato'}</span>
+            <div class="proforma-body" style="padding: 12px 16px;">
+              <div class="proforma-info" style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span class="info-icon" style="margin-right: 8px;">👤</span>
+                <span style="font-weight: 500;">${proforma.cliente || 'Cliente non specificato'}</span>
               </div>
-              ${proforma.descrizione ? `
-                <div class="proforma-info">
-                  <span class="info-icon">📝</span>
-                  <span>${proforma.descrizione}</span>
+              
+              ${proforma.stato === 'Fatturata' || proforma.stato === 'Pagata' ? `
+                <div style="padding-top: 8px; border-top: 1px solid #e9ecef; margin-top: 8px; font-size: 13px; color: #6c757d;">
+                  Fattura: ${proforma.numeroFattura || 'N/A'}
+                  ${proforma.dataFattura ? ` (${formatDateItalian(proforma.dataFattura)})` : ''}
                 </div>
               ` : ''}
             </div>
             
-            ${proforma.stato !== 'Fatturata' ? `
-              <div class="proforma-actions">
-                <button class="btn-primary btn-small" onclick="openFatturaModal('${proforma.nProforma}')">
+            ${proforma.stato !== 'Fatturata' && proforma.stato !== 'Pagata' ? `
+              <div class="proforma-actions" style="padding: 12px 16px; border-top: 1px solid #e9ecef;">
+                <button class="btn-primary btn-small" onclick="openFatturaModal('${proforma.nProforma}')" style="width: 100%;">
                   📄 Emetti Fattura
                 </button>
               </div>
-            ` : `
-              <div class="proforma-footer">
-                <span class="info-label">Fattura:</span>
-                <span class="info-value">${proforma.numeroFattura || 'N/A'}</span>
-                ${proforma.dataFattura ? `
-                  <span class="info-label" style="margin-left: 16px;">Data:</span>
-                  <span class="info-value">${formatDateItalian(proforma.dataFattura)}</span>
-                ` : ''}
-              </div>
-            `}
+            ` : ''}
           </div>
         `;
       } catch (cardError) {
