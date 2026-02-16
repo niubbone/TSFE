@@ -258,7 +258,22 @@ function renderProformaList(proformeList) {
               <div class="proforma-actions" style="padding: 12px 16px; border-top: 1px solid #e9ecef;">
                 <div style="display: flex; gap: 8px;">
                   ${proforma.pdfFileId ? `
-                    <a href="https://drive.google.com/file/d/${proforma.pdfFileId}/view" target="_blank" class="btn-secondary btn-small" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">
+                    <a href="https://drive.google.com/file/d/${proforma.pdfFileId}/view" target="_blank" 
+                       style="flex: 1; 
+                              background: #28a745; 
+                              color: white; 
+                              border: none; 
+                              padding: 10px 16px; 
+                              border-radius: 6px; 
+                              font-size: 14px; 
+                              font-weight: 500;
+                              cursor: pointer;
+                              text-align: center; 
+                              text-decoration: none; 
+                              display: inline-flex;
+                              align-items: center;
+                              justify-content: center;
+                              transition: background 0.2s ease;">
                       📄 PDF
                     </a>
                   ` : ''}
@@ -269,7 +284,22 @@ function renderProformaList(proformeList) {
               </div>
             ` : proforma.pdfFileId ? `
               <div class="proforma-actions" style="padding: 12px 16px; border-top: 1px solid #e9ecef;">
-                <a href="https://drive.google.com/file/d/${proforma.pdfFileId}/view" target="_blank" class="btn-secondary btn-small" style="width: 100%; text-align: center; text-decoration: none; display: inline-block;">
+                <a href="https://drive.google.com/file/d/${proforma.pdfFileId}/view" target="_blank" 
+                   style="width: 100%; 
+                          background: #28a745; 
+                          color: white; 
+                          border: none; 
+                          padding: 10px 16px; 
+                          border-radius: 6px; 
+                          font-size: 14px; 
+                          font-weight: 500;
+                          cursor: pointer;
+                          text-align: center; 
+                          text-decoration: none; 
+                          display: inline-flex;
+                          align-items: center;
+                          justify-content: center;
+                          transition: background 0.2s ease;">
                   📄 Visualizza PDF
                 </a>
               </div>
