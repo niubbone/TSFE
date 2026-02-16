@@ -1,8 +1,8 @@
 // =======================================================================
 // === LISTA PROFORMA EMESSE (VERSIONE ROBUSTA) ===
-// === VERSIONE: 3.3 FINALE ===
-// === Data: 10 Febbraio 2026 - Ore 18:00 ===
-// === FIX: Sorting cronologico + Filtri anno dinamici ===
+// === VERSIONE: 3.4 FINALE ===
+// === Data: 10 Febbraio 2026 - Ore 19:00 ===
+// === FIX: Pulsante PDF + Campo Pagato salvato correttamente ===
 // === Container: 'proforma-list-container' (NON 'proforma-lista-container') ===
 // === 7 Protezioni Anti-Stuck + Retry + Safety Timeout ===
 // =======================================================================
@@ -256,9 +256,22 @@ function renderProformaList(proformeList) {
             
             ${proforma.stato !== 'Fatturata' && proforma.stato !== 'Pagata' ? `
               <div class="proforma-actions" style="padding: 12px 16px; border-top: 1px solid #e9ecef;">
-                <button class="btn-primary btn-small" onclick="openFatturaModal('${proforma.nProforma}')" style="width: 100%;">
-                  📄 Emetti Fattura
-                </button>
+                <div style="display: flex; gap: 8px;">
+                  ${proforma.pdfFileId ? `
+                    <a href="https://drive.google.com/file/d/${proforma.pdfFileId}/view" target="_blank" class="btn-secondary btn-small" style="flex: 1; text-align: center; text-decoration: none; display: inline-block;">
+                      📄 PDF
+                    </a>
+                  ` : ''}
+                  <button class="btn-primary btn-small" onclick="openFatturaModal('${proforma.nProforma}')" style="flex: 2;">
+                    📝 Emetti Fattura
+                  </button>
+                </div>
+              </div>
+            ` : proforma.pdfFileId ? `
+              <div class="proforma-actions" style="padding: 12px 16px; border-top: 1px solid #e9ecef;">
+                <a href="https://drive.google.com/file/d/${proforma.pdfFileId}/view" target="_blank" class="btn-secondary btn-small" style="width: 100%; text-align: center; text-decoration: none; display: inline-block;">
+                  📄 Visualizza PDF
+                </a>
               </div>
             ` : ''}
           </div>
@@ -309,8 +322,21 @@ function openFatturaModal(nProforma) {
   document.getElementById('fattura-proforma-number').textContent = nProforma;
   document.getElementById('fattura-n-proforma-hidden').value = nProforma;
   document.getElementById('fattura-numero-input').value = '';
-  document.getElementById('fattura-numero-input').focus();
   
+  // ✅ v3.3: Inizializza data fattura con oggi
+  const dataFatturaInput = document.getElementById('fattura-data-input');
+  if (dataFatturaInput) {
+    const oggi = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    dataFatturaInput.value = oggi;
+  }
+  
+  // ✅ v3.3: Deseleziona checkbox pagato
+  const pagatoCheckbox = document.getElementById('fattura-pagato-checkbox');
+  if (pagatoCheckbox) {
+    pagatoCheckbox.checked = false;
+  }
+  
+  document.getElementById('fattura-numero-input').focus();
   modal.classList.add('active');
 }
 
@@ -338,6 +364,13 @@ async function saveNumeroFattura(event) {
     return;
   }
   
+  // ✅ v3.3: Leggi checkbox pagato e data fattura
+  const pagatoCheckbox = document.getElementById('fattura-pagato-checkbox');
+  const dataFatturaInput = document.getElementById('fattura-data-input');
+  
+  const pagato = pagatoCheckbox ? pagatoCheckbox.checked : false;
+  const dataFattura = dataFatturaInput ? dataFatturaInput.value : '';
+  
   const submitBtn = document.getElementById('fattura-submit-btn');
   const originalText = submitBtn.textContent;
   submitBtn.disabled = true;
@@ -349,9 +382,14 @@ async function saveNumeroFattura(event) {
       throw new Error('API URL non configurato');
     }
     
-    const url = `${API_URL}?action=update_numero_fattura&n_proforma=${encodeURIComponent(nProforma)}&numero_fattura=${encodeURIComponent(numeroFattura)}`;
+    // ✅ v3.3: Aggiungi parametri pagato e data_fattura
+    let url = `${API_URL}?action=update_numero_fattura&n_proforma=${encodeURIComponent(nProforma)}&numero_fattura=${encodeURIComponent(numeroFattura)}&pagato=${pagato}`;
     
-    console.log('💾 Salvataggio fattura:', { nProforma, numeroFattura });
+    if (dataFattura && dataFattura.trim() !== '') {
+      url += `&data_fattura=${encodeURIComponent(dataFattura)}`;
+    }
+    
+    console.log('💾 Salvataggio fattura:', { nProforma, numeroFattura, pagato, dataFattura });
     
     const response = await fetch(url);
     const result = await response.json();
@@ -361,7 +399,7 @@ async function saveNumeroFattura(event) {
     }
     
     console.log('✅ Fattura salvata con successo');
-    alert(`✅ Fattura ${numeroFattura} registrata per proforma ${nProforma}`);
+    alert(`✅ Fattura ${numeroFattura} registrata per proforma ${nProforma}${pagato ? ' (Pagata)' : ''}`);
     closeFatturaModal();
     loadProformaList(); // Ricarica lista
     
