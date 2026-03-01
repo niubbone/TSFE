@@ -14,6 +14,14 @@ const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
+// API caching: azioni di lettura cacheable con TTL
+const CACHEABLE_ACTIONS = new Set([
+  'get_data', 'get_timesheet_da_fatturare', 'get_last_warning',
+  'get_canoni', 'get_canoni_da_fatturare', 'get_canoni_stats'
+]);
+const API_TTL       = 5 * 60 * 1000; // 5 minuti (default letture)
+const API_TTL_SHORT = 2 * 60 * 1000; // 2 minuti (get_last_warning)
+
 // Auto-detect base path (per GitHub Pages: /REPO/ o localhost: /)
 const BASE_PATH = self.location.pathname.split('/').filter(p => p)[0] ? `/${self.location.pathname.split('/').filter(p => p)[0]}/` : '/';
 
@@ -130,51 +138,85 @@ self.addEventListener('fetch', (event) => {
 });
 
 /**
+ * Estrae il parametro action dalla URL dell'API
+ */
+function getApiAction(url) {
+  return new URL(url).searchParams.get('action');
+}
+
+/**
+ * Restituisce il TTL in ms per l'action specificata
+ */
+function getApiTTL(action) {
+  return action === 'get_last_warning' ? API_TTL_SHORT : API_TTL;
+}
+
+/**
+ * Verifica se una risposta cached è ancora fresca (entro il TTL)
+ */
+function isCacheFresh(cachedResponse, ttlMs) {
+  const dateHeader = cachedResponse.headers.get('date');
+  if (!dateHeader) return false;
+  return (Date.now() - new Date(dateHeader).getTime()) < ttlMs;
+}
+
+/**
  * Handle API requests
- * Strategy: Network-first con fallback cache (per offline)
+ * - Write actions: solo rete, mai cache
+ * - Read actions: stale-while-revalidate con TTL
+ *   - Cache fresca → risposta immediata + aggiornamento in background
+ *   - Cache scaduta/assente → rete, poi cache
+ *   - Offline → cache disponibile o 503
  */
 async function handleApiRequest(request) {
+  const action = getApiAction(request.url);
+
+  // Write actions: sempre rete, niente cache
+  if (!CACHEABLE_ACTIONS.has(action)) {
+    try {
+      return await fetch(request);
+    } catch {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Offline', offline: true }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  }
+
+  // Read actions: stale-while-revalidate con TTL
+  const cached = await caches.match(request);
+  const ttl = getApiTTL(action);
+
+  if (cached && isCacheFresh(cached, ttl)) {
+    // Cache fresca: restituisci subito, aggiorna in background
+    fetch(request).then(r => {
+      if (r.ok) caches.open(API_CACHE).then(c => c.put(request, r));
+    }).catch(() => {});
+    return cached;
+  }
+
+  // Cache scaduta o assente: vai in rete
   try {
-    // Try network first
     const networkResponse = await fetch(request);
-    
-    // Se successo, aggiorna cache
     if (networkResponse.ok) {
       const cache = await caches.open(API_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
     return networkResponse;
-    
-  } catch (error) {
-    console.log('[SW] Network failed, using cache for:', request.url);
-    
-    // Fallback to cache
-    const cachedResponse = await caches.match(request);
-    
-    if (cachedResponse) {
-      // Add header to indicate offline mode
-      const headers = new Headers(cachedResponse.headers);
+  } catch {
+    // Offline: restituisci cache scaduta se disponibile
+    if (cached) {
+      const headers = new Headers(cached.headers);
       headers.append('X-Offline-Response', 'true');
-      
-      return new Response(cachedResponse.body, {
-        status: cachedResponse.status,
-        statusText: cachedResponse.statusText,
-        headers: headers
+      return new Response(cached.body, {
+        status: cached.status,
+        statusText: cached.statusText,
+        headers
       });
     }
-    
-    // Nessuna cache disponibile
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: 'Offline - nessuna cache disponibile',
-        offline: true
-      }),
-      {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      }
+      JSON.stringify({ success: false, error: 'Offline - nessuna cache disponibile', offline: true }),
+      { status: 503, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
