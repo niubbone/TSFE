@@ -1,19 +1,13 @@
 /**
  * Service Worker - CRM Studio Smart
- * 
- * ⚠️ VERSIONE: Cambia solo in version.js, poi aggiorna manualmente qui sotto
- * 
+ *
  * Strategia di caching:
  * - Static assets (HTML, CSS, JS): Cache-first
  * - API calls: Network-first con fallback cache
  * - Immagini: Cache-first con update in background
  */
 
-// ============================================
-// 🔢 VERSIONE - Copia da version.js quando aggiorni
-// ============================================
-const VERSION = '4.0.1';
-// ============================================
+import { VERSION } from './version.js';
 
 const CACHE_VERSION = `crm-v${VERSION}`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;

@@ -22,7 +22,8 @@
       const swPath = basePath === '/' ? '/service-worker.js' : `${basePath}service-worker.js`;
       
       const registration = await navigator.serviceWorker.register(swPath, {
-        scope: basePath
+        scope: basePath,
+        type: 'module'
       });
 
       console.log('✅ Service Worker registered:', registration.scope);
