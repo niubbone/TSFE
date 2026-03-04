@@ -209,6 +209,7 @@
 <div class="tabs">
     <button class="tab-button active" onclick="switchTab('timesheet')">⏱️ Timesheet</button>
     <button class="tab-button" onclick="switchTab('proforma')">📄 Proforma</button>
+    <button class="tab-button">🧾 Fatture</button>
     <button class="tab-button" onclick="switchTab('vendite')">🛒 Vendite</button>
     <button class="tab-button" onclick="switchTab('clienti')">👥 Clienti</button>
     <button class="tab-button" onclick="switchTab('utilities')">⚙️ Utilities</button>
@@ -496,6 +497,109 @@
     </div>
 </div>
 
+
+<!-- TAB FATTURE -->
+<div id="fatture-tab" class="tab-content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <h2 style="margin:0;font-size:20px;">🧾 Fatture Emesse</h2>
+    <button onclick="openNuovaFatturaModal()" style="background:#1976D2;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">➕ Nuova Fattura Diretta</button>
+  </div>
+  <div id="fatture-totali"></div>
+  <div style="background:#f8f9fa;border-radius:8px;padding:14px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+    <div>
+      <label style="font-size:12px;color:#6c757d;display:block;margin-bottom:4px;">Cliente</label>
+      <select id="fatture-filter-cliente" onchange="applyFattureFilters()" style="padding:7px 10px;border:1px solid #ced4da;border-radius:6px;font-size:14px;min-width:160px;">
+        <option value="">Tutti i clienti</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;color:#6c757d;display:block;margin-bottom:4px;">Anno</label>
+      <select id="fatture-filter-anno" onchange="applyFattureFilters()" style="padding:7px 10px;border:1px solid #ced4da;border-radius:6px;font-size:14px;">
+        <option value="">Tutti gli anni</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;color:#6c757d;display:block;margin-bottom:4px;">Stato</label>
+      <select id="fatture-filter-pagato" onchange="applyFattureFilters()" style="padding:7px 10px;border:1px solid #ced4da;border-radius:6px;font-size:14px;">
+        <option value="">Tutte</option>
+        <option value="NO">Da pagare</option>
+        <option value="SI">Pagate</option>
+      </select>
+    </div>
+    <button onclick="resetFattureFilters()" style="padding:7px 14px;background:#6c757d;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">✕ Reset</button>
+  </div>
+  <div id="fatture-list-container">
+    <div style="padding:30px;text-align:center;color:#6c757d;">Seleziona la tab per caricare le fatture</div>
+  </div>
+
+  <!-- Modal: Nuova Fattura Diretta -->
+  <div id="nuova-fattura-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="margin:0;">➕ Nuova Fattura Diretta</h3>
+        <button onclick="closeNuovaFatturaModal()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Numero Fattura *</label>
+        <input id="nf-numero" type="text" placeholder="es. 2025/001" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Data Fattura *</label>
+        <input id="nf-data" type="date" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Cliente *</label>
+        <select id="nf-cliente" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;">
+          <option value="">Seleziona cliente...</option>
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Imponibile (€) *</label>
+        <input id="nf-imponibile" type="number" step="0.01" min="0" placeholder="0.00" oninput="aggiornaCalcoloIVA()" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;" />
+        <div style="margin-top:8px;background:#f8f9fa;border-radius:6px;padding:10px;font-size:13px;display:flex;justify-content:space-between;">
+          <span>IVA 22%: <strong id="nf-iva-display">€ 0,00</strong></span>
+          <span>Totale: <strong id="nf-totale-display" style="color:#28a745;">€ 0,00</strong></span>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Descrizione / Causale</label>
+        <input id="nf-descrizione" type="text" placeholder="es. Consulenza informatica" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Note</label>
+        <textarea id="nf-note" rows="2" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closeNuovaFatturaModal()" style="flex:1;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;">Annulla</button>
+        <button id="nf-submit-btn" onclick="saveNuovaFattura(event)" style="flex:2;padding:10px;background:#1976D2;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">💾 Salva Fattura</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Registra Pagamento -->
+  <div id="pagamento-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:380px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="margin:0;">💳 Registra Pagamento</h3>
+        <button onclick="closePagamentoModal()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      </div>
+      <p style="margin-bottom:16px;color:#495057;">Fattura: <strong id="pag-n-fattura"></strong></p>
+      <input type="hidden" id="pag-n-fattura-hidden" />
+      <div style="margin-bottom:14px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Data Pagamento</label>
+        <input id="pag-data" type="date" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:5px;">Note (opzionale)</label>
+        <input id="pag-note" type="text" placeholder="es. Rif. bonifico XXXXX" style="width:100%;padding:9px 12px;border:1px solid #ced4da;border-radius:6px;font-size:14px;box-sizing:border-box;" />
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closePagamentoModal()" style="flex:1;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;">Annulla</button>
+        <button id="pag-submit-btn" onclick="savePagamento(event)" style="flex:2;padding:10px;background:#28a745;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">💳 Conferma Pagamento</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- TAB VENDITE -->
 <div id="vendite-tab" class="tab-content">
@@ -1052,6 +1156,7 @@
 <!-- JavaScript Modulare -->
 <script type="module" src="js/main.js"></script>
 <script src="js/vendite.js"></script>
+<script src="js/fatture.js"></script>
 <script type="module" src="js/clienti.js"></script>
 <script src="js/proforma-list.js"></script>
 

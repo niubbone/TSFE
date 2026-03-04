@@ -82,6 +82,11 @@ window.switchTab = function(tabName) {
         initVenditeTab();
       }
       break;
+    case 'fatture':
+      if (typeof initFattureTab === 'function') {
+        initFattureTab();
+      }
+      break;
   }
 };
 
@@ -122,6 +127,8 @@ function setupTabs() {
         tabName = 'proforma';
       } else if (btn.textContent.includes('Vendite')) {
         tabName = 'vendite';
+      } else if (btn.textContent.includes('Fatture')) {
+        tabName = 'fatture';
       } else if (btn.textContent.includes('Clienti')) {  // ✅ FIX: AGGIUNTO CASO CLIENTI
         tabName = 'clienti';
       } else if (btn.textContent.includes('Utilities')) {
