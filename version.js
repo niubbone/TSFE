@@ -17,7 +17,7 @@
 // ============================================
 // CAMBIA SOLO QUESTO NUMERO
 // ============================================
-export const VERSION = '4.2.6b';
+export const VERSION = '4.3.0';
 // ============================================
 
 // DOPO aver cambiato VERSION sopra:
@@ -29,17 +29,18 @@ export const VERSION = '4.2.6b';
 // Metadata versione (auto-generated)
 export const VERSION_INFO = {
   number: VERSION,
-  name: 'Cleanup Edition',
-  date: '17 Gennaio 2026',
-  codename: 'Refactor 2',
-  
+  name: 'Fatture Edition',
+  date: '5 Marzo 2026',
+  codename: 'Invoicing',
+
   // Changelog corrente versione
   changelog: [
-    'Micro-cache eliminata (-80 righe, bug risolto)',
-    'Campo descrizione in timesheet e email proforma',
-    'Console.log debug rimossi (console pulita)',
-    'Parametri API corretti (cliente vs client_name)',
-    'Helper condiviso Proforma (query 3->1)'
+    'Nuovo modulo Fatture: tab dedicata con lista, filtri e totali',
+    'Fatture da proforma: registrazione automatica alla fatturazione',
+    'Fatture dirette: inserimento senza proforma associata',
+    'Gestione pagamenti: segna pagata / annulla pagamento',
+    'Supporto note di credito: importi negativi con badge rosso',
+    'Backend: Fatture.js con tab Google Sheet dedicata (IVA 22%)'
   ],
   
   // Features principali
@@ -63,6 +64,20 @@ export const BUILD_INFO = {
 // CHANGELOG COMPLETO - Aggiungi nuove versioni QUI IN CIMA
 // ============================================
 export const CHANGELOG = [
+  {
+    version: "4.3.0",
+    date: "05/03/2026",
+    type: "feature",
+    changes: [
+      "Nuovo modulo Fatture: tab dedicata con lista, filtri cliente/anno/stato e totali",
+      "Fatture da proforma: registrazione automatica al momento della fatturazione",
+      "Fatture dirette: inserimento senza proforma con calcolo IVA 22% automatico",
+      "Gestione pagamenti: badge cliccabile per segnare pagata o annullare pagamento",
+      "Supporto note di credito: importi negativi con badge rosso e label dedicata",
+      "Backend: Fatture.js con tab Google Sheet 'Fatture' (12 colonne, IVA 22%)",
+      "Router backend: 3 nuovi endpoint (get_fatture_list, insert_fattura_diretta, update_pagamento_fattura)"
+    ]
+  },
   {
     version: "4.0.6",
     date: "28/12/2024",
