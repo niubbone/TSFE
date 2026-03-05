@@ -78,39 +78,34 @@ function renderFattureList(fatture) {
 function buildFatturaCard(f) {
   const isPagata  = f.pagato === 'SI';
   const isDiretta = !f.nProforma;
-  const badgeColor = isPagata ? '#28a745' : '#fd7e14';
-  const badgeText  = isPagata ? '✓ Pagata' : '⏳ Da pagare';
-  const tipoText   = isDiretta ? '📋 Diretta' : '📄 Da proforma ' + f.nProforma;
-  const tipoColor  = isDiretta ? '#6c757d' : '#1976D2';
+  const tipoText  = isDiretta ? '📋 Diretta' : '📄 Da proforma ' + f.nProforma;
+  const tipoColor = isDiretta ? '#6c757d' : '#1976D2';
+
+  const badgeStyle = isPagata
+    ? 'background:#28a745;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;'
+    : 'background:#fd7e14;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;';
+  const badgeText = isPagata ? '✓ Pagata' : '⏳ Da pagare';
+  const badgeAction = isPagata
+    ? `annullaPagamento('${f.nFattura.replace(/'/g, "\\'")}')`
+    : `openPagamentoModal('${f.nFattura.replace(/'/g, "\\'")}')`;
+
   return `
     <div style="background:#fff;border-radius:8px;border:1px solid #e9ecef;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f0f0f0;">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
           <span style="font-weight:700;font-size:16px;">${f.nFattura}</span>
-          <span style="background:${badgeColor};color:#fff;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${badgeText}</span>
+          <button onclick="${badgeAction}" style="${badgeStyle}">${badgeText}</button>
           <span style="color:${tipoColor};font-size:12px;">${tipoText}</span>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;color:#6c757d;">${f.dataFattura || '—'}</div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:12px;color:#6c757d;">${f.dataFattura || '—'}</div>
           <div style="font-weight:700;font-size:18px;color:#212529;">€ ${formatFattureNum(f.totale)}</div>
         </div>
       </div>
-      <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+      <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
         <div><span style="font-size:13px;color:#6c757d;">👤 </span><span style="font-weight:500;">${f.nomeCliente || '—'}</span></div>
-        <div style="font-size:13px;color:#6c757d;">Totale fattura: <strong style="color:#212529;">€ ${formatFattureNum(f.totale)}</strong></div>
-        ${f.descrizione ? `<div style="font-size:13px;color:#495057;flex:1;min-width:150px;">${f.descrizione}</div>` : ''}
-        ${isPagata && f.dataPagamento ? `<div style="font-size:12px;color:#28a745;">Pagata il ${f.dataPagamento}</div>` : ''}
-      </div>
-      <div style="padding:10px 16px;border-top:1px solid #f0f0f0;">
-        ${!isPagata
-          ? `<button onclick="openPagamentoModal('${f.nFattura.replace(/'/g, "\\'")}')"
-               style="background:#28a745;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">
-               💳 Segna come Pagata
-             </button>`
-          : `<button onclick="annullaPagamento('${f.nFattura.replace(/'/g, "\\'")}')"
-               style="background:#f8f9fa;color:#6c757d;border:1px solid #ced4da;padding:8px 18px;border-radius:6px;font-size:13px;cursor:pointer;">
-               ↩ Annulla pagamento
-             </button>`}
+        ${f.descrizione ? `<div style="font-size:13px;color:#6c757d;margin-left:8px;">${f.descrizione}</div>` : ''}
+        ${isPagata && f.dataPagamento ? `<div style="font-size:12px;color:#28a745;margin-left:8px;">Pagata il ${f.dataPagamento}</div>` : ''}
       </div>
     </div>`;
 }
