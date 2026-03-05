@@ -80,11 +80,12 @@ function buildFatturaCard(f) {
   const isDiretta = !f.nProforma;
   const tipoText  = isDiretta ? '📋 Diretta' : '📄 Da proforma ' + f.nProforma;
   const tipoColor = isDiretta ? '#6c757d' : '#1976D2';
+  const isNC      = f.totale < 0;
 
   const badgeStyle = isPagata
     ? 'background:#28a745;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;'
     : 'background:#fd7e14;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;';
-  const badgeText = isPagata ? '✓ Pagata' : '⏳ Da pagare';
+  const badgeText   = isPagata ? '✓ Pagata' : '⏳ Da pagare';
   const badgeAction = isPagata
     ? `annullaPagamento('${f.nFattura.replace(/'/g, "\\'")}')`
     : `openPagamentoModal('${f.nFattura.replace(/'/g, "\\'")}')`;
@@ -96,15 +97,15 @@ function buildFatturaCard(f) {
           <span style="font-weight:700;font-size:16px;">${f.nFattura}</span>
           <button onclick="${badgeAction}" style="${badgeStyle}">${badgeText}</button>
           <span style="color:${tipoColor};font-size:12px;">${tipoText}</span>
+          ${isNC ? `<span style="color:#dc3545;font-size:12px;font-weight:600;">📝 Nota di credito</span>` : ''}
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-size:12px;color:#6c757d;">${f.dataFattura || '—'}</div>
-          <div style="font-weight:700;font-size:18px;color:#212529;">€ ${formatFattureNum(f.totale)}</div>
+          <div style="font-weight:700;font-size:18px;color:${isNC ? '#dc3545' : '#212529'};">€ ${formatFattureNum(f.totale)}</div>
         </div>
       </div>
       <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
         <div><span style="font-size:13px;color:#6c757d;">👤 </span><span style="font-weight:500;">${f.nomeCliente || '—'}</span></div>
-        ${f.descrizione ? `<div style="font-size:13px;color:#6c757d;margin-left:8px;">${f.descrizione}</div>` : ''}
         ${isPagata && f.dataPagamento ? `<div style="font-size:12px;color:#28a745;margin-left:8px;">Pagata il ${f.dataPagamento}</div>` : ''}
       </div>
     </div>`;
