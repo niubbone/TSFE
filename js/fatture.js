@@ -61,7 +61,18 @@ function renderFattureList(fatture) {
     container.innerHTML = '<div style="padding:40px;text-align:center;color:#6c757d;"><div style="font-size:48px;margin-bottom:12px;">🧾</div><p style="font-weight:bold;">Nessuna fattura trovata</p><p style="font-size:14px;">Prova a modificare i filtri o aggiungi una nuova fattura</p></div>';
     return;
   }
-  container.innerHTML = fatture.map(f => buildFatturaCard(f)).join('');
+  const sorted = [...fatture].sort((a, b) => {
+    const pa = a.dataFattura ? a.dataFattura.split('/').reverse().join('') : '0';
+    const pb = b.dataFattura ? b.dataFattura.split('/').reverse().join('') : '0';
+    if (pb !== pa) return pb.localeCompare(pa);
+    const getKey = (nf) => {
+      const anno = (nf.match(/-(\d{4})$/) || ['','0000'])[1];
+      const num  = (nf.match(/^(\d+)/)    || ['','0'])[1].padStart(6,'0');
+      return anno + num;
+    };
+    return getKey(b.nFattura).localeCompare(getKey(a.nFattura));
+  });
+  container.innerHTML = sorted.map(f => buildFatturaCard(f)).join('');
 }
 
 function buildFatturaCard(f) {
@@ -86,17 +97,21 @@ function buildFatturaCard(f) {
       </div>
       <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
         <div><span style="font-size:13px;color:#6c757d;">👤 </span><span style="font-weight:500;">${f.nomeCliente || '—'}</span></div>
-        <div style="font-size:13px;color:#6c757d;">Imponibile: <strong style="color:#212529;">€ ${formatFattureNum(f.imponibile)}</strong> + IVA 22%: <strong style="color:#212529;">€ ${formatFattureNum(f.iva)}</strong></div>
+        <div style="font-size:13px;color:#6c757d;">Totale fattura: <strong style="color:#212529;">€ ${formatFattureNum(f.totale)}</strong></div>
         ${f.descrizione ? `<div style="font-size:13px;color:#495057;flex:1;min-width:150px;">${f.descrizione}</div>` : ''}
         ${isPagata && f.dataPagamento ? `<div style="font-size:12px;color:#28a745;">Pagata il ${f.dataPagamento}</div>` : ''}
       </div>
-      ${!isPagata ? `
-        <div style="padding:10px 16px;border-top:1px solid #f0f0f0;">
-          <button onclick="openPagamentoModal('${f.nFattura.replace(/'/g, "\\'")}')"
-            style="background:#28a745;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">
-            💳 Segna come Pagata
-          </button>
-        </div>` : ''}
+      <div style="padding:10px 16px;border-top:1px solid #f0f0f0;">
+        ${!isPagata
+          ? `<button onclick="openPagamentoModal('${f.nFattura.replace(/'/g, "\\'")}')"
+               style="background:#28a745;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;">
+               💳 Segna come Pagata
+             </button>`
+          : `<button onclick="annullaPagamento('${f.nFattura.replace(/'/g, "\\'")}')"
+               style="background:#f8f9fa;color:#6c757d;border:1px solid #ced4da;padding:8px 18px;border-radius:6px;font-size:13px;cursor:pointer;">
+               ↩ Annulla pagamento
+             </button>`}
+      </div>
     </div>`;
 }
 
@@ -290,6 +305,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+async function annullaPagamento(nFattura) {
+  if (!confirm('Annullare il pagamento della fattura ' + nFattura + '?')) return;
+  try {
+    const API_URL = window.CONFIG?.APPS_SCRIPT_URL;
+    const params = new URLSearchParams({ action: 'update_pagamento_fattura', n_fattura: nFattura, pagato: 'false' });
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error);
+    loadFattureList();
+  } catch(error) {
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
 window.loadFattureList        = loadFattureList;
 window.initFattureTab         = initFattureTab;
 window.applyFattureFilters    = applyFattureFilters;
@@ -301,3 +330,4 @@ window.saveNuovaFattura       = saveNuovaFattura;
 window.openPagamentoModal     = openPagamentoModal;
 window.closePagamentoModal    = closePagamentoModal;
 window.savePagamento          = savePagamento;
+window.annullaPagamento       = annullaPagamento;
