@@ -105,7 +105,7 @@ function buildFatturaCard(f) {
         </div>
       </div>
       <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-        <div><span style="font-size:13px;color:#6c757d;">👤 </span><span style="font-weight:500;">${f.nomeCliente || '—'}</span></div>
+        <div><span style="font-size:13px;color:#6c757d;">👤 </span><span style="font-weight:600;color:#1976D2;">${f.nomeCliente || '—'}</span></div>
         ${isPagata && f.dataPagamento ? `<div style="font-size:12px;color:#28a745;margin-left:8px;">Pagata il ${f.dataPagamento}</div>` : ''}
       </div>
     </div>`;
